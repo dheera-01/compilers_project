@@ -74,7 +74,7 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
             elif isinstance(eval_left, Fraction) and isinstance(eval_right, Fraction):
                 return eval_left + eval_right
             else:
-                raise InvalidProgram()
+                raise InvalidProgram(f"{type(eval_left)} and {type(eval_right)} cannot be added together")
         case BinOp("-", left, right):
             eval_left = eval(left, environment)
             eval_right = eval(right, environment)
