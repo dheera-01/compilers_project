@@ -1,4 +1,4 @@
-x = 5
+x = .2
 y = 7
 z= x + y
 for x in [(){}]  range "1"

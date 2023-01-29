@@ -161,6 +161,7 @@ class Lexer:
                             else:
                                 st = st + c
                         except EndOfStream:
+                            print(st)
                             raise TokenError("Unterminated string literal")
                 case c if c == "'":
                     st = ''
@@ -172,8 +173,23 @@ class Lexer:
                             else:
                                 st = st + c
                         except EndOfStream:
+                            print(st)
                             raise TokenError("Unterminated string literal")
 
+                case c if c == ".":
+                    n = str(0)
+                    n = n + c
+                    while True:
+                        c = self.stream.next_char()
+                        if c.isdigit():
+                            n += c
+                        elif c == ".":
+                            raise TokenError(f"{n+c} Invalid number")
+                        else:
+                            self.stream.unget()
+                            return floatLiteral(float(n))
+                    pass
+                    
                 # reading the numbers
                 case c if c.isdigit():
                     n = int(c)
@@ -182,6 +198,18 @@ class Lexer:
                             c = self.stream.next_char()
                             if c.isdigit():
                                 n = n*10 + int(c)
+                            elif c == ".":
+                                n = str(n)
+                                n = n + c
+                                while True:
+                                    c = self.stream.next_char()
+                                    if c.isdigit():
+                                        n += c
+                                    elif c == ".":
+                                        raise TokenError(f"{n+c} Invalid number")
+                                    else:
+                                        self.stream.unget()
+                                        return floatLiteral(float(n))
                             else:
                                 self.stream.unget()
                                 return NumLiteral(n)
