@@ -6,21 +6,30 @@ from typing import Optional, NewType
 @dataclass
 class NumLiteral:
     _number: int
+    
+    def __repr__(self) -> str:
+        return f"NumLiteral({self._number})"
 
 
 @dataclass
 class floatLiteral:
     _float: float
+    def __repr__(self) -> str:
+        return f"floatLiteral({self._float})"
 
 
 @dataclass
 class Bool:
     _bool: bool
+    def __repr__(self) -> str:
+        return f"Bool({self._bool})"
 
 
 @dataclass
 class Keyword:
     _keyword: str
+    def __repr__(self) -> str:
+        return f"Keyword({self._keyword})"
 
 # variable names are identifiers
 
@@ -28,19 +37,31 @@ class Keyword:
 @dataclass
 class Identifier:
     _variable: str
+    def __repr__(self) -> str:
+        return f"Identifier({self._variable})"
 
 
 @dataclass
 class Operator:
     _operator: str
+    def __repr__(self) -> str:
+        return f"Operator({self._operator})"
 
 
 @ dataclass
 class StringLiteral:
     _string: str
+    def __repr__(self) -> str:
+        return f"StringLiteral({self._string})"
 
 
-Token = NumLiteral | floatLiteral | Bool | Keyword | Identifier | Operator | StringLiteral
+@dataclass
+class Bracket:
+    _bracket: str
+    def __repr__(self) -> str:
+        return f"Bracket({self._bracket})"
+
+Token = NumLiteral | floatLiteral | Bool | Keyword | Identifier | Operator | StringLiteral | Bracket
 
 
 class EndOfStream(Exception):
@@ -76,6 +97,9 @@ class EndOfTokens(Exception):
 keywords = "if then else end while for do done let".split()
 symbolic_operators = "+ - * / % // ** < > <= >= == !=  << >> =".split()
 word_operators = "and or not is in".split()
+opening_brackets = "( [ { ".split()
+closing_brackets = ") ] }".split()
+
 whitespace = " \t\n"
 
 
@@ -93,6 +117,11 @@ def word_to_token(word):
 
 class TokenError(Exception):
     pass
+
+
+# bracket matching list
+bracket_track_list = []
+bracket_map = {')': '(', '}': '{', ']': '['}
 
 
 @dataclass
@@ -159,6 +188,17 @@ class Lexer:
                         except EndOfStream:
                             return NumLiteral(n)
 
+                # bracket and bracket matching
+                case c if c in opening_brackets:
+                    bracket_track_list.append(c)
+                    return Bracket(c)
+                case c if c in closing_brackets:
+                    temp = c
+                    if len(bracket_track_list) == 0 or bracket_map[c] != bracket_track_list.pop():
+                        print(Bracket(c))
+                        raise TokenError(f"{c} Unmatched closing bracket")
+                    return Bracket(c)
+                
                 # reading the identifiers
                 case c if c.isalpha() or c == "_":
                     s = c
@@ -206,10 +246,14 @@ class Lexer:
         try:
             return self.next_token()
         except EndOfTokens:
+            if len(bracket_track_list) != 0:
+                raise TokenError(f"{' '.join(bracket_track_list)} : Unmatched opening bracket")
             raise StopIteration
 
+if __name__ == "__main__":
+    
 
-file = open("program.txt", "r")
-program= file.read()
-for i in Lexer.from_stream(Stream.from_string(program)):
-    print(i)
+    file = open("program.txt", "r")
+    program= file.read()
+    for i in Lexer.from_stream(Stream.from_string(program)):
+        print(i)
