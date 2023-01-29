@@ -1,0 +1,6 @@
+x = 5
+y = 7
+z= x + y
+for x in    rnage "1"
+if x<==    4
+else y     ==    7
