@@ -6,7 +6,7 @@ from typing import Optional, NewType
 @dataclass
 class NumLiteral:
     _number: int
-    
+
     def __repr__(self) -> str:
         return f"NumLiteral({self._number})"
 
@@ -14,6 +14,7 @@ class NumLiteral:
 @dataclass
 class floatLiteral:
     _float: float
+
     def __repr__(self) -> str:
         return f"floatLiteral({self._float})"
 
@@ -21,6 +22,7 @@ class floatLiteral:
 @dataclass
 class Bool:
     _bool: bool
+
     def __repr__(self) -> str:
         return f"Bool({self._bool})"
 
@@ -28,6 +30,7 @@ class Bool:
 @dataclass
 class Keyword:
     _keyword: str
+
     def __repr__(self) -> str:
         return f"Keyword({self._keyword})"
 
@@ -37,6 +40,7 @@ class Keyword:
 @dataclass
 class Identifier:
     _variable: str
+
     def __repr__(self) -> str:
         return f"Identifier({self._variable})"
 
@@ -44,6 +48,7 @@ class Identifier:
 @dataclass
 class Operator:
     _operator: str
+
     def __repr__(self) -> str:
         return f"Operator({self._operator})"
 
@@ -51,6 +56,7 @@ class Operator:
 @ dataclass
 class StringLiteral:
     _string: str
+
     def __repr__(self) -> str:
         return f"StringLiteral({self._string})"
 
@@ -58,15 +64,34 @@ class StringLiteral:
 @dataclass
 class Bracket:
     _bracket: str
+
     def __repr__(self) -> str:
         return f"Bracket({self._bracket})"
-    
+
+
 @dataclass
 class Comments:
     _comment: str
+
     def __repr__(self) -> str:
         return f"Comments({self._comment})"
-    
+
+
+@dataclass
+class EndOfLine:
+    _eol: str
+
+    def __repr__(self) -> str:
+        return f"EndOfLine({self._eol})"
+
+
+@dataclass
+class EndOfFile:
+    _eof: str
+
+    def __repr__(self) -> str:
+        return f"EndOfFile({self._eof})"
+
 
 Token = NumLiteral | floatLiteral | Bool | Keyword | Identifier | Operator | StringLiteral | Bracket
 
@@ -96,13 +121,9 @@ class Stream:
         assert self.pos > 0
         self.pos = self.pos - 1
 
-# Define the token types.
-class EndOfTokens(Exception):
-    pass
-
 
 keywords = "if then else end while for do done let".split()
-symbolic_operators = "+ - * / % // ** < > <= >= == !=  << >> =".split()
+symbolic_operators = "+ - * / % // ** < > <= >= == !=  << >> = ++ -- += -= *= /= %= //= **=".split()
 word_operators = "and or not is in".split()
 opening_brackets = "( [ { ".split()
 closing_brackets = ") ] }".split()
@@ -120,6 +141,11 @@ def word_to_token(word):
     if word == "False":
         return Bool(False)
     return Identifier(word)
+
+
+# Define the token types.
+class EndOfTokens(Exception):
+    pass
 
 
 class TokenError(Exception):
@@ -143,19 +169,28 @@ class Lexer:
         try:
             match self.stream.next_char():
 
-                
+                # reading the end of line
+                case c if c == ";":
+                    return EndOfLine(c)
+                    pass
                 # reading the commenrts:
                 case c if c == "#":
                     cmt = ""
                     while True:
                         c = self.stream.next_char()
-                        if c =="\n":
+                        if c == "\n":
                             return Comments(cmt)
                         cmt = cmt + c
                     pass
-        
-                
+
                 # reading the operators
+                # special case !=
+                case c if c == "!":
+                    s = self.stream.next_char()
+                    if c+s in symbolic_operators:
+                        return Operator(c+s)
+                    raise TokenError(f"{c+s} is an Invalid operator")
+
                 case c if c in symbolic_operators:
                     while True:
                         s = self.stream.next_char()
@@ -208,7 +243,7 @@ class Lexer:
                             self.stream.unget()
                             return floatLiteral(float(n))
                     pass
-                    
+
                 # reading the numbers
                 case c if c.isdigit():
                     n = int(c)
@@ -225,7 +260,8 @@ class Lexer:
                                     if c.isdigit():
                                         n += c
                                     elif c == ".":
-                                        raise TokenError(f"{n+c} Invalid number")
+                                        raise TokenError(
+                                            f"{n+c} Invalid number")
                                     else:
                                         self.stream.unget()
                                         return floatLiteral(float(n))
@@ -245,7 +281,7 @@ class Lexer:
                         print(Bracket(c))
                         raise TokenError(f"{c} Unmatched closing bracket")
                     return Bracket(c)
-                
+
                 # reading the identifiers
                 case c if c.isalpha() or c == "_":
                     s = c
@@ -272,7 +308,7 @@ class Lexer:
             return self.save
         self.save = self.next_token()
         return self.save
-    
+
     # consume the current token
     def advance(self):
         assert self.save is not None
@@ -297,13 +333,41 @@ class Lexer:
             return self.next_token()
         except EndOfTokens:
             if len(bracket_track_list) != 0:
-                raise TokenError(f"{' '.join(bracket_track_list)} : Unmatched opening bracket")
+                raise TokenError(
+                    f"{' '.join(bracket_track_list)} : Unmatched opening bracket")
             raise StopIteration
 
+
+@dataclass
+class Instrution:
+    # 2d list of statements which make up the program and made of list of tokens
+    instruction_lists = []
+
+    def form_instrutctions_of(self, t):
+        self.instruction_lists.append(list([]))
+        for i in Lexer.from_stream(Stream.from_string(t)):
+            if isinstance(i, Comments):
+                pass
+            elif isinstance(i, EndOfLine):
+                self.instruction_lists[-1].append(i)
+                self.instruction_lists.append(list([]))
+            else:             
+                self.instruction_lists[-1].append(i)
+        self.instruction_lists[-1].append(EndOfFile("EOF"))
+
+    def print_instrutions(self):
+        print("Instruction:")
+        for i in range(len(self.instruction_lists)):
+            print(self.instruction_lists[i])
+            pass
+
+
 if __name__ == "__main__":
-    
 
     file = open("program.txt", "r")
-    program= file.read()
-    for i in Lexer.from_stream(Stream.from_string(program)):
-        print(i)
+    program = file.read()
+    # for i in Lexer.from_stream(Stream.from_string(program)):
+    #     print(i)
+    ins = Instrution()
+    ins.form_instrutctions_of(program)
+    ins.print_instrutions()
