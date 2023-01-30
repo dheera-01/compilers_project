@@ -60,6 +60,13 @@ class Bracket:
     _bracket: str
     def __repr__(self) -> str:
         return f"Bracket({self._bracket})"
+    
+@dataclass
+class Comments:
+    _comment: str
+    def __repr__(self) -> str:
+        return f"Comments({self._comment})"
+    
 
 Token = NumLiteral | floatLiteral | Bool | Keyword | Identifier | Operator | StringLiteral | Bracket
 
@@ -136,6 +143,18 @@ class Lexer:
         try:
             match self.stream.next_char():
 
+                
+                # reading the commenrts:
+                case c if c == "#":
+                    cmt = ""
+                    while True:
+                        c = self.stream.next_char()
+                        if c =="\n":
+                            return Comments(cmt)
+                        cmt = cmt + c
+                    pass
+        
+                
                 # reading the operators
                 case c if c in symbolic_operators:
                     while True:
@@ -247,16 +266,19 @@ class Lexer:
         except EndOfStream:
             raise EndOfTokens(f"End of tokens reached")
 
-    def peek_token(self) -> Token:
+    # see the current token without consuming it
+    def peek_current_token(self) -> Token:
         if self.save is not None:
             return self.save
         self.save = self.next_token()
         return self.save
-
+    
+    # consume the current token
     def advance(self):
         assert self.save is not None
         self.save = None
 
+    # match the current token against the expected token and consume it
     def match(self, expected):
         if self.peek_token() == expected:
             return self.advance()
