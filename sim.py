@@ -124,8 +124,11 @@ def test_print():
 
     # Check on binop
     e4 = BinOp("+", e1, e2)
-    assert eval(Print(e4)) == Fraction(7, 1)
+    assert eval(Print()) == Fraction(7, 1)
 
+    # Check on binop with print and nested print
+    assert eval(Print(eval(Print(e4)))) == Fraction(7, 1)
+    assert eval(BinOp("+",Print(e4),e1)) == Fraction(9, 1)
     
 def test_assignment():
     a  = Variable("a")
