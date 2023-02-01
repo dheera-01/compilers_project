@@ -31,7 +31,8 @@ class Let:
 
 @dataclass
 class Print:
-    value: 'AST'
+    val: 'AST'
+    
 
 @dataclass
 class Assignment:
@@ -41,17 +42,10 @@ class Assignment:
 
 AST = NumLiteral | BinOp | Variable | Let | Print | StringLiteral | Assignment
 
-Value = Fraction | str
+Value = Fraction | str | NumLiteral | StringLiteral | BinOp
 
 class InvalidProgram(Exception):
     pass
-
-def PrintHelper(value):
-    if isinstance(value, NumLiteral) or isinstance(value, StringLiteral) or isinstance(value, BinOp):
-        print(eval(value))
-        return eval(value)
-    else:
-        raise InvalidProgram()
 
 
 def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
@@ -66,8 +60,13 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
             if name in environment:
                 return environment[name]
             raise InvalidProgram()
-        case Print(value):
-            return PrintHelper(value)
+        case Print(val):
+            # The print function will print the evaluated value of val and return the AST val
+            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral) or isinstance(val, BinOp):
+                print(eval(val))
+                return val
+            else:
+                raise InvalidProgram()
         case Assignment("=", left, right):
             right_val = eval(right)
             environment[left.name] = right_val
@@ -115,20 +114,24 @@ def test_print():
     # Check on number literal
     e1 = NumLiteral(2)
     e2 = NumLiteral(5)
-    assert eval(Print(e2)) == Fraction(5, 1)
-    assert eval(Print(e1)) == Fraction(2, 1)
+    
+    assert eval(eval(Print(e2))) == 5
+    assert eval(eval(Print(e1))) == 2
 
     # Check on string literal
     e3 = StringLiteral("Hello")
-    assert eval(Print(e3)) == "Hello"
+    assert eval(eval(Print(e3))) == "Hello"
 
     # Check on binop
     e4 = BinOp("+", e1, e2)
-    assert eval(Print()) == Fraction(7, 1)
+    assert eval(eval(Print(e4))) == 7
 
     # Check on binop with print and nested print
-    assert eval(Print(eval(Print(e4)))) == Fraction(7, 1)
+    assert eval(eval(Print(eval(Print(e4))))) == Fraction(7, 1)
+
     assert eval(BinOp("+",eval(Print(e4)),e1)) == Fraction(9, 1)
+
+    assert eval(BinOp("+", eval(Print(e2)), eval(Print(e1)))) == Fraction(7, 1)
     
 def test_assignment():
     a  = Variable("a")
