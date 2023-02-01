@@ -12,19 +12,19 @@ class NumLiteral:
 
 
 @dataclass
-class floatLiteral:
+class FloatLiteral:
     _float: float
 
     def __repr__(self) -> str:
-        return f"floatLiteral({self._float})"
+        return f"FloatLiteral({self._float})"
 
 
 @dataclass
-class Bool:
+class BoolLiteral:
     _bool: bool
 
     def __repr__(self) -> str:
-        return f"Bool({self._bool})"
+        return f"BoolLiteral({self._bool})"
 
 
 @dataclass
@@ -93,7 +93,7 @@ class EndOfFile:
         return f"EndOfFile({self._eof})"
 
 
-Token = NumLiteral | floatLiteral | Bool | Keyword | Identifier | Operator | StringLiteral | Bracket
+Token = NumLiteral | FloatLiteral | BoolLiteral | Keyword | Identifier | Operator | StringLiteral | Bracket
 
 
 class EndOfStream(Exception):
@@ -137,9 +137,9 @@ def word_to_token(word):
     if word in word_operators:
         return Operator(word)
     if word == "True":
-        return Bool(True)
+        return BoolLiteral(True)
     if word == "False":
-        return Bool(False)
+        return BoolLiteral(False)
     return Identifier(word)
 
 
@@ -241,7 +241,7 @@ class Lexer:
                             raise TokenError(f"{n+c} Invalid number")
                         else:
                             self.stream.unget()
-                            return floatLiteral(float(n))
+                            return FloatLiteral(float(n))
                     pass
 
                 # reading the numbers
@@ -264,7 +264,7 @@ class Lexer:
                                             f"{n+c} Invalid number")
                                     else:
                                         self.stream.unget()
-                                        return floatLiteral(float(n))
+                                        return FloatLiteral(float(n))
                             else:
                                 self.stream.unget()
                                 return NumLiteral(n)
@@ -316,9 +316,10 @@ class Lexer:
 
     # match the current token against the expected token and consume it
     def match(self, expected):
-        if self.peek_token() == expected:
+        if self.peek_current_token() == expected:
             return self.advance()
-        raise TokenError()
+
+        raise TokenError(f"{self.peek_current_token()} is not {expected}")
 
     # __iter__ and __next__ are used to make the Lexer iterable
     # __iter__ returns the object itself
@@ -351,7 +352,7 @@ class Instrution:
             elif isinstance(i, EndOfLine):
                 self.instruction_lists[-1].append(i)
                 self.instruction_lists.append(list([]))
-            else:             
+            else:
                 self.instruction_lists[-1].append(i)
         self.instruction_lists[-1].append(EndOfFile("EOF"))
 
