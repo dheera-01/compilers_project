@@ -146,3 +146,8 @@ def test_strings():
     e8 = NumLiteral(1)
     e9 = Slice(e5,e6,e7,e8)
     assert eval(e9) == "llo"
+
+    e10 = NumLiteral(2)
+    e11 = StrLiteral("Hello")
+    e12 = BinOp("+",e11,e10)
+    assert eval(e12) == "Hello2"
