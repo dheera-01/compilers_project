@@ -1,1 +1,1 @@
-peek_current_token
+print("Token Error:", Exception)

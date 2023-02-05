@@ -1,13 +1,7 @@
-True
-x = 1;
-y = .2; 12.336;
-
-
-
-True ture false False;
-"Chirag" 'Sarda';
-{ !=;
-= += -= *= /= %=};
-# helllo how are you
-# i am fine
-{print("hello world")};
+a1 = "chirag";
+# i mane is chirag
+_    =                       false   true 
+if then else while
++ - * / % // ** < > <= >= == !=  << >> = ++ -- += -= *= /= %= //= **=
+12 12.5 0.5 .5
+({}[])

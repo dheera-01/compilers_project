@@ -1,27 +1,43 @@
 from my_lexer import *
 from dataclasses import dataclass
 # from fractions import Fraction
-from sim import eval, AST, InvalidProgram, BinOp, ComparisonOp, IfElse, Let, Value
+from sim import *
+import sys
 
 
 class EndOfLineErrror(Exception):
     pass
 
+
 @dataclass
 class Parser:
     lexer: Lexer
 
-    def from_lexer(lexer):
-        return Parser(lexer)
+    def from_lexer(_lexer):
+        """give a tokens (lexer output ) to the parser
+
+        Args:
+            Lexer: lexer output
+
+        Returns:
+            Parser: parser object
+        """
+        return Parser(_lexer)
 
     def parse_if(self):
+        """parse if else statement
+
+        Returns:
+            IfElse AST: return AST of if else statement
+        """
         t = StringLiteral("Chirag")
         self.lexer.match(Keyword("if"))
-        c = self.parse_expr() # parse the condition
+        c = self.parse_expr()  # parse the condition
         if_branch = self.parse_expr()
         self.lexer.match(Keyword("else"))
         else_branch = self.parse_expr()
-        print(c, if_branch, else_branch)
+        # print(c, if_branch, else_branch)
+
         return IfElse(c, if_branch, else_branch)
 
     # def parse_while(self):
@@ -32,16 +48,18 @@ class Parser:
     #     self.lexer.match(Keyword("done"))
     #     return While(c, b)
 
-
     def parse_atom(self):
-        print("parse_atom")
+        """parse the atomic expression"""
         match self.lexer.peek_current_token():
+
             case Identifier(name):
                 self.lexer.advance()
                 return Identifier(name)
+            case StringLiteral(value):
+                self.lexer.advance()
+                return StringLiteral(value)
             case NumLiteral(value):
                 self.lexer.advance()
-                print("parse_atom", value)
                 return NumLiteral(value)
             case FloatLiteral(value):
                 self.lexer.advance()
@@ -50,81 +68,163 @@ class Parser:
                 self.lexer.advance()
                 return BoolLiteral(value)
             case Bracket("(") | Bracket("[") | Bracket("{"):
-                print(self.lexer.peek_current_token())
-                self.lexer.advance() # consume the opening bracket
-                ans = self.parse_expr() # calculating the expression inside the brackets
-                self.lexer.advance() # consume the closing bracket
-                print(ans)
+                self.lexer.advance()  # consume the opening bracket
+                ans = self.parse_expr()  # calculating the expression inside the brackets
+                self.lexer.advance()  # consume the closing bracket
                 return ans
-                
-            
-    def parse_mult(self):
-        print("parse_mult")
+
+    def parse_exponent(self):
+        """parse the exponent operator, this is right associative
+
+        Returns:
+            AST: return AST of the exponent operation
+        """
+
+        temp = []
         left = self.parse_atom()
-        try: 
+        temp.append(left)
+        while True:
+            match self.lexer.peek_current_token():
+                case Operator(op) if op == "**":
+                    self.lexer.advance()
+                    m = self.parse_atom()
+                    temp.append(m)
+                case _:
+                    break
+
+        # making the exponent right associative
+        left = temp.pop()
+        while len(temp) > 0:
+            left = BinOp( temp.pop(), "**",left)
+        return left
+
+    def parse_uniary(self):
+        """parse the uniary operator, this is left associative
+
+        Returns:
+            AST: return AST of the uniory operation
+        """
+
+        # uniary operator is left associative 
+        left = self.parse_exponent()
+        if left == None:
             while True:
                 match self.lexer.peek_current_token():
-                    case Operator(op) if op in "* / // %".split():
+                    case Operator(op) if op in "-+":
                         self.lexer.advance()
-                        m = self.parse_atom()
-                        left = BinOp(op, left, m)
-                        # print("parse_mult", left)
+                        left = UniaryOp(op, self.parse_exponent())
                     case _:
-                        # print("break")
                         break
-        except:
-            raise EndOfLineErrror(f"; expected")
-            pass
+        return left
+
+    def parse_mult(self):
+        """parse the *, /, //, % operator
+
+        Raises:
+            EndOfLineErrror: _description_
+
+        Returns:
+            AST: return AST of the *, /, //, % operation
+        """
+
+        left = self.parse_uniary()
+
+        while True:
+            match self.lexer.peek_current_token():
+
+                case Operator(op) if op in "* / // %".split():
+                    self.lexer.advance()
+                    m = self.parse_uniary()
+                    left = BinOp( left, op,m)
+
+                case _:
+                    break
+
         return left
 
     def parse_add(self):
-        print("parse_add")
+        """parse the addition and subtraction operatior
+
+        Raises:
+            EndOfLineErrror: _description_
+
+        Returns:
+            AST: return AST of the addition and subtraction operation
+        """
         left = self.parse_mult()
-        try: 
-            while True:
-                match self.lexer.peek_current_token():
-                    case Operator(op) if op in "+-":
-                        self.lexer.advance()
-                        # print("before parse_add")
-                        m = self.parse_mult()
-                        # print("after parse_add",m)
-                        left = BinOp(op, left, m)
-                    case _:
-                        break
-        except:
-            raise EndOfLineErrror(f"; expected ")
-            # raise EndOfLineErrror()
-            pass
+
+        while True:
+            match self.lexer.peek_current_token():
+
+                case Operator(op) if op in "+-":
+                    self.lexer.advance()
+                    # print("before parse_add")
+                    m = self.parse_mult()
+                    # print("after parse_add",m)
+                    left = BinOp(left,op,  m)
+
+                case _:
+                    break
+
         return left
 
     def parse_cmp(self):
-        print("parse_cmp")
+        """parse the comparison operator
+
+        Raises:
+            EndOfLineErrror: _description_
+
+        Returns:
+            AST: return AST of the comparison operator
+        """
+
         left = self.parse_add()
-        try:
-            match self.lexer.peek_current_token():
-                case Operator(op) if op in "< > >= <= == !=".split():
-                    self.lexer.advance()
-                    right = self.parse_add()
-                    return ComparisonOp(op, left, right)
-        except: 
-            raise EndOfLineErrror(f"; expected ")
-            # raise EndOfLineErrror()
-            pass
+        match self.lexer.peek_current_token():
+
+            case Operator(op) if op in "< > >= <= == !=".split():
+                self.lexer.advance()
+                right = self.parse_add()
+
+                return ComparisonOp(left,op,  right)
+
         return left
 
     def parse_simple(self):
+        """parse the simple expression (witoout if else, while)
+
+        Returns:
+            AST: return AST of the simple expression 
+        """
+
         return self.parse_cmp()
 
+    def parse_assignment(self):
+        """parse the assignment expression
+        """
+        pass
+
     def parse_expr(self):
+        """parse the expression
+
+        Returns:
+            AST: return AST of the expression
+        """
         match self.lexer.peek_current_token():
+
+            case c if isinstance(c, EndOfLine):
+                self.lexer.advance()
+                return self.parse_expr()
+            case c if isinstance(c, EndOfFile):
+                print("End of file")
+                # exit the program successfully
+                sys.exit(0)
+            case c if isinstance(c, Identifier):
+                return self.parse_assignment()
             case Keyword("if"):
-                print("if")
                 return self.parse_if()
             case Keyword("while"):
-                # print("while")
                 return self.parse_while()
             case _:
-                print("parse_simple")
                 return self.parse_simple()
 
 
@@ -135,17 +235,16 @@ class Parser:
         # else:
         #     raise Exception("Expected number")
 if __name__ == '__main__':
-    # p = Parser()
-    a = "2 + 3 * 5 ;"
-    b = "1 + (9 -(8 - 9)) * 3;"
-    b = "{1 + 9 + 3} (1 + 3);"
-    b = "if 10>5 { if 1 > 9  1+{5+6 * 2} * 3  else {6} } else { 0 }"
-    ins = Instrution()
-    ins.form_instrutctions_of(b)
-    ins.print_instrutions()
-    # for i in ins.instruction_lists:
-    # print(eval(Parser.from_lexer(Lexer.from_stream(Stream.from_string(a))).parse_expr()))
-    print(eval(Parser.from_lexer(Lexer.from_stream(Stream.from_string(b))).parse_expr()))
 
-        # if 3 > 2 then 1 else 0 end
- 
+    file = open("programParse.txt", "r")
+    program = file.read()
+    obj_parser = Parser.from_lexer(
+        Lexer.from_stream(Stream.from_string(program)))
+
+    while True:
+        print(eval(obj_parser.parse_expr()))
+    # print(obj_parser.lexer.peek_current_token())
+    # print(eval(obj_parser.parse_expr()))
+    # print(eval(obj_parser.parse_expr()))
+
+    # print(eval(Parser.from_lexer(Lexer.from_stream(Stream.from_string(a))).parse_expr()))

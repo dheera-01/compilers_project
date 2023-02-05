@@ -13,10 +13,15 @@ from my_lexer import *
 
 @dataclass
 class BinOp:
-    operator: str
     left: 'AST'
+    operator: str
     right: 'AST'
 
+
+@dataclass
+class UniaryOp:
+    operator: str
+    operand: 'AST'
 
 # @dataclass
 # class Variable:
@@ -44,7 +49,6 @@ class IfElse:
     else_body: "AST"
 
 
-
 AST = NumLiteral | BinOp | Let | ComparisonOp | Identifier | IfElse
 # AST = NumLiteral | BinOp | Variable | Let | ComparisonOp
 
@@ -66,6 +70,8 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
             return value
         case FloatLiteral(value):
             return value
+        case StringLiteral(value):
+            return value
         case Identifier(name):
             if name in environment:
                 return environment[name]
@@ -79,88 +85,90 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
             # print(f"The condition result {condition_res}")
             if condition_res == True:
                 # print(f"Inside the if of IfElse")
-                return eval(if_ast,environment)
+                return eval(if_ast, environment)
             else:
                 # print('Inside else of IfElse')
-                return eval(else_ast,environment)
+                return eval(else_ast, environment)
 
         # comperison operation
-        case ComparisonOp(">", x, const):
+        case ComparisonOp(x, ">", const):
             if eval(x, environment) > eval(const, environment):
                 # print("Inside If of >")
                 return True
             # print("Inside else of >")
             return False
-        
-        case ComparisonOp("<", x, const):
+
+        case ComparisonOp(x, "<", const):
             if eval(x, environment) < eval(const, environment):
                 # print("Inside If of <")
                 return True
             # print("Inside else of <")
             return False
-        
-        case ComparisonOp("==", x, const):
+
+        case ComparisonOp(x, "==", const):
             if eval(x, environment) == eval(const, environment):
                 # print("Inside If of ==")
                 return True
             # print("Inside else of ==")
             return False
-        
-        case ComparisonOp("!=", x, const):
+
+        case ComparisonOp(x, "!=", const):
             if eval(x, environment) != eval(const, environment):
                 # print("Inside If of !=")
                 return True
             # print("Inside else of !=")
             return False
-        
-        case ComparisonOp("<=", x, const):
+
+        case ComparisonOp(x, "<=", const):
             if eval(x, environment) <= eval(const, environment):
                 # print("Inside If of <=")
                 return True
             # print("Inside else of <=")
             return False
-        
-        case ComparisonOp(">=", x, const):
+
+        case ComparisonOp(x, ">=", const):
             if eval(x, environment) >= eval(const, environment):
                 # print("Inside If of >=")
                 return True
             # print("Inside else of >=")
             return False
-        
+
+        case UniaryOp("-", x):
+            return eval(BinOp(NumLiteral(-1), "*", x))
+        case UniaryOp("+", x):
+            return eval(BinOp(NumLiteral(1), "*", x))
         # binary operation
-        case BinOp("+", left, right):
+        case BinOp(left, "+", right):
             return eval(left, environment) + eval(right, environment)
-        case BinOp("-", left, right):
+        case BinOp(left, "-", right):
             return eval(left, environment) - eval(right, environment)
-        case BinOp("*", left, right):
+        case BinOp(left, "*", right):
             return eval(left, environment) * eval(right, environment)
-        case BinOp("/", left, right):
+        case BinOp(left, "/", right):
             return eval(left, environment) / eval(right, environment)
-        case BinOp("//", left, right):
+        case BinOp(left, "//", right):
             return eval(left, environment) // eval(right, environment)
-        case BinOp("%", left, right):
+        case BinOp(left, "%",  right):
             return eval(left, environment) % eval(right, environment)
-        case BinOp("**", left, right):
+        case BinOp(left, "**", right):
             return eval(left, environment) ** eval(right, environment)
 
     raise InvalidProgram()
+
 
 def test_if_else_eval():
     e1 = NumLiteral(5)
     e2 = NumLiteral(10)
     # assert eval(e2) == 10
-    c1 = ComparisonOp(">", e1, e2)  # e1(=5) > e2(10)
+    c1 = ComparisonOp(e1, ">", e2)  # e1(=5) > e2(10)
     o1 = NumLiteral(1)
-    o2 = NumLiteral(0) # return in false statement
+    o2 = NumLiteral(0)  # return in false statement
     res1 = IfElse(c1, o1, o2)
-    assert eval(res1) ==0, f"{eval(res1)} and other is {Fraction(6,1)}"
-    c2 = ComparisonOp("<", e1, e2)  # e1(=5) < e2(10)
+    assert eval(res1) == 0, f"{eval(res1)} and other is {Fraction(6,1)}"
+    c2 = ComparisonOp(e1, "<", e2)  # e1(=5) < e2(10)
     res2 = res1 = IfElse(c2, o1, o2)
     assert eval(res2) == 1, f"{eval(res2)} and other is {Fraction(6,1)}"
     # a = Identifier("a")
-    
-    
-    
 
 
 def test_eval():
@@ -168,31 +176,44 @@ def test_eval():
     e2 = NumLiteral(7)
     e3 = NumLiteral(9)
     e4 = NumLiteral(5)
-    e5 = BinOp("+", e2, e3)
-    e6 = BinOp("/", e5, e4)
-    e7 = BinOp("*", e1, e6)
-    assert eval(e7) == 6.4, f"{eval(e7)} and other is {FloatLiteral(6.4)} do not match"
+    e5 = BinOp(e2, "+", e3)
+    e6 = BinOp(e5, "/", e4)
+    e7 = BinOp(e1, "*", e6)
+    assert eval(
+        e7) == 6.4, f"{eval(e7)} and other is {FloatLiteral(6.4)} do not match"
 
 
 def test_let_eval():
     a = Identifier("a")
     e1 = NumLiteral(5)
-    e2 = BinOp("+", a, a)
+    e2 = BinOp(a, "+", a)
     e = Let(a, e1, e2)
     assert eval(e) == 10
     e = Let(a, e1, Let(a, e2, e2))
     assert eval(e) == 20
-    e = Let(a, e1, BinOp("+", a, Let(a, e2, e2)))
+    e = Let(a, e1, BinOp(a, "+", Let(a, e2, e2)))
     assert eval(e) == 25
-    e = Let(a, e1, BinOp("+", Let(a, e2, e2), a))
+    e = Let(a, e1, BinOp(Let(a, e2, e2), "+", a))
     assert eval(e) == 25
     e3 = NumLiteral(6)
-    e = BinOp("+", Let(a, e1, e2), Let(a, e3, e2))
+    e = BinOp(Let(a, e1, e2), "+",  Let(a, e3, e2))
     assert eval(e) == 22
+
+
+def test_uniary():
+    e1 = NumLiteral(2)
+    e2 = NumLiteral(-7)
+    e5 = UniaryOp("+", e2)
+    e6 = UniaryOp("-", e2)
+    assert eval(
+        e5) == -7, f"{eval(e5)} and other is {NumLiteral(-7)} do not match"
+    assert eval(
+        e6) == 7, f"{eval(e6)} and other is {NumLiteral(7)} do not match"
 
 
 if __name__ == "__main__":
     test_eval()
     test_let_eval()
     test_if_else_eval()
+    # test_uniary()
     print("All tests passed")
