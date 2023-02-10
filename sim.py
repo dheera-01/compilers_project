@@ -68,6 +68,19 @@ class IfElse:
     if_body: "AST"
     else_body: "AST"
 
+@dataclass
+class While:
+    condition:ComparisonOp
+    body:'AST'
+    orelse:'AST'
+
+@dataclass
+class For:
+    exp1: 'AST'
+    condition:'AST'
+    exp2:'AST'
+    body : 'AST'
+
 AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assignment | ComparisonOp | Identifier | IfElse
 
 Value = Fraction | str | NumLiteral | StringLiteral | BinOp | float | bool | None | int
@@ -131,6 +144,22 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
             else:
                 # print('Inside else of IfElse')
                 return eval(else_ast, environment)
+
+        case While(condition, body, orelse):
+            cond = eval(condition)
+            if (cond == True):
+                eval(body)
+                eval(While(condition, body))
+            else:
+                return eval(orelse)
+
+        case For(exp1, condition, exp2, body):
+            eval(exp1)
+            cond = eval(condition)
+            if (cond == True):
+                eval(body)
+                eval(exp2)
+                eval(While(condition, body))
 
         # comperison operation
         case ComparisonOp(x, ">", const):
