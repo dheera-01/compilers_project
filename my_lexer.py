@@ -429,7 +429,7 @@ if __name__ == "__main__":
     program = file.read()
     # print("Program:")
     # print(program) 
-    program = "+-+--+6"
+    # program = "+-+--+6"
     for i in Lexer.from_stream(Stream.from_string(program)):
         print(i, end=" ")
     # ins = Instrution()
