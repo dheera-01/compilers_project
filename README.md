@@ -30,7 +30,7 @@ Repository containing the project of compilers course.
 19. A: User-defined types – records.
 20. A: First-class functions.
 
-## references
+## References
 [Abstract Syntax Tree Constructs](https://docs.python.org/3/library/ast.html)
 
 ## Some conventions we should follow for better workflow
@@ -43,3 +43,7 @@ Repository containing the project of compilers course.
     2. `Dev` Branch:
         1. Create a separate branch for every feature.
             1. Create further branches for other purposes. For example, `ifelse` branch can have further branch as `tests`
+6. Whenever you defining a new data type pls define in the declaration.py and then import that file in your code. It will help us all to follow same data structure.
+7. From now onwards don't use fraction as used by sir, use the standard datatype like int, str etc.
+8. Test case should be made in different files not within same file.
+9. Whenever you define a new function use docstring's python to define that function properly. It will help other to understand your code and will come in handy when we are using that function somewhere in the code.
