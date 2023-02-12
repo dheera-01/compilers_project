@@ -11,6 +11,7 @@ class InvalidProgram(Exception):
 
 
 def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
+
     if environment is None:
         environment = {}
 
@@ -208,7 +209,28 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
             except Exception as e:
                 raise InvalidProgram(
                     f"TypeError: ** not supported between instances of {left} and {right}")
+        case Seq(lst):
+            for expr in lst:
+                eval(expr,environment)
+            return None
 
+        case While(cond,body):
+            c=eval(cond,environment)
+            # if(c==True):
+            #     eval(body)
+            #     eval(While(cond,body))
+            while(c==True):
+                eval(body,environment)
+                c=eval(cond,environment)
+            # while loop cannot be implemented recursivly as max recursion depth of python restricts it
+            return None
+        case For(exp1, condition, exp2, body):
+            eval(exp1)
+            cond = eval(condition)
+            if (cond == True):
+                eval(body)
+                eval(exp2)
+                eval(While(condition, body))
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
 
 
@@ -330,10 +352,44 @@ def test_unary():
         e6) == 7, f"{eval(e6)} and other is {NumLiteral(7)} do not match"
 
 
+def test_varibale():
+
+    a=Identifier("a")
+    e1=BinOp(NumLiteral(2),"+",NumLiteral(3))
+    e2=BinOp(NumLiteral(2),"+",NumLiteral(2))
+    e3=Let(a,e1,e2)
+    s=Seq([a,e1,e2,e3])
+    eval(s)
+    # assert eval(a)== 5
+
+
 if __name__ == "__main__":
     # test_eval()
-    test_strings()
+    # test_strings()
     # test_let_eval()
     # test_if_else_eval()
     # test_unary()
+    # test_while()
     print("All tests passed")
+
+
+
+
+def test_while():
+    # env={"i":NumLiteral(0)}
+    # i=Identifier("i")
+    # e2=BinOp(i,"+",1)
+    # e1=BinOp(i,"+",e2)
+    # print(eval(Let(i,e1,e1),env))
+    cond=ComparisonOp(NumLiteral(5),"<",NumLiteral(10))
+    eval(While(cond,Print(StringLiteral("Hello"))))
+
+def test_for():
+    cond=cond=ComparisonOp(NumLiteral(5),"<",NumLiteral(10))
+    e1=NumLiteral(0)
+    e2=NumLiteral(1)
+    body=Print(StringLiteral("Hello"))
+    eval(For(e1,cond,e2,body))
+
+# test_while()
+test_for()

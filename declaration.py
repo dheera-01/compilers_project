@@ -157,6 +157,21 @@ class ComparisonOp:
     def __repr__(self) -> str:
         return f"ComparisonOp({self.left} {self.operand} {self.right})"
 
+@dataclass
+class Seq:
+    lst : ['AST']
+
+@dataclass
+class While():
+    condn: ComparisonOp
+    body: 'AST'
+
+@dataclass
+class For:
+    exp1: 'AST'
+    condition:'AST'
+    exp2:'AST'
+    body : 'AST'
 
 @dataclass
 class IfElse:
@@ -168,4 +183,4 @@ class IfElse:
         return f"IfElse({self.condition} then {self.if_body} else {self.else_body})"
 
 
-AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assignment | ComparisonOp | Identifier | IfElse
+AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assignment | ComparisonOp | Identifier | IfElse | Seq
