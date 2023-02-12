@@ -1,1 +1,1 @@
-print("Token Error:", Exception)
+print

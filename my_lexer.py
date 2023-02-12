@@ -1,96 +1,7 @@
 from fractions import Fraction
 from dataclasses import dataclass
 from typing import Optional, NewType
-
-
-@dataclass
-class NumLiteral:
-    _number: int
-
-    def __repr__(self) -> str:
-        return f"NumLiteral({self._number})"
-
-
-@dataclass
-class FloatLiteral:
-    _float: float
-
-    def __repr__(self) -> str:
-        return f"FloatLiteral({self._float})"
-
-
-@dataclass
-class BoolLiteral:
-    _bool: bool
-
-    def __repr__(self) -> str:
-        return f"BoolLiteral({self._bool})"
-
-
-@dataclass
-class Keyword:
-    _keyword: str
-
-    def __repr__(self) -> str:
-        return f"Keyword({self._keyword})"
-
-# variable names are identifiers
-
-
-@dataclass
-class Identifier:
-    _variable: str
-
-    def __repr__(self) -> str:
-        return f"Identifier({self._variable})"
-
-
-@dataclass
-class Operator:
-    _operator: str
-
-    def __repr__(self) -> str:
-        return f"Operator({self._operator})"
-
-
-@ dataclass
-class StringLiteral:
-    _string: str
-
-    def __repr__(self) -> str:
-        return f"StringLiteral({self._string})"
-
-
-@dataclass
-class Bracket:
-    _bracket: str
-
-    def __repr__(self) -> str:
-        return f"Bracket({self._bracket})"
-
-
-@dataclass
-class Comments:
-    _comment: str
-
-    def __repr__(self) -> str:
-        return f"Comments({self._comment})"
-
-
-@dataclass
-class EndOfLine:
-    _eol: str
-
-    def __repr__(self) -> str:
-        return f"EndOfLine({self._eol})"
-
-
-@dataclass
-class EndOfFile:
-    _eof: str
-
-    def __repr__(self) -> str:
-        return f"EndOfFile({self._eof})"
+from declaration import *
 
 # comments are not tokens they are removed by the lexer
 Token = NumLiteral | FloatLiteral | BoolLiteral | Keyword | Identifier | Operator | StringLiteral | Bracket | EndOfLine | EndOfFile
@@ -117,7 +28,7 @@ class Stream:
         return Stream(s, 0)
 
     def next_char(self):
-        """Retrun the current char in the stream and advance the position by 1 to go to the next char
+        """Return the current char in the stream and advance the position by 1 to go to the next char
 
         Raises:
             EndOfStream: if the end of the stream is reached
@@ -198,14 +109,14 @@ class Lexer:
                 case c if c == ";":
                     return EndOfLine(c)
                     pass
-                # reading the commenrts:
+                # reading the comments:
                 case c if c == "#":
                     cmt = ""
                     while True:
                         c = self.stream.next_char()
                         if c == "\n": # one line comment ends
                             comments.append(cmt)
-                            # lexer removest the comments and moves on
+                            # lexer removes the comments and moves on
                             return self.next_token()
                         cmt = cmt + c
                     pass
@@ -222,7 +133,7 @@ class Lexer:
                     start = self.stream.pos - 1
                     while True:
                         s = self.stream.next_char()
-                        # +- for uniary operator ++--6
+                        # +- for unary operator ++--6
                         if s in symbolic_operators or s in "+-":
                             c = c+s
                         else:
@@ -234,7 +145,7 @@ class Lexer:
                                     if i not in "+-":
                                         # =! is not a valid operator
                                         raise TokenError(f"{c} is an Invalid operator")
-                                # here getting uniary operator
+                                # here getting unary operator
                                 self.stream.pos = start+1
                                 return Operator(c[0])
                                       
@@ -321,7 +232,7 @@ class Lexer:
                         except EndOfStream:
                             return word_to_token(s)
 
-                # readig the white space
+                # reading the white space
                 case c if c in whitespace:
                     return self.next_token()
         except EndOfStream:
@@ -357,7 +268,7 @@ class Lexer:
             TokenError: if the current token is not the expected token
 
         Returns:
-            None: if the current token is the expected token it will cosume it and return None
+            None: if the current token is the expected token it will consume it and return None
         """
         
         if self.peek_current_token() == expected:
@@ -402,9 +313,9 @@ class Lexer:
 # @dataclass
 # class Program:
 #     # 2d list of statements which make up the program and made of list of tokens
-#     prgram_instruction = []
+#     program_instruction = []
 
-#     def form_instrutctions_of(self, t):
+#     def form_instructions_of(self, t):
 #         self.instruction_lists.append(list([]))
 #         for i in Lexer.from_stream(Stream.from_string(t)):
 #             if isinstance(i, Comments):
@@ -432,6 +343,6 @@ if __name__ == "__main__":
     # program = "+-+--+6"
     for i in Lexer.from_stream(Stream.from_string(program)):
         print(i, end=" ")
-    # ins = Instrution()
-    # ins.form_instrutctions_of(program)
-    # ins.print_instrutions()
+    # ins = Instruction()
+    # ins.form_instructions_of(program)
+    # ins.print_instructions()
