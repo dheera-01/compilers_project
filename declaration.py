@@ -127,14 +127,7 @@ class Print:
         return f"Print({self.val})"
 
 
-@dataclass
-class Assignment:
-    operator: str
-    left: 'AST'
-    right: 'AST'
 
-    def __repr__(self) -> str:
-        return f"Assignment({self.left} {self.operator} {self.right})"
 
 
 @dataclass
@@ -163,16 +156,24 @@ class Seq:
 
 @dataclass
 class While():
+
     condn: ComparisonOp
     body: 'AST'
 
+
+
+
+@dataclass
+class Assign:
+    v:Identifier
+    right:'AST'
+
 @dataclass
 class For:
-    exp1: 'AST'
-    condition:'AST'
+    exp1: Assign
+    condition:ComparisonOp
     exp2:'AST'
-    body : 'AST'
-
+    body : Seq
 @dataclass
 class IfElse:
     condition: ComparisonOp
@@ -183,4 +184,4 @@ class IfElse:
         return f"IfElse({self.condition} then {self.if_body} else {self.else_body})"
 
 
-AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assignment | ComparisonOp | Identifier | IfElse | Seq
+AST = NumLiteral | BinOp | Let | StringLiteral | Slice  | ComparisonOp | Identifier | IfElse | Seq | Assign

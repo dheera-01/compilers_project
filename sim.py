@@ -5,13 +5,13 @@ from declaration import *
 
 Value = str | BinOp | float | bool | None | int
 
-
+global_env={}
 class InvalidProgram(Exception):
     pass
 
 
 def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
-
+    global global_env
     if environment is None:
         environment = {}
 
@@ -24,26 +24,24 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
             return value
 
         case Identifier(name):
-            if name in environment:
-                return environment[name]
+            if name in global_env:
+                return global_env[name]
             raise InvalidProgram()
 
         case Let(Identifier(name), e1, e2):
             v1 = eval(e1, environment)
+            global_env[name]=v1
             return eval(e2, environment | {name: v1})
 
         case Print(val):
             # The print function will print the evaluated value of val and return the AST val
-            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral) or isinstance(val, BinOp):
+            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral) or isinstance(val, BinOp) or isinstance(val,Identifier):
                 print(eval(val))
                 return val
             else:
                 raise InvalidProgram()
 
-        case Assignment("=", left, right):
-            right_val = eval(right)
-            environment[left.name] = right_val
-            return right_val
+
 
         case Slice(string_var, start, end, step):
             # How are handling the case a[1:] and its other variants
@@ -215,6 +213,7 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
             return None
 
         case While(cond,body):
+
             c=eval(cond,environment)
             # if(c==True):
             #     eval(body)
@@ -224,13 +223,19 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
                 c=eval(cond,environment)
             # while loop cannot be implemented recursivly as max recursion depth of python restricts it
             return None
-        case For(exp1, condition, exp2, body):
+        case For(exp1, condition, exp2, Seq(lst)):
             eval(exp1)
             cond = eval(condition)
             if (cond == True):
-                eval(body)
+                eval(Seq(lst))
                 eval(exp2)
-                eval(While(condition, body))
+                lst.append(exp2)
+                eval(While(condition, Seq(lst)))
+            return None
+        case Assign(Identifier(name),right):
+            val=eval(right)
+            global_env[name]=val
+            return None
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
 
 
@@ -384,12 +389,47 @@ def test_while():
     cond=ComparisonOp(NumLiteral(5),"<",NumLiteral(10))
     eval(While(cond,Print(StringLiteral("Hello"))))
 
+def test_global_var():
+    i=Identifier("i")
+    # e1=Let(i,NumLiteral(0),NumLiteral(2))
+    e1=Assign(i,NumLiteral(0))
+
+    # p=Print(StringLiteral("Hello"))
+    p=Print(i)
+    inc=Assign(i,BinOp(i,"+",NumLiteral(1)))
+    body=Seq([p,inc])
+    e2=While(ComparisonOp(i,"<",NumLiteral(10)),body)
+    eval(Seq([e1,e2]))
+    print(global_env)
+
 def test_for():
-    cond=cond=ComparisonOp(NumLiteral(5),"<",NumLiteral(10))
+    # cond=ComparisonOp(NumLiteral(5),"<",NumLiteral(10))
+    # e1=NumLiteral(0)
+    # e2=NumLiteral(1)
+    # body=Print(StringLiteral("Hello"))
+    # eval(For(e1,cond,e2,body))
+    i=Identifier("i")
+    a=Assign(i,NumLiteral(0))
+    e2=ComparisonOp(i,"<",NumLiteral(6))
+    e3=Assign(i,BinOp(i,"+",NumLiteral(1)))
+    p=Print(i)
+    eval(For(a,e2,e3,Seq([p])))
+
+def test_seq():
     e1=NumLiteral(0)
     e2=NumLiteral(1)
-    body=Print(StringLiteral("Hello"))
-    eval(For(e1,cond,e2,body))
+    s=Seq([e1,e2])
+    eval(s)
 
+def test_assign():
+    i=Identifier("i")
+    a=Assign(i,NumLiteral(0))
+    eval(a)
+    print(global_env)
+
+if __name__ == "__main__":
 # test_while()
-test_for()
+    test_for()
+# test_global_var()
+# test_seq()
+# test_assign()
