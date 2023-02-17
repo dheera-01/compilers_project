@@ -31,7 +31,9 @@ class Parser:
         """
         t = StringLiteral("Chirag")
         self.lexer.match(Keyword("if"))
+        print(self.lexer.peek_current_token())
         c = self.parse_expr()  # parse the condition
+        print(self.lexer.peek_current_token())
         if_branch = self.parse_expr()
         self.lexer.match(Keyword("else"))
         else_branch = self.parse_expr()
@@ -167,6 +169,24 @@ class Parser:
 
         return left
 
+    def parse_slice(self):
+        """parse the slice operation
+
+        Returns:
+            AST: return AST of the slice operation
+        """
+        self.lexer.match(Keyword("slice"))
+        self.lexer.match(Bracket("("))
+        string_literal = self.parse_expr()
+        self.lexer.match(Operator(":"))
+        start = self.parse_expr()
+        self.lexer.match(Operator(":"))
+        end = self.parse_expr()
+        self.lexer.match(Operator(":"))
+        step = self.parse_expr()
+        self.lexer.match(Bracket(")"))
+        return Slice(string_literal, start, end, step)
+
     def parse_cmp(self):
         """parse the comparison operator
 
@@ -220,9 +240,12 @@ class Parser:
             case c if isinstance(c, Identifier):
                 return self.parse_assignment()
             case Keyword("if"):
+                print(self.lexer.peek_current_token())
                 return self.parse_if()
             case Keyword("while"):
                 return self.parse_while()
+            case Keyword("slice"):
+                return self.parse_slice()
             case _:
                 return self.parse_simple()
 
@@ -239,8 +262,8 @@ if __name__ == '__main__':
     # program = "5+2"
     obj_parser = Parser.from_lexer(
         Lexer.from_stream(Stream.from_string(program)))
-    # print(obj_parser)
-    # print(obj_parser.parse_expr())
+    print(obj_parser)
+    print(obj_parser.parse_expr())
     while True:
         print(eval(obj_parser.parse_expr()))
     # print(obj_parser.lexer.peek_current_token())
