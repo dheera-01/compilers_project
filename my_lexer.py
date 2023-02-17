@@ -48,8 +48,8 @@ class Stream:
         self.pos = self.pos - 1
 
 
-keywords = "if then else end while for do done let int string float def".split()
-symbolic_operators = "+ - * / % // ** < > <= >= == !=  << >> = += -= *= /= %= //= **=".split()
+keywords = "if then else end while for do done let int string float def assign print slice".split()
+symbolic_operators = "+ - * / % // ** < > <= >= == !=  << >> = += -= *= /= %= //= **= :".split()
 word_operators = "and or not is in".split()
 opening_brackets = "( [ { ".split()
 closing_brackets = ") ] }".split()
