@@ -304,20 +304,20 @@ def test_print():
     assert eval(BinOp(eval(Print(e2)), "+", eval(Print(e1)))) == 7
 
 
-def test_assignment():
+def test_assign():
     a = Identifier("a")
     e1 = NumLiteral(2)
-    e2 = Assignment("=", a, e1)
+    e2 = Assign(a, e1)
 
     assert eval(e2) == 2
 
     b = Identifier("b")
     e3 = NumLiteral(5)
-    e4 = Assignment("=", b, e3)  # b = 5
+    e4 = Assign(b, e3)  # b = 5
     assert eval(e4) == 5
 
     # Reassignment
-    e6 = Assignment("=", a, e3)
+    e6 = Assign(a, e3)
     assert eval(e6) == 5
 
 
