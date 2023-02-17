@@ -1,5 +1,12 @@
 from dataclasses import dataclass
 
+@dataclass
+class Sequence:
+    statements: list["AST"]
+    
+    def __repr__(self) -> str:
+        return f"Sequence({self.statements})"
+
 
 @dataclass
 class NumLiteral:
@@ -161,11 +168,11 @@ class ComparisonOp:
 @dataclass
 class IfElse:
     condition: ComparisonOp
-    if_body: "AST"
-    else_body: "AST"
+    if_body: Sequence
+    else_body: Sequence
 
     def __repr__(self) -> str:
         return f"IfElse({self.condition} then {self.if_body} else {self.else_body})"
 
+AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assignment | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp
 
-AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assignment | ComparisonOp | Identifier | IfElse

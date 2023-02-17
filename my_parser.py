@@ -2,6 +2,9 @@ from my_lexer import *
 from sim import *
 from dataclasses import dataclass
 import sys
+from declaration import *
+
+mySequence = Sequence([])
 
 
 class EndOfLineError(Exception):
@@ -31,13 +34,48 @@ class Parser:
         """
         t = StringLiteral("Chirag")
         self.lexer.match(Keyword("if"))
-        c = self.parse_expr()  # parse the condition
-        if_branch = self.parse_expr()
+        print(self.lexer.peek_current_token())
+        cond = self.parse_expr()  # parse the condition
+        print("cond", cond)
+        if_branch = Sequence([])
+        while True:
+            # print("peek token", self.lexer.peek_current_token())
+            match self.lexer.peek_current_token():
+                case Keyword("else"):
+                    break
+                case c if isinstance(c,EndOfLine):
+                    self.lexer.advance()
+                case Bracket("}"):
+                    self.lexer.advance()
+                    break
+                case _:
+                    if_branch.statements.append(self.parse_expr())          
         self.lexer.match(Keyword("else"))
-        else_branch = self.parse_expr()
-        # print(c, if_branch, else_branch)
+        else_branch = Sequence([])
+        while True:
+            # print("peek token", self.lexer.peek_current_token())
+            match self.lexer.peek_current_token():
+                case c if isinstance(c,EndOfLine):
+                    self.lexer.advance()
+                case Bracket("}"):
+                    self.lexer.advance()
+                    break
+                case c if isinstance(c,EndOfFile):
+                    break
+                case _:
+                    else_branch.statements.append(self.parse_expr())
+        print("ifelse")
+        print(cond, if_branch, else_branch)
+        
+        # t = StringLiteral("Chirag")
+        # self.lexer.match(Keyword("if"))
+        # c = self.parse_expr()  # parse the condition
+        # if_branch = self.parse_expr()
+        # self.lexer.match(Keyword("else"))
+        # else_branch = self.parse_expr()
+        # # print(c, if_branch, else_branch)
 
-        return IfElse(c, if_branch, else_branch)
+        return IfElse(cond, if_branch, else_branch)
 
     # def parse_while(self):
     #     self.lexer.match(Keyword("while"))
@@ -215,6 +253,7 @@ class Parser:
                 return self.parse_expr()
             case c if isinstance(c, EndOfFile):
                 print("End of file")
+                print("Sequence\n",mySequence)
                 # exit the program successfully
                 sys.exit(0)
             case c if isinstance(c, Identifier):
@@ -232,6 +271,7 @@ class Parser:
         #     return t.n
         # else:
         #     raise Exception("Expected number")
+
 if __name__ == '__main__':
 
     file = open("programParse.txt", "r")
@@ -239,10 +279,12 @@ if __name__ == '__main__':
     # program = "5+2"
     obj_parser = Parser.from_lexer(
         Lexer.from_stream(Stream.from_string(program)))
-    # print(obj_parser)
+    print(obj_parser)
     # print(obj_parser.parse_expr())
     while True:
-        print(eval(obj_parser.parse_expr()))
+        t = obj_parser.parse_expr()
+        mySequence.statements.append(t)
+        # print(eval(t))
     # print(obj_parser.lexer.peek_current_token())
     # print(eval(obj_parser.parse_expr()))
     # print(eval(obj_parser.parse_expr()))
