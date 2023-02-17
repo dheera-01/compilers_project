@@ -340,6 +340,12 @@ def test_strings():
     e9 = Slice(e5, e6, e7, e8)
     assert eval(e9) == "llo"
 
+    e10 = StringLiteral("Hello")
+    e11 = StringLiteral("Hello")
+    e12 = ComparisonOp(e10, "==", e11)
+    e13 = ComparisonOp(e10, "<", e11)
+    assert eval(e12) == True
+    assert eval(e13) == False
     # e10 = NumLiteral(2)
     # e11 = StringLiteral("Hello")
     # e12 = BinOp(e11,"+",e10)
