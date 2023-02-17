@@ -141,7 +141,10 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
             eval_left = eval(left, environment)
             eval_right = eval(right, environment)
             try:
-                return eval_left + eval_right
+                if isinstance(eval_left, str) and isinstance(eval_right, int) or isinstance(eval_left, int) and isinstance(eval_right, str):
+                    return str(eval_left) + str(eval_right)
+                else:
+                    return eval_left + eval_right
             except Exception as e:
                 # raise TypeError(f"+ not supported between instances of {type(eval_left).__name__} and {type(eval_right).__name__}")
                 raise InvalidProgram(
@@ -346,10 +349,18 @@ def test_strings():
     e13 = ComparisonOp(e10, "<", e11)
     assert eval(e12) == True
     assert eval(e13) == False
-    # e10 = NumLiteral(2)
-    # e11 = StringLiteral("Hello")
-    # e12 = BinOp(e11,"+",e10)
-    # assert eval(e12) == "Hello2"
+
+    e14 = StringLiteral("Hello")
+    e15 = NumLiteral(2)
+    e16 = BinOp(e14, "+", e15)
+    assert eval(e16) == "Hello2"
+
+    e17 = StringLiteral("Hello")
+    e18 = NumLiteral(2)
+    e19 = NumLiteral(5)
+    e20 = BinOp(e18, "+", e19)
+    e21 = BinOp(e17, "+", e20)
+    assert eval(e21) == "Hello7"
 
 
 def test_unary():
