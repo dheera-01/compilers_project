@@ -1,1 +1,1 @@
-print
+self.my

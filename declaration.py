@@ -174,5 +174,15 @@ class IfElse:
     def __repr__(self) -> str:
         return f"IfElse({self.condition} then {self.if_body} else {self.else_body})"
 
-AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assignment | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp
+@dataclass
+class While():
+
+    condn: ComparisonOp
+    body: 'AST'
+    
+    def __repr__(self) -> str:
+        return f"While({self.condn} do {self.body})"
+
+
+AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assignment | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp| While
 
