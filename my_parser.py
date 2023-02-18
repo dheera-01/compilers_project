@@ -39,13 +39,11 @@ class Parser:
 
         return IfElse(c, if_branch, else_branch)
 
-    # def parse_while(self):
-    #     self.lexer.match(Keyword("while"))
-    #     c = self.parse_expr()
-    #     self.lexer.match(Keyword("do"))
-    #     b = self.parse_expr()
-    #     self.lexer.match(Keyword("done"))
-    #     return While(c, b)
+    def parse_while(self):
+        self.lexer.match(Keyword("while"))
+        c = self.parse_expr()
+        body = self.parse_expr()
+        return While(c, body)
 
     def parse_atom(self):
         """parse the atomic expression"""
@@ -202,6 +200,13 @@ class Parser:
         """
         pass
 
+    def parse_for(self):
+        self.lexer.match(Keyword("for"))
+        exp1 = self.parse_expr()
+        c = self.parse_expr()
+        exp2 = self.parse_expr()
+        body = self.parse_expr()
+        return For(exp1, c, exp2, body)
     def parse_expr(self):
         """parse the expression
 
@@ -223,6 +228,8 @@ class Parser:
                 return self.parse_if()
             case Keyword("while"):
                 return self.parse_while()
+            case Keyword("for"):
+                return self.parse_for()
             case _:
                 return self.parse_simple()
 

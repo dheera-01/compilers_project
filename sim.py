@@ -42,6 +42,12 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
                 raise InvalidProgram()
 
 
+        case BoolLiteral(tf):
+            if(tf=="True"):
+                return True
+            elif(tf=="False"):
+                return False
+            raise InvalidProgram()
 
         case Slice(string_var, start, end, step):
             # How are handling the case a[1:] and its other variants
@@ -304,21 +310,7 @@ def test_print():
     assert eval(BinOp(eval(Print(e2)), "+", eval(Print(e1)))) == 7
 
 
-def test_assignment():
-    a = Identifier("a")
-    e1 = NumLiteral(2)
-    e2 = Assignment("=", a, e1)
 
-    assert eval(e2) == 2
-
-    b = Identifier("b")
-    e3 = NumLiteral(5)
-    e4 = Assignment("=", b, e3)  # b = 5
-    assert eval(e4) == 5
-
-    # Reassignment
-    e6 = Assignment("=", a, e3)
-    assert eval(e6) == 5
 
 
 def test_strings():
@@ -380,34 +372,22 @@ if __name__ == "__main__":
 
 
 
+
+
 def test_while():
-    # env={"i":NumLiteral(0)}
-    # i=Identifier("i")
-    # e2=BinOp(i,"+",1)
-    # e1=BinOp(i,"+",e2)
-    # print(eval(Let(i,e1,e1),env))
-    cond=ComparisonOp(NumLiteral(5),"<",NumLiteral(10))
-    eval(While(cond,Print(StringLiteral("Hello"))))
-
-def test_global_var():
     i=Identifier("i")
-    # e1=Let(i,NumLiteral(0),NumLiteral(2))
     e1=Assign(i,NumLiteral(0))
-
-    # p=Print(StringLiteral("Hello"))
     p=Print(i)
     inc=Assign(i,BinOp(i,"+",NumLiteral(1)))
     body=Seq([p,inc])
     e2=While(ComparisonOp(i,"<",NumLiteral(10)),body)
     eval(Seq([e1,e2]))
-    print(global_env)
+    c=BoolLiteral("True")
+    p=Print(StringLiteral("Hello"))
+    eval(While(c, Seq([p])))
 
 def test_for():
-    # cond=ComparisonOp(NumLiteral(5),"<",NumLiteral(10))
-    # e1=NumLiteral(0)
-    # e2=NumLiteral(1)
-    # body=Print(StringLiteral("Hello"))
-    # eval(For(e1,cond,e2,body))
+
     i=Identifier("i")
     a=Assign(i,NumLiteral(0))
     e2=ComparisonOp(i,"<",NumLiteral(6))
@@ -428,8 +408,5 @@ def test_assign():
     print(global_env)
 
 if __name__ == "__main__":
-# test_while()
+    # test_while()
     test_for()
-# test_global_var()
-# test_seq()
-# test_assign()

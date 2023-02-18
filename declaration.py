@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+from typing import Mapping,Union, List
 
 @dataclass
 class NumLiteral:
@@ -182,6 +182,37 @@ class IfElse:
 
     def __repr__(self) -> str:
         return f"IfElse({self.condition} then {self.if_body} else {self.else_body})"
+
+
+@dataclass
+class Enviroment:
+    envs : List
+    def __init__(self):
+        self.envs=[{}]
+
+    def enter_scope(self):
+        self.envs.append({})
+
+    def exit_scope(self):
+        assert self.envs
+        self.envs.pop()
+
+    def add(self,name,value):
+        assert name not in self.envs[-1]
+        self.envs[-1][name]=value
+    def update(self,name,value):
+        for env in reversed(self.envs):
+            if name in env:
+                env[name]=value
+                return
+        raise KeyError()
+
+    def get(self,name):
+        for env in reversed(self.envs):
+            if name in env:
+                return env[name]
+        raise KeyError()
+
 
 
 AST = NumLiteral | BinOp | Let | StringLiteral | Slice  | ComparisonOp | Identifier | IfElse | Seq | Assign
