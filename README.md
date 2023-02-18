@@ -47,3 +47,48 @@ Repository containing the project of compilers course.
 7. From now onwards don't use fraction as used by sir, use the standard datatype like int, str etc.
 8. Test case should be made in different files not within same file.
 9. Whenever you define a new function use docstring's python to define that function properly. It will help other to understand your code and will come in handy when we are using that function somewhere in the code.
+
+
+## while loop
+
+### Implementation
+While consists of two components, the first being the boolean condition and the second being the body of the while loop. To implement while loop for our language, we evaluate the condition on each iteration. If the condition is true, we evaluate the body, a **sequence** of statements and jump back to re-evaluate the condition. If the condition is false, then we exit the loop. while loop returns value **None** on a complete evaluation. 
+### Some Examples
+Infinite Loop
+
+```commandline
+while(True)
+{
+    print("Hello")
+}
+```
+
+Basic Incrementer
+
+```commandline
+i=0
+while(i<10)
+{    
+    print(i);
+    i=i+1;
+}
+```
+
+Note: As body of while is sequence of ASTs and parser of sequence is not yet coded this examples cannot be directly used as source code. But once the correct parse tree is given while works correctly. We have confirmed this by making tests for while loop. 
+## for loop
+
+### Implementation
+for loop consits of four components, the first component is the assignment operator(assigning value to iterator). Second component is condition for halting, third component being assignment again(for incrementing/decrementing value of iterator). Finally fourth component is the body which is **sequence** of ASTs. 
+<br><br> for loop returns **None** on complete evalution. In order to implement for loop we first evaluate the first assignment statement, evaluate the condition. If condition is true we evaluate the body then assingment statement for increment/decrement. Now we pass condtion and body combined with increment/decrement statement to the while loop. Thus body is evaluated once in for loop after that it is being passed to while loop for further evaluation. 
+
+### Some Examples 
+
+```commandline
+for(i=0;i<10;i=i+1)
+{
+    print(i);
+}
+```
+
+**Note**: As body of for is sequence of ASTs and parser of sequence is not yet coded this examples cannot be directly used as source code. But once the correct parse tree is given for works correctly. We have confirmed this by making tests for for loop.
+
