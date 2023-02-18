@@ -230,6 +230,19 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
                 c=eval(cond,environment)
             # while loop cannot be implemented recursivly as max recursion depth of python restricts it
             return None
+
+        case While(cond, body):
+
+            c = eval(cond, environment)
+            # if(c==True):
+            #     eval(body)
+            #     eval(While(cond,body))
+            while (c == True):
+                eval(body, environment)
+                c = eval(cond, environment)
+            # while loop cannot be implemented recursivly as max recursion depth of python restricts it
+            return None
+
         case For(exp1, condition, exp2, Seq(lst)):
             eval(exp1)
             cond = eval(condition)

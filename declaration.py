@@ -160,7 +160,11 @@ class While_Seq():
     condn: ComparisonOp
     body: 'AST'
 
+@dataclass
+class While():
 
+    condn: ComparisonOp
+    body: 'AST'
 
 
 @dataclass
