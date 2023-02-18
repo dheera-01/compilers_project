@@ -37,33 +37,9 @@ class Parser:
         # print(self.lexer.peek_current_token())
         cond = self.parse_expr()  # parse the condition
         # print("cond", cond)
-        if_branch = Sequence([])
-        while True:
-            # print("peek token", self.lexer.peek_current_token())
-            match self.lexer.peek_current_token():
-                case Keyword("else"):
-                    break
-                case c if isinstance(c,EndOfLine):
-                    self.lexer.advance()
-                case Bracket("}"):
-                    self.lexer.advance()
-                    break
-                case _:
-                    if_branch.statements.append(self.parse_expr())          
+        if_branch = self.parse_block()         
         self.lexer.match(Keyword("else"))
-        else_branch = Sequence([])
-        while True:
-            # print("peek token", self.lexer.peek_current_token())
-            match self.lexer.peek_current_token():
-                case c if isinstance(c,EndOfLine):
-                    self.lexer.advance()
-                case Bracket("}"):
-                    self.lexer.advance()
-                    break
-                case c if isinstance(c,EndOfFile):
-                    break
-                case _:
-                    else_branch.statements.append(self.parse_expr())
+        else_branch = self.parse_block()
 
         return IfElse(cond, if_branch, else_branch)
 
@@ -71,33 +47,33 @@ class Parser:
         """parse while statement
 
         Returns:
-            IfElse AST: return AST of if else statement
+            while AST: return AST of while loop
         """
         self.lexer.match(Keyword("while"))
         # print(self.lexer.peek_current_token())
         cond = self.parse_expr()  # parse the condition
         # print("cond", cond)
-        while_body = Sequence([])
-        while True:
-            # print("peek token", self.lexer.peek_current_token())
-            match self.lexer.peek_current_token():
-                case Keyword("else"):
-                    break
-                case c if isinstance(c,EndOfLine):
-                    self.lexer.advance()
-                case Bracket("}"):
-                    self.lexer.advance()
-                    break
-                case _:
-                    while_body.statements.append(self.parse_expr())          
-        # return None
+        while_body = self.parse_block()
         return While(cond, while_body)
-    #     self.lexer.match(Keyword("while"))
-    #     c = self.parse_expr()
-    #     self.lexer.match(Keyword("do"))
-    #     b = self.parse_expr()
-    #     self.lexer.match(Keyword("done"))
-    #     return While(c, b)
+    
+    def parse_for(self):
+        """parse for statement
+
+        Returns:
+            for AST: return AST of for loop
+        """
+        self.lexer.match(Keyword("for")) 
+        self.lexer.match(Bracket("("))
+        initial = self.parse_assign()
+        self.lexer.match(EndOfLine(";"))
+        cond = self.parse_expr()
+        self.lexer.match(EndOfLine(";"))
+        termination = self.parse_expr()
+        self.lexer.match(Bracket(")"))
+        for_body = self.parse_block()
+        # print(self.lexer.peek_current_token())
+        return For(initial, cond, termination, for_body)
+
 
     def parse_atom(self):
         """parse the atomic expression"""
@@ -249,9 +225,16 @@ class Parser:
 
         return self.parse_cmp()
 
-    def parse_assignment(self):
-        """parse the assignment expression
+    def parse_assign(self):
+        """parse the assign expression
         """
+        self.lexer.match(Keyword("assign"))
+        left_part = self.parse_atom()
+        self.lexer.match(Operator("="))
+        right_part = self.parse_expr()
+        # print("left_part", left_part)
+        # print("right_part", right_part)
+        return Assign(left_part, right_part)
         pass
 
     def parse_expr(self):
@@ -260,7 +243,7 @@ class Parser:
         Returns:
             AST: return AST of the expression
         """
-        # print("peek operation", self.lexer.peek_current_token())
+        print("peek operation", self.lexer.peek_current_token())
         match self.lexer.peek_current_token():
             case c if isinstance(c, EndOfLine):
                 self.lexer.advance()
@@ -272,12 +255,16 @@ class Parser:
                 # return Sequence(self.self.mySequence)
                 return EndOfFile("EOF")
                 sys.exit(0)
-            case c if isinstance(c, Identifier):
-                return self.parse_assignment()
             case Keyword("if"):
                 return self.parse_if()
             case Keyword("while"):
                 return self.parse_while()
+            case Keyword("for"):
+                
+                return self.parse_for()
+            case Keyword("assign"):
+                # print("assign")
+                return self.parse_assign()
             case _:
                 return self.parse_simple()
 
@@ -288,8 +275,41 @@ class Parser:
         # else:
         #     raise Exception("Expected number")
 
+    # statements with {} is considered blocks
+    def parse_block(self)-> Sequence :
+        """parse the block
 
-    def parse_program(self):
+        Returns:
+            AST: return AST of the block
+        """
+        self.lexer.match(Bracket("{"))
+        block_sequence = Sequence([])
+        block_sequence.statements.append(EndOfLine(";"))
+        while True:
+            print("peek token", self.lexer.peek_current_token())
+            if self.lexer.peek_current_token() == Bracket("}"):
+                if(block_sequence.statements[-1] != EndOfLine(";")):
+                    # print("error")
+                    raise InvalidProgram(f"Syntax Error: Expecter {EndOfLine(';')} but found {Bracket('}')}")
+                block_sequence.statements.pop()
+                break
+            t = self.parse_expr()
+            # print("t",t)
+            if t == EndOfLine(";"):
+                if(block_sequence.statements[-1] == EndOfLine(";")):
+                    raise InvalidProgram(f"Syntax Error: Expecter AST but found {EndOfLine(';')}")
+                block_sequence.statements.append(t)
+            else:
+                if(block_sequence.statements[-1] != EndOfLine(";")):
+                    raise InvalidProgram(f"Syntax Error: Expecter {EndOfLine(';')} but found {t}")
+                block_sequence.statements.pop()
+                block_sequence.statements.append(t)
+        self.lexer.match(Bracket("}"))
+        # print("block_sequence",block_sequence)
+        return block_sequence
+        
+    
+    def parse_program(self) -> Sequence:
         """parse the program
 
         Returns:
@@ -313,6 +333,7 @@ class Parser:
                 self.mySequence.statements.pop()
                 self.mySequence.statements.append(t)
         return self.mySequence
+        
     
 
 if __name__ == '__main__':
@@ -323,7 +344,7 @@ if __name__ == '__main__':
     obj_parser = Parser.from_lexer(
         Lexer.from_stream(Stream.from_string(program)))
     print(obj_parser)
-    print(obj_parser.parse_program())
+    print("Parser Program\n",obj_parser.parse_program())
     # print(obj_parser.parse_expr())
     # def myProgram():
     

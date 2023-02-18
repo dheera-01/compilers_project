@@ -182,6 +182,18 @@ class While():
     
     def __repr__(self) -> str:
         return f"While({self.condn} do {self.body})"
+    
+@dataclass
+class Assign:
+    v:Identifier
+    right:'AST'
+
+@dataclass
+class For:
+    exp1: Assign
+    condition:ComparisonOp
+    exp2:'AST'
+    body : Sequence
 
 
 AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assignment | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp| While

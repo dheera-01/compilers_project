@@ -48,7 +48,7 @@ class Stream:
         self.pos = self.pos - 1
 
 
-keywords = "if then else end while for do done let int string float def".split()
+keywords = "if then else end while for do done let int string float def assign".split()
 symbolic_operators = "+ - * / % // ** < > <= >= == !=  << >> = += -= *= /= %= //= **=".split()
 word_operators = "and or not is in".split()
 opening_brackets = "( [ { ".split()
@@ -274,7 +274,7 @@ class Lexer:
         if self.peek_current_token() == expected:
             return self.advance()
 
-        raise TokenError(f"{self.peek_current_token()} is not {expected}")
+        raise TokenError(f"Expected {expected} but got {self.peek_current_token()} ")
 
     # __iter__ and __next__ are used to make the Lexer iterable
     # __iter__ returns the object itself
