@@ -5,10 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="da13ef7d-c564-4963-8729-1a64914d4e56" name="Changes" comment="Implemented string literals, concatenation, and slicing. Only trivial testcases written.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/declaration.py" beforeDir="false" afterPath="$PROJECT_DIR$/declaration.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/my_parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_parser.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sim.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

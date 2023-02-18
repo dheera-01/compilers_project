@@ -155,7 +155,7 @@ class Seq:
     lst : ['AST']
 
 @dataclass
-class While():
+class While_Seq():
 
     condn: ComparisonOp
     body: 'AST'

@@ -218,12 +218,10 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
                 eval(expr,environment)
             return None
 
-        case While(cond,body):
+        case While_Seq(cond,body):
 
             c=eval(cond,environment)
-            # if(c==True):
-            #     eval(body)
-            #     eval(While(cond,body))
+
             while(c==True):
                 eval(body,environment)
                 c=eval(cond,environment)
@@ -236,7 +234,7 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
                 eval(Seq(lst))
                 eval(exp2)
                 lst.append(exp2)
-                eval(While(condition, Seq(lst)))
+                eval(While_Seq(condition, Seq(lst)))
             return None
         case Assign(Identifier(name),right):
             val=eval(right)
@@ -374,17 +372,17 @@ if __name__ == "__main__":
 
 
 
-def test_while():
+def test_while_seq():
     i=Identifier("i")
     e1=Assign(i,NumLiteral(0))
     p=Print(i)
     inc=Assign(i,BinOp(i,"+",NumLiteral(1)))
     body=Seq([p,inc])
-    e2=While(ComparisonOp(i,"<",NumLiteral(10)),body)
+    e2=While_Seq(ComparisonOp(i,"<",NumLiteral(10)),body)
     eval(Seq([e1,e2]))
     c=BoolLiteral("True")
     p=Print(StringLiteral("Hello"))
-    eval(While(c, Seq([p])))
+    eval(While_Seq(c, Seq([p])))
 
 def test_for():
 
@@ -408,5 +406,5 @@ def test_assign():
     print(global_env)
 
 if __name__ == "__main__":
-    # test_while()
+    # test_while_seq()
     test_for()
