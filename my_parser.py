@@ -254,6 +254,13 @@ class Parser:
         self.lexer.match(Keyword("print"))
         return Print(self.parse_expr())
 
+    def parse_for(self):
+        self.lexer.match(Keyword("for"))
+        exp1 = self.parse_expr()
+        c = self.parse_expr()
+        exp2 = self.parse_expr()
+        body = self.parse_expr()
+        return For(exp1, c, exp2, body)
     def parse_expr(self):
         """parse the expression
 

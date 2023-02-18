@@ -42,6 +42,12 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
                 raise InvalidProgram()
 
 
+        case BoolLiteral(tf):
+            if(tf=="True"):
+                return True
+            elif(tf=="False"):
+                return False
+            raise InvalidProgram()
 
         case Slice(string_var, start, end, step):
             # How are handling the case a[1:] and its other variants
@@ -215,12 +221,10 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
                 eval(expr,environment)
             return None
 
-        case While(cond,body):
+        case While_Seq(cond,body):
 
             c=eval(cond,environment)
-            # if(c==True):
-            #     eval(body)
-            #     eval(While(cond,body))
+
             while(c==True):
                 eval(body,environment)
                 c=eval(cond,environment)
@@ -233,7 +237,7 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
                 eval(Seq(lst))
                 eval(exp2)
                 lst.append(exp2)
-                eval(While(condition, Seq(lst)))
+                eval(While_Seq(condition, Seq(lst)))
             return None
         case Assign(Identifier(name),right):
             val=eval(right)
@@ -397,34 +401,22 @@ if __name__ == "__main__":
 
 
 
-def test_while():
-    # env={"i":NumLiteral(0)}
-    # i=Identifier("i")
-    # e2=BinOp(i,"+",1)
-    # e1=BinOp(i,"+",e2)
-    # print(eval(Let(i,e1,e1),env))
-    cond=ComparisonOp(NumLiteral(5),"<",NumLiteral(10))
-    eval(While(cond,Print(StringLiteral("Hello"))))
 
-def test_global_var():
+
+def test_while_seq():
     i=Identifier("i")
-    # e1=Let(i,NumLiteral(0),NumLiteral(2))
     e1=Assign(i,NumLiteral(0))
-
-    # p=Print(StringLiteral("Hello"))
     p=Print(i)
     inc=Assign(i,BinOp(i,"+",NumLiteral(1)))
     body=Seq([p,inc])
-    e2=While(ComparisonOp(i,"<",NumLiteral(10)),body)
+    e2=While_Seq(ComparisonOp(i,"<",NumLiteral(10)),body)
     eval(Seq([e1,e2]))
-    print(global_env)
+    c=BoolLiteral("True")
+    p=Print(StringLiteral("Hello"))
+    eval(While_Seq(c, Seq([p])))
 
 def test_for():
-    # cond=ComparisonOp(NumLiteral(5),"<",NumLiteral(10))
-    # e1=NumLiteral(0)
-    # e2=NumLiteral(1)
-    # body=Print(StringLiteral("Hello"))
-    # eval(For(e1,cond,e2,body))
+
     i=Identifier("i")
     a=Assign(i,NumLiteral(0))
     e2=ComparisonOp(i,"<",NumLiteral(6))
@@ -445,8 +437,5 @@ def test_assign():
     print(global_env)
 
 if __name__ == "__main__":
-# test_while()
+    # test_while_seq()
     test_for()
-# test_global_var()
-# test_seq()
-# test_assign()
