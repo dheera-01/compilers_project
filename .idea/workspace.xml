@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8c636333-d42b-4485-88c6-e1aa6ebc7a6f" name="Changes" comment="Initial." />
+    <list default="true" id="8c636333-d42b-4485-88c6-e1aa6ebc7a6f" name="Changes" comment="Fixing." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -128,12 +128,20 @@
       <option name="project" value="LOCAL" />
       <updated>1676692866432</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Fixing.">
+      <created>1676696320987</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1676696320987</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Fixed merge conflicts." />
     <MESSAGE value="Initial." />
-    <option name="LAST_COMMIT_MESSAGE" value="Initial." />
+    <MESSAGE value="Fixing." />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixing." />
   </component>
 </project>
