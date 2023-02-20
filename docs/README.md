@@ -1,5 +1,3 @@
-# Weekly Report
-
-## Week 1
-
-<hr>
+# [Documentation](documentation.md)
+# [Weekly Report](weekly_report.md)
+# [Team](team.md)
