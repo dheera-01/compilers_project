@@ -243,7 +243,7 @@ class Parser:
         Returns:
             AST: return AST of the expression
         """
-        print("peek operation", self.lexer.peek_current_token())
+        # print("peek operation", self.lexer.peek_current_token())
         match self.lexer.peek_current_token():
             case c if isinstance(c, EndOfLine):
                 self.lexer.advance()
@@ -286,7 +286,7 @@ class Parser:
         block_sequence = Sequence([])
         block_sequence.statements.append(EndOfLine(";"))
         while True:
-            print("peek token", self.lexer.peek_current_token())
+            # print("peek token", self.lexer.peek_current_token())
             if self.lexer.peek_current_token() == Bracket("}"):
                 if(block_sequence.statements[-1] != EndOfLine(";")):
                     # print("error")
@@ -343,8 +343,13 @@ if __name__ == '__main__':
     # program = "5+2"
     obj_parser = Parser.from_lexer(
         Lexer.from_stream(Stream.from_string(program)))
-    print(obj_parser)
-    print("Parser Program\n",obj_parser.parse_program())
+    # print(obj_parser)
+    a = obj_parser.parse_program()
+    print("Program\n",a)
+    ans = eval(a)
+    for i in ans:
+        print(i)
+    # print("Parser Program\n",obj_parser.parse_program())
     # print(obj_parser.parse_expr())
     # def myProgram():
     

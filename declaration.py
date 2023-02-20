@@ -177,7 +177,7 @@ class IfElse:
 @dataclass
 class While():
 
-    condn: ComparisonOp
+    condn: 'AST'
     body: 'AST'
     
     def __repr__(self) -> str:
@@ -187,13 +187,19 @@ class While():
 class Assign:
     v:Identifier
     right:'AST'
+    
+    def __repr__(self) -> str:
+        return f"Assign({self.v} = {self.right})"
 
 @dataclass
 class For:
-    exp1: Assign
-    condition:ComparisonOp
+    exp1: 'AST'
+    condition:'AST'
     exp2:'AST'
     body : Sequence
+    
+    def __repr__(self) -> str:
+        return f"For(({self.exp1} ;{self.condition};{self.exp2}) do {self.body})"
 
 
 AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assignment | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp| While
