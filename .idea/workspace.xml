@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8c636333-d42b-4485-88c6-e1aa6ebc7a6f" name="Changes" comment="Fixing.">
-      <change afterPath="$PROJECT_DIR$/docs/Weekly_report.md" afterDir="false" />
+    <list default="true" id="8c636333-d42b-4485-88c6-e1aa6ebc7a6f" name="Changes" comment="Report Initialisation.">
+      <change afterPath="$PROJECT_DIR$/docs/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/Weekly_report.md" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,13 +139,21 @@
       <option name="project" value="LOCAL" />
       <updated>1676696320987</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Report Initialisation.">
+      <created>1676884945272</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1676884945272</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Fixed merge conflicts." />
     <MESSAGE value="Initial." />
     <MESSAGE value="Fixing." />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixing." />
+    <MESSAGE value="Report Initialisation." />
+    <option name="LAST_COMMIT_MESSAGE" value="Report Initialisation." />
   </component>
 </project>
