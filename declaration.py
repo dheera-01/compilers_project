@@ -1,8 +1,10 @@
 from dataclasses import dataclass
+from typing import List
+
 
 @dataclass
 class Sequence:
-    statements: list["AST"]
+    statements: ["AST"]
     
     def __repr__(self) -> str:
         return f"Sequence({self.statements})"
@@ -221,12 +223,9 @@ class For:
     def __repr__(self) -> str:
         return f"For(({self.exp1} ;{self.condition};{self.exp2}) do {self.body})"
 
-
-AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assignment | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp| While
-
 @dataclass
 class Enviroment:
-    envs : List
+    envs : List[dict]
     def __init__(self):
         self.envs=[{}]
 
@@ -253,6 +252,4 @@ class Enviroment:
                 return env[name]
         raise KeyError()
 
-
-
-AST = NumLiteral | BinOp | Let | StringLiteral | Slice  | ComparisonOp | Identifier | IfElse | Seq | Assign
+AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assign | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp| While
