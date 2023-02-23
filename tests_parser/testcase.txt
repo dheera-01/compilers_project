@@ -1,0 +1,15 @@
+const assign a = 5;
+print(a);
+#assign a = 7;
+assign i = 1;
+assign fact = 1;
+#i + 1;
+while(i <5) {assign i = i + 1; assign fact = fact * i; print(fact);};
+#2 + 5;
+#5 + 9 * (5 +5);
+#if(5>7){5 + 5 ;8 + 9;}else{225 + 5 ;854 + 9 ;};
+#assign a = 5;
+#for(assign a = 0; a < 5; assign a = a + 1){a + 0 ;};
+#5 + 5;5 + 2;if(4>5){5 + 5 ;8 + 9;}else{225 + 5 ;854 + 9 ;};while(5>5){895 + 5 ;8 + 9;};
+#print("Hello")
+#slice("Hello":0+1:2:1)
