@@ -1,5 +1,14 @@
 from dataclasses import dataclass
-from typing import Mapping,Union, List
+from typing import List
+
+
+@dataclass
+class Sequence:
+    statements: ["AST"]
+    
+    def __repr__(self) -> str:
+        return f"Sequence({self.statements})"
+
 
 @dataclass
 class NumLiteral:
@@ -45,6 +54,7 @@ class Keyword:
 @dataclass
 class Identifier:
     name: str
+    is_mutable: bool = True
 
     def __repr__(self) -> str:
         return f"Identifier({self.name})"
@@ -127,9 +137,6 @@ class Print:
         return f"Print({self.val})"
 
 
-
-
-
 @dataclass
 class Slice:
     string_var: 'AST'
@@ -152,7 +159,7 @@ class ComparisonOp:
 
 @dataclass
 class Seq:
-    lst : ['AST']
+    lst : list['AST']
 
 @dataclass
 class While_Seq():
@@ -160,31 +167,98 @@ class While_Seq():
     condn: ComparisonOp
     body: 'AST'
 
-@dataclass
-class While():
-
-    condn: ComparisonOp
-    body: 'AST'
-
+# @dataclass
+# class While():
+#
+#     condn: ComparisonOp
+#     body: 'AST'
 
 @dataclass
 class Assign:
     v:Identifier
     right:'AST'
 
-@dataclass
-class For:
-    exp1: Assign
-    condition:ComparisonOp
-    exp2:'AST'
-    body : Seq
+# @dataclass
+# class For:
+#     exp1: Assign
+#     condition:ComparisonOp
+#     exp2:'AST'
+#     body : Seq
+
 @dataclass
 class IfElse:
     condition: ComparisonOp
-    if_body: "AST"
-    else_body: "AST"
+    if_body: Sequence
+    else_body: Sequence
 
     def __repr__(self) -> str:
         return f"IfElse({self.condition} then {self.if_body} else {self.else_body})"
 
-AST = NumLiteral | BinOp | Let | StringLiteral | Slice  | ComparisonOp | Identifier | IfElse | Seq | Assign
+@dataclass
+class While():
+
+    condn: 'AST'
+    body: 'AST'
+    
+    def __repr__(self) -> str:
+        return f"While({self.condn} do {self.body})"
+    
+@dataclass
+class Assign:
+    v:Identifier
+    right:'AST'
+    
+    def __repr__(self) -> str:
+        return f"Assign({self.v} = {self.right})"
+
+@dataclass
+class For:
+    exp1: 'AST'
+    condition:'AST'
+    exp2:'AST'
+    body : Sequence
+    
+    def __repr__(self) -> str:
+        return f"For(({self.exp1} ;{self.condition};{self.exp2}) do {self.body})"
+
+class InvalidProgram(Exception):
+    pass
+
+@dataclass
+class Enviroment:
+    envs : List[dict]
+
+    def __init__(self):
+        self.envs=[{}]
+
+    def enter_scope(self):
+        self.envs.append({})
+
+    def exit_scope(self):
+        assert self.envs
+        self.envs.pop()
+
+    def add(self, identifier, value):
+        curr_env = self.envs[-1]
+        if identifier.name in curr_env:
+            raise InvalidProgram(f"Variable {identifier.name} already defined")
+            return
+        self.envs[-1][identifier.name] = [value, identifier]
+
+    def update(self, identifier, value):
+        for env in reversed(self.envs):
+            if identifier.name in env:
+                if env[identifier.name][-1].is_mutable:
+                    env[identifier.name] = [value, identifier]
+                else:
+                    raise InvalidProgram(f"Variable {identifier.name} is immutable")
+                return
+        raise KeyError()
+
+    def get(self, name):
+        for env in reversed(self.envs):
+            if name in env:
+                return env[name][0]
+        raise KeyError()
+
+AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assign | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp| While

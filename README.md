@@ -48,7 +48,6 @@ Repository containing the project of compilers course.
 8. Test case should be made in different files not within same file.
 9. Whenever you define a new function use docstring's python to define that function properly. It will help other to understand your code and will come in handy when we are using that function somewhere in the code.
 
-
 ## while loop
 
 ### Implementation
