@@ -2,14 +2,18 @@ from dataclasses import dataclass
 from typing import Union, Mapping
 from declaration import *
 
-
 Value = str | BinOp | float | bool | None | int
 
-global_env={}
+global_env = {}
+
+
 class InvalidProgram(Exception):
     pass
 
+
 global_env = {}
+
+
 def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
     global global_env
     if environment is None:
@@ -41,30 +45,30 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
 
         case Let(Identifier(name), e1, e2):
             v1 = eval(e1, environment)
-            global_env[name]=v1
+            global_env[name] = v1
             return eval(e2, environment | {name: v1})
 
         case Print(val):
             # The print function will print the evaluated value of val and return the AST val
-            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral) or isinstance(val, BinOp) or isinstance(val,Identifier):
+            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral) or isinstance(val, BinOp) or isinstance(
+                    val, Identifier):
                 print(eval(val))
                 return val
             else:
                 raise InvalidProgram()
 
-
         case BoolLiteral(tf):
-            if(tf=="True"):
+            if (tf == "True"):
                 return True
-            elif(tf=="False"):
+            elif (tf == "False"):
                 return False
             raise InvalidProgram()
-        
+
         case Assign(left, right):
             right_val = eval(right, environment)
             global_env[left.name] = right_val
             return None
-        
+
         case While(cond, body):
 
             c = eval(cond, environment)
@@ -77,8 +81,8 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
                 c = eval(cond, environment)
             # while loop cannot be implemented recursively as max recursion depth of python restricts it
             return body_iteration_lst
-        
-        case For(exp1, condition, exp2, body ):
+
+        case For(exp1, condition, exp2, body):
             eval(exp1, environment)
             cond = eval(condition, environment)
             body_iteration_lst = []
@@ -97,7 +101,8 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
             start = eval(start, environment)
             end = eval(end, environment)
             step = eval(step, environment)
-            if isinstance(string_var, str) and isinstance(start, int) and isinstance(end, int) and isinstance(step, int):
+            if isinstance(string_var, str) and isinstance(start, int) and isinstance(end, int) and isinstance(step,
+                                                                                                              int):
                 return string_var[int(start):int(end):int(step)]
             else:
                 raise InvalidProgram(
@@ -188,7 +193,9 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
             eval_left = eval(left, environment)
             eval_right = eval(right, environment)
             try:
-                if isinstance(eval_left, str) and isinstance(eval_right, int) or isinstance(eval_left, int) and isinstance(eval_right, str):
+                if isinstance(eval_left, str) and isinstance(eval_right, int) or isinstance(eval_left,
+                                                                                            int) and isinstance(
+                        eval_right, str):
                     return str(eval_left) + str(eval_right)
                 else:
                     return eval_left + eval_right
@@ -238,7 +245,7 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
                 raise InvalidProgram(
                     f"TypeError: // not supported between instances of {left} and {right}")
 
-        case BinOp(left, "%",  right):
+        case BinOp(left, "%", right):
             eval_left = eval(left, environment)
             eval_right = eval(right, environment)
             try:
@@ -259,16 +266,16 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
                     f"TypeError: ** not supported between instances of {left} and {right}")
         case Seq(lst):
             for expr in lst:
-                eval(expr,environment)
+                eval(expr, environment)
             return None
 
-        case While_Seq(cond,body):
+        case While_Seq(cond, body):
 
-            c=eval(cond,environment)
+            c = eval(cond, environment)
 
-            while(c==True):
-                eval(body,environment)
-                c=eval(cond,environment)
+            while (c == True):
+                eval(body, environment)
+                c = eval(cond, environment)
             # while loop cannot be implemented recursivly as max recursion depth of python restricts it
             return None
 
@@ -293,9 +300,9 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
                 lst.append(exp2)
                 eval(While_Seq(condition, Seq(lst)))
             return None
-        case Assign(Identifier(name),right):
-            val=eval(right)
-            global_env[name]=val
+        case Assign(Identifier(name), right):
+            val = eval(right)
+            global_env[name] = val
             return None
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
 
@@ -321,7 +328,6 @@ def test_eval():
     e5 = BinOp(e1, "+", e2)
     e6 = BinOp(e5, "*", e4)
     assert eval(e6) == 45, f"{eval(e6)} and other is 45"
-    
 
 
 def test_let_eval():
@@ -337,7 +343,7 @@ def test_let_eval():
     e = Let(a, e1, BinOp(Let(a, e2, e2), "+", a))
     assert eval(e) == 25
     e3 = NumLiteral(6)
-    e = BinOp(Let(a, e1, e2), "+",  Let(a, e3, e2))
+    e = BinOp(Let(a, e1, e2), "+", Let(a, e3, e2))
     assert eval(e) == 22
 
 
@@ -433,12 +439,11 @@ def test_unary():
 
 
 def test_varibale():
-
-    a=Identifier("a")
-    e1=BinOp(NumLiteral(2),"+",NumLiteral(3))
-    e2=BinOp(NumLiteral(2),"+",NumLiteral(2))
-    e3=Let(a,e1,e2)
-    s=Seq([a,e1,e2,e3])
+    a = Identifier("a")
+    e1 = BinOp(NumLiteral(2), "+", NumLiteral(3))
+    e2 = BinOp(NumLiteral(2), "+", NumLiteral(2))
+    e3 = Let(a, e1, e2)
+    s = Seq([a, e1, e2, e3])
     eval(s)
     # assert eval(a)== 5
 
@@ -453,42 +458,41 @@ if __name__ == "__main__":
     print("All tests passed")
 
 
-
-
-
-
 def test_while_seq():
-    i=Identifier("i")
-    e1=Assign(i,NumLiteral(0))
-    p=Print(i)
-    inc=Assign(i,BinOp(i,"+",NumLiteral(1)))
-    body=Seq([p,inc])
-    e2=While_Seq(ComparisonOp(i,"<",NumLiteral(10)),body)
-    eval(Seq([e1,e2]))
-    c=BoolLiteral("True")
-    p=Print(StringLiteral("Hello"))
+    i = Identifier("i")
+    e1 = Assign(i, NumLiteral(0))
+    p = Print(i)
+    inc = Assign(i, BinOp(i, "+", NumLiteral(1)))
+    body = Seq([p, inc])
+    e2 = While_Seq(ComparisonOp(i, "<", NumLiteral(10)), body)
+    eval(Seq([e1, e2]))
+    c = BoolLiteral("True")
+    p = Print(StringLiteral("Hello"))
     eval(While_Seq(c, Seq([p])))
 
-def test_for():
 
-    i=Identifier("i")
-    a=Assign(i,NumLiteral(0))
-    e2=ComparisonOp(i,"<",NumLiteral(6))
-    e3=Assign(i,BinOp(i,"+",NumLiteral(1)))
-    p=Print(i)
-    eval(For(a,e2,e3,Seq([p])))
+def test_for():
+    i = Identifier("i")
+    a = Assign(i, NumLiteral(0))
+    e2 = ComparisonOp(i, "<", NumLiteral(6))
+    e3 = Assign(i, BinOp(i, "+", NumLiteral(1)))
+    p = Print(i)
+    eval(For(a, e2, e3, Seq([p])))
+
 
 def test_seq():
-    e1=NumLiteral(0)
-    e2=NumLiteral(1)
-    s=Seq([e1,e2])
+    e1 = NumLiteral(0)
+    e2 = NumLiteral(1)
+    s = Seq([e1, e2])
     eval(s)
 
+
 def test_assign():
-    i=Identifier("i")
-    a=Assign(i,NumLiteral(0))
+    i = Identifier("i")
+    a = Assign(i, NumLiteral(0))
     eval(a)
     print(global_env)
+
 
 if __name__ == "__main__":
     # test_while_seq()

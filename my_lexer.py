@@ -6,10 +6,8 @@ from declaration import *
 # comments are not tokens they are removed by the lexer
 Token = NumLiteral | FloatLiteral | BoolLiteral | Keyword | Identifier | Operator | StringLiteral | Bracket | EndOfLine | EndOfFile
 
-
 class EndOfStream(Exception):
     pass
-
 
 @dataclass
 class Stream:
@@ -48,7 +46,7 @@ class Stream:
         self.pos = self.pos - 1
 
 
-keywords = "if then else end while for do done let int string float def assign print slice".split()
+keywords = "if then else end while for do done let int string float def assign print slice const".split()
 symbolic_operators = "+ - * / % // ** < > <= >= == !=  << >> = += -= *= /= %= //= **= :".split()
 word_operators = "and or not is in".split()
 opening_brackets = "( [ { ".split()

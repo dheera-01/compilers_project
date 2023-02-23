@@ -1,16 +1,12 @@
 from my_lexer import *
 from dataclasses import dataclass
 # from fractions import Fraction
-from sim import *
+from eval_for_parser import *
 import sys
 from declaration import *
 
-
-
-
 class EndOfLineErrror(Exception):
     pass
-
 
 @dataclass
 class Parser:
@@ -255,17 +251,6 @@ class Parser:
         """
 
         return self.parse_cmp()
-
-    # def parse_assign(self):
-    #     """parse the assign expression
-    #     """
-    #     self.lexer.match(Keyword("assign"))
-    #     left_part = self.parse_atom()
-    #     self.lexer.match(Operator("="))
-    #     right_part = self.parse_expr()
-    #     # print("left_part", left_part)
-    #     # print("right_part", right_part)
-    #     return Assign(left_part, right_part)
     
     def parse_assign(self):
         """
@@ -276,6 +261,15 @@ class Parser:
         self.lexer.match(Operator("="))
         right_part = self.parse_expr()
         return Assign(left_part, right_part)
+
+    def parse_const(self):
+        self.lexer.advance()
+        self.lexer.match(Keyword("assign"))
+        identifier = self.parse_atom()
+        identifier.is_mutable = False
+        self.lexer.match(Operator("="))
+        right_part = self.parse_expr()
+        return Assign(identifier, right_part)
     
     def parse_print(self):
         """parse the print expression
@@ -285,14 +279,6 @@ class Parser:
         """
         self.lexer.match(Keyword("print"))
         return Print(self.parse_expr())
-
-    # def parse_for(self):
-    #     self.lexer.match(Keyword("for"))
-    #     exp1 = self.parse_expr()
-    #     c = self.parse_expr()
-    #     exp2 = self.parse_expr()
-    #     body = self.parse_expr()
-    #     return For(exp1, c, exp2, body)
     
     def parse_expr(self):
         """parse the expression
@@ -325,6 +311,8 @@ class Parser:
                 return self.parse_print()
             case Keyword("slice"):
                 return self.parse_slice()
+            case Keyword("const"):
+                return self.parse_const()
             case _:
                 return self.parse_simple()
 
@@ -360,7 +348,6 @@ class Parser:
         self.lexer.match(Bracket("}"))
         # print("block_sequence",block_sequence)
         return block_sequence
-        
     
     def parse_program(self) -> Sequence:
         """parse the program
@@ -386,28 +373,19 @@ class Parser:
                 self.mySequence.statements.pop()
                 self.mySequence.statements.append(t)
         return self.mySequence
-        
-    
 
 if __name__ == '__main__':
 
     file = open("programParse.txt", "r")
+
     program = file.read()
     obj_parser = Parser.from_lexer(
         Lexer.from_stream(Stream.from_string(program)))
-    # print(obj_parser)
+
     a = obj_parser.parse_program()
-    print("Program\n",a)
-    ans = eval(a)
+    print(a)
+    program_env = Enviroment()
+    print(program_env)
+    ans = eval(a, program_env)
     for i in ans:
         print(i)
-    # print("Parser Program\n",obj_parser.parse_program())
-    # print(obj_parser.parse_expr())
-    # def myProgram():
-    
-        # print(eval(t))
-    # print(obj_parser.lexer.peek_current_token())
-    # print(eval(obj_parser.parse_expr()))
-    # print(eval(obj_parser.parse_expr()))
-
-    # print(eval(Parser.from_lexer(Lexer.from_stream(Stream.from_string(a))).parse_expr()))

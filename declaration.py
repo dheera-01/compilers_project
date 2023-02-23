@@ -54,6 +54,7 @@ class Keyword:
 @dataclass
 class Identifier:
     name: str
+    is_mutable: bool = True
 
     def __repr__(self) -> str:
         return f"Identifier({self.name})"
@@ -136,9 +137,6 @@ class Print:
         return f"Print({self.val})"
 
 
-
-
-
 @dataclass
 class Slice:
     string_var: 'AST'
@@ -169,24 +167,24 @@ class While_Seq():
     condn: ComparisonOp
     body: 'AST'
 
-@dataclass
-class While():
-
-    condn: ComparisonOp
-    body: 'AST'
-
+# @dataclass
+# class While():
+#
+#     condn: ComparisonOp
+#     body: 'AST'
 
 @dataclass
 class Assign:
     v:Identifier
     right:'AST'
 
-@dataclass
-class For:
-    exp1: Assign
-    condition:ComparisonOp
-    exp2:'AST'
-    body : Seq
+# @dataclass
+# class For:
+#     exp1: Assign
+#     condition:ComparisonOp
+#     exp2:'AST'
+#     body : Seq
+
 @dataclass
 class IfElse:
     condition: ComparisonOp
@@ -223,9 +221,13 @@ class For:
     def __repr__(self) -> str:
         return f"For(({self.exp1} ;{self.condition};{self.exp2}) do {self.body})"
 
+class InvalidProgram(Exception):
+    pass
+
 @dataclass
 class Enviroment:
     envs : List[dict]
+
     def __init__(self):
         self.envs=[{}]
 
@@ -236,20 +238,27 @@ class Enviroment:
         assert self.envs
         self.envs.pop()
 
-    def add(self,name,value):
-        assert name not in self.envs[-1]
-        self.envs[-1][name]=value
-    def update(self,name,value):
+    def add(self, identifier, value):
+        curr_env = self.envs[-1]
+        if identifier.name in curr_env:
+            raise InvalidProgram(f"Variable {identifier.name} already defined")
+            return
+        self.envs[-1][identifier.name] = [value, identifier]
+
+    def update(self, identifier, value):
         for env in reversed(self.envs):
-            if name in env:
-                env[name]=value
+            if identifier.name in env:
+                if env[identifier.name][-1].is_mutable:
+                    env[identifier.name] = [value, identifier]
+                else:
+                    raise InvalidProgram(f"Variable {identifier.name} is immutable")
                 return
         raise KeyError()
 
-    def get(self,name):
+    def get(self, name):
         for env in reversed(self.envs):
             if name in env:
-                return env[name]
+                return env[name][0]
         raise KeyError()
 
 AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assign | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp| While

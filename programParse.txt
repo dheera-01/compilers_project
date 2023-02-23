@@ -1,3 +1,6 @@
+const assign a = 5;
+print(a);
+#assign a = 7;
 assign i = 1;
 assign fact = 1;
 #i + 1;
