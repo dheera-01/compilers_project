@@ -9,13 +9,20 @@ global_env={}
 class InvalidProgram(Exception):
     pass
 
-
+global_env = {}
 def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
     global global_env
     if environment is None:
         environment = {}
 
     match program:
+        case Sequence(statements):
+            ans = []
+            for statement in statements:
+                # print(f"statement: {statement}")
+                ans.append(eval(statement, environment))
+            # print(f"ans: {ans}")
+            return ans
         case NumLiteral(value):
             return value
         case FloatLiteral(value):
@@ -24,6 +31,10 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
             return value
 
         case Identifier(name):
+            # print(f"Identifier name: {name}")
+            # print(f"global_env: {global_env}")
+            if name in environment:
+                return environment[name]
             if name in global_env:
                 return global_env[name]
             raise InvalidProgram()
@@ -48,6 +59,36 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
             elif(tf=="False"):
                 return False
             raise InvalidProgram()
+        
+        case Assign(left, right):
+            right_val = eval(right, environment)
+            global_env[left.name] = right_val
+            return None
+        
+        case While(cond, body):
+
+            c = eval(cond, environment)
+            # if(c==True):
+            #     eval(body)
+            #     eval(While(cond,body))
+            body_iteration_lst = []
+            while (c == True):
+                body_iteration_lst.append(eval(body, environment))
+                c = eval(cond, environment)
+            # while loop cannot be implemented recursively as max recursion depth of python restricts it
+            return body_iteration_lst
+        
+        case For(exp1, condition, exp2, body ):
+            eval(exp1, environment)
+            cond = eval(condition, environment)
+            body_iteration_lst = []
+            if (cond == True):
+                temp = (eval(body, environment))
+                temp.append(eval(exp2, environment))
+                body.statements.append(exp2)
+                body_iteration_lst = (eval(While(condition, body)))
+                body_iteration_lst.insert(0, temp)
+            return body_iteration_lst
 
         case Slice(string_var, start, end, step):
             # How are handling the case a[1:] and its other variants

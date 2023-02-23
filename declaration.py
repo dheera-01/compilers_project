@@ -1,5 +1,12 @@
 from dataclasses import dataclass
-from typing import Mapping,Union, List
+
+@dataclass
+class Sequence:
+    statements: list["AST"]
+    
+    def __repr__(self) -> str:
+        return f"Sequence({self.statements})"
+
 
 @dataclass
 class NumLiteral:
@@ -152,7 +159,7 @@ class ComparisonOp:
 
 @dataclass
 class Seq:
-    lst : ['AST']
+    lst : list['AST']
 
 @dataclass
 class While_Seq():
@@ -181,12 +188,41 @@ class For:
 @dataclass
 class IfElse:
     condition: ComparisonOp
-    if_body: "AST"
-    else_body: "AST"
+    if_body: Sequence
+    else_body: Sequence
 
     def __repr__(self) -> str:
         return f"IfElse({self.condition} then {self.if_body} else {self.else_body})"
 
+@dataclass
+class While():
+
+    condn: 'AST'
+    body: 'AST'
+    
+    def __repr__(self) -> str:
+        return f"While({self.condn} do {self.body})"
+    
+@dataclass
+class Assign:
+    v:Identifier
+    right:'AST'
+    
+    def __repr__(self) -> str:
+        return f"Assign({self.v} = {self.right})"
+
+@dataclass
+class For:
+    exp1: 'AST'
+    condition:'AST'
+    exp2:'AST'
+    body : Sequence
+    
+    def __repr__(self) -> str:
+        return f"For(({self.exp1} ;{self.condition};{self.exp2}) do {self.body})"
+
+
+AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assignment | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp| While
 
 @dataclass
 class Enviroment:
