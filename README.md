@@ -41,7 +41,6 @@ Repository containing the project of compilers course.
         1. Create a separate branch for every feature.
             1. Create further branches for other purposes. For example, `ifelse` branch can have further branch as `tests`
 
-
 ## while loop
 
 ### Implementation

@@ -4,14 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8c636333-d42b-4485-88c6-e1aa6ebc7a6f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/eval_for_parser.py" afterDir="false" />
+    <list default="true" id="8c636333-d42b-4485-88c6-e1aa6ebc7a6f" name="Changes" comment="Added the const keyword for declaring immutable variables. Added evironment for a program.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/declaration.py" beforeDir="false" afterPath="$PROJECT_DIR$/declaration.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/my_lexer.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_lexer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/my_parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_parser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/programParse.txt" beforeDir="false" afterPath="$PROJECT_DIR$/programParse.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sim.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mutvar.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/my_lexer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/my_parser.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/parser_testcase.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests_parser/parser_testcase.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/program.txt" beforeDir="false" afterPath="$PROJECT_DIR$/tests_lexer/program.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/programParse.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rough.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/samples/greet.lisp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/samples/if_else_types.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/samples/scoping.lisp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/samples/type_checking.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/seq_let2.py" beforeDir="false" afterPath="$PROJECT_DIR$/temp_files/seq_let2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tempCodeRunnerFile.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/typed_sim.py" beforeDir="false" afterPath="$PROJECT_DIR$/temp_files/typed_sim.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,6 +41,14 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/temp_files" />
+      <recent name="$PROJECT_DIR$/tests_parser" />
+      <recent name="$PROJECT_DIR$/tests_lexer" />
+      <recent name="$PROJECT_DIR$/tests" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="Python tests for sim.test_strings" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="compilers_project" />
@@ -62,6 +79,14 @@
       <option name="presentableId" value="Default" />
       <updated>1676649169598</updated>
     </task>
+    <task id="LOCAL-00001" summary="Added the const keyword for declaring immutable variables. Added evironment for a program.">
+      <created>1677144778829</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1677144778829</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -74,5 +99,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Added the const keyword for declaring immutable variables. Added evironment for a program." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added the const keyword for declaring immutable variables. Added evironment for a program." />
   </component>
 </project>
