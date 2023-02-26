@@ -47,3 +47,24 @@ def test_nested_let():
     outer_let=declaration.Let(assign_x,inner_let)
     assert eval_for_parser.eval(outer_let, main_enviroment)== 5
 
+def test_let_lexical():
+    # let
+    # a = 1 in let
+    # b = a in let
+    # a = a + 1 in a + b
+
+    main_enviroment = declaration.Enviroment()
+    a=declaration.Identifier("a")
+    b=declaration.Identifier("b")
+    e1=declaration.NumLiteral(1)
+    assign_a=declaration.Assign(a,e1)
+    assign_b=declaration.Assign(b,a)
+    a_b=declaration.BinOp(a,"+",b)
+    inc_a=declaration.BinOp(a,"+",declaration.NumLiteral(1))
+    assign_inc_a=declaration.Assign(a,inc_a)
+    inner_let=declaration.Let(assign_inc_a,a_b)
+    middle_let=declaration.Let(assign_b,inner_let)
+    outer_let=declaration.Let(assign_a,middle_let)
+
+    assert eval_for_parser.eval(outer_let, main_enviroment)== 3
+
