@@ -6,10 +6,10 @@ Value = str | BinOp | float | bool | None | int
 
 global_env = {}
 
-global_env = {}
 
 
-def eval(program: AST, program_env, environment: Mapping[str, Value] = None) -> Value:
+
+def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] = None) -> Value:
     global global_env
     if environment is None:
         environment = {}
@@ -31,12 +31,22 @@ def eval(program: AST, program_env, environment: Mapping[str, Value] = None) -> 
             return value
 
         case Identifier(name):
-            return program_env.get(name)
+            v=program_env.get(name)
+            return v
 
-        case Let(Identifier(name), e1, e2):
-            v1 = eval(e1, program_env, environment)
-            global_env[name] = v1
-            return eval(e2, program_env, environment | {name: v1})
+        case Let(assign, e2):
+            eval(assign, program_env)
+
+            # try:
+            #     program_env.update(identifier, v1)
+            # except:
+            #
+            #     program_env.add(identifier, v1)
+
+            program_env.enter_scope()
+            e2_val = eval(e2, program_env)
+            program_env.exit_scope()
+            return e2_val
 
         case Print(val):
             # The print function will print the evaluated value of val and return the AST val
@@ -182,6 +192,7 @@ def eval(program: AST, program_env, environment: Mapping[str, Value] = None) -> 
         case BinOp(left, "+", right):
             eval_left = eval(left, program_env, environment)
             eval_right = eval(right, program_env, environment)
+
             try:
                 if isinstance(eval_left, str) and isinstance(eval_right, int) or isinstance(eval_left,
                                                                                             int) and isinstance(

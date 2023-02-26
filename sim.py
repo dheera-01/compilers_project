@@ -14,7 +14,7 @@ class InvalidProgram(Exception):
 global_env = {}
 
 
-def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
+def eval(program: AST, environment:Enviroment) -> Value:
     global global_env
     if environment is None:
         environment = {}
@@ -37,16 +37,24 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
         case Identifier(name):
             # print(f"Identifier name: {name}")
             # print(f"global_env: {global_env}")
-            if name in environment:
-                return environment[name]
-            if name in global_env:
-                return global_env[name]
-            raise InvalidProgram()
+            return environment.get(name)
 
         case Let(Identifier(name), e1, e2):
             v1 = eval(e1, environment)
-            global_env[name] = v1
-            return eval(e2, environment | {name: v1})
+            try:
+                environment.update(Identifier,v1)
+            except:
+                pass
+            try:
+                environment.add(Identifier,v1)
+            except:
+                raise InvalidProgram()
+
+            # changes needed to be made here
+            environment.enter_scope()
+            e2_val= eval(e2,environment)
+            environment.exit_scope()
+            return e2_val
 
         case Print(val):
             # The print function will print the evaluated value of val and return the AST val
@@ -64,10 +72,10 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
                 return False
             raise InvalidProgram()
 
-        case Assign(left, right):
-            right_val = eval(right, environment)
-            global_env[left.name] = right_val
-            return None
+        # case Assign(left, right):
+        #     right_val = eval(right, environment)
+        #     global_env[left.name] = right_val
+        #     return None
 
         case While(cond, body):
 
@@ -301,9 +309,13 @@ def eval(program: AST, environment: Mapping[str, Value] = None) -> Value:
                 eval(While_Seq(condition, Seq(lst)))
             return None
         case Assign(Identifier(name), right):
-            val = eval(right)
-            global_env[name] = val
+            val = eval(right,environment)
+            try:
+                environment.update(name, val)
+            except:
+                environment.add(name, val)
             return None
+
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
 
 
@@ -494,6 +506,27 @@ def test_assign():
     print(global_env)
 
 
+def test_seq_let():
+
+    main_enviroment=Enviroment()
+    main_enviroment.enter_scope()
+    i = Identifier("i")
+    let_stmt = Let(i, NumLiteral(0), BinOp(Identifier("i"), "+", NumLiteral(1)))
+    eval(let_stmt,main_enviroment)
+    main_enviroment.exit_scope()
+
+
+
+def test_environment():
+    main_enviroment=Enviroment()
+    main_enviroment.enter_scope()
+    i = Identifier("i")
+    e=Assign(i, NumLiteral(0))
+
+    eval(e,main_enviroment)
+    print(eval(i,main_enviroment))
+    main_enviroment.exit_scope()
+
+
 if __name__ == "__main__":
-    # test_while_seq()
-    test_for()
+    test_environment()

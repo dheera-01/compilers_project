@@ -121,12 +121,11 @@ class UnaryOp:
 
 @dataclass
 class Let:
-    var: 'AST'
-    e1: 'AST'
+    assign: 'AST'
     e2: 'AST'
 
     def __repr__(self) -> str:
-        return f"Let({self.var} = {self.e1} in {self.e2})"
+        return f"Let({self.assign} {self.e2})"
 
 
 @dataclass
@@ -243,13 +242,16 @@ class Enviroment:
         if identifier.name in curr_env:
             raise InvalidProgram(f"Variable {identifier.name} already defined")
             return
-        self.envs[-1][identifier.name] = [value, identifier]
 
-    def update(self, identifier, value):
+        self.envs[-1][identifier.name] = [value, identifier]
+        return
+
+    def update(self, identifier:Identifier, value):
         for env in reversed(self.envs):
             if identifier.name in env:
                 if env[identifier.name][-1].is_mutable:
                     env[identifier.name] = [value, identifier]
+
                 else:
                     raise InvalidProgram(f"Variable {identifier.name} is immutable")
                 return
@@ -258,6 +260,7 @@ class Enviroment:
     def get(self, name):
         for env in reversed(self.envs):
             if name in env:
+
                 return env[name][0]
         raise KeyError()
 

@@ -282,6 +282,20 @@ class Parser:
         self.lexer.match(Keyword("print"))
         return Print(self.parse_expr())
 
+    def parse_let(self):
+        """parse the let expression
+        Returns:
+            returns the value of expression after in keyword
+        """
+
+        self.lexer.match(Keyword("let"))
+        left_part = self.parse_atom()
+        self.lexer.match(Operator("="))
+        right_part = self.parse_expr()
+
+        return Let(Assign(left_part,right_part), self.parse_expr())
+
+
     def parse_expr(self):
         """parse the expression
 
@@ -315,6 +329,8 @@ class Parser:
                 return self.parse_slice()
             case Keyword("const"):
                 return self.parse_const()
+            case Keyword("let"):
+                return self.parse_let()
             case _:
                 return self.parse_simple()
 
@@ -379,7 +395,7 @@ class Parser:
 
 if __name__ == '__main__':
 
-    file = open("tests_parser/const.txt", "r")
+    file = open("tests_parser/let.txt", "r")
 
     program = file.read()
     obj_parser = Parser.from_lexer(
