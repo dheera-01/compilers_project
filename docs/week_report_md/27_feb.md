@@ -1,12 +1,200 @@
 # 27 Feb
 
 ## Chirag Sarda(@chirag-25)
+
+### Work Done:
+-   I introduced the sequence last week in the code, so in this week, i have written the eval function for the sequence and then ran the while and for with the added sequence. 
+-   Started making the documentation for the compiler. Made the documentation for Lexer. It will allow my other team mates to understand the code better. Here is the link of lexer documentation. https://docs.google.com/document/d/1z4aL49CI5Z9QV66SvI2PCIF_E2Tk3LYo6vdehSJQZcc/edit?usp=sharing 
+
+#### Eval for sequence
+This is written in eval function of sim.py file:
+Right now, our language is expression oriented, i.e. every line has some value. I considered the whole program as a nested sequence. Since whole program is a sequence then 
+ans list store value of each line in the list and if there is some new scope (block) starts then instead of a single value a list is added in the the ans list.
+
+```python
+case Sequence(statements):
+    ans = []
+    for statement in statements:
+        # print(f"statement: {statement}")
+        ans.append(eval(statement, environment))
+    # print(f"ans: {ans}")
+    return ans
+```
+
+Example:
+```
+assign a = 5;
+5 + 5.5;
+if(a>4)
+{
+    5+6;
+    7+9;
+}
+else
+{
+    8 + 9 + 6;
+    4 + 9;
+};
+```
+When we pass this, ans list will look like:
+```python
+ans: [None, 10.5, [11, 16]]
+```
+
+#### Eval for while
+
+```python
+case While(cond, body):
+    c = eval(cond, environment)
+    body_iteration_lst = []
+    while (c == True):
+        body_iteration_lst.append(eval(body, environment))
+        c = eval(cond, environment)
+    return body_iteration_lst
+```
+
+he While function is a loop construct that takes two arguments:
+
+- cond: loop condition expression that evaluates to a Boolean value. The loop will continue to execute as long as this expression is true. 
+- body: loop body that contains the statements to be executed on each iteration.
+
+#####   Implementation
+The While function implements a basic loop construct that executes the statements in the body argument repeatedly as long as the loop condition cond evaluates to true. The cond and body arguments are evaluated in the given environment. On each iteration of the loop, the body statements are executed, and the result of each iteration is appended to a list called body_iteration_lst. The c variable is re-evaluated after each iteration to determine if the loop should continue executing.
+
+Code breakdown
+Here's a step-by-step breakdown of the While loop implementation code:
+
+- c = eval(cond, environment): Evaluate the loop condition expression cond in the given environment and assign the result to a variable c. 
+- body_iteration_lst = []: Initialize an empty list to store the results of each iteration of the loop. 
+- while (c == True):: Begin a while loop that executes as long as c is true. 
+- body_iteration_lst.append(eval(body, environment)): Evaluate the body expression in the given environment and append the result to the body_iteration_lst list. 
+- c = eval(cond, environment): Re-evaluate the loop condition expression cond in the given environment and assign the result to the variable c. 
+- return body_iteration_lst: Return the body_iteration_lst list as the final result of the While loop.
+
+
+**Note**: at the time of implementing these construct, i have considered only the global scoping. No other scoping was implemented. There is only one environment which store variable and its value.
+
+Example:
+```
+assign i = 0;
+while(i< 4)
+{
+    assign i = i +1;
+    print(i);
+    assign i = i + 1;
+};
+```
+Output:
+```
+1
+3
+```
+
+#### Eval for:
+
+```python
+case For(exp1, condition, exp2, body):
+    eval(exp1, environment)
+    cond = eval(condition, environment)
+    body_iteration_lst = []
+    if (cond == True):
+        temp = (eval(body, environment))
+        temp.append(eval(exp2, environment))
+        body.statements.append(exp2)
+        body_iteration_lst = (eval(While(condition, body)))
+        body_iteration_lst.insert(0, temp)
+    return body_iteration_lst
+```
+
+The For function is a loop construct that takes four arguments:
+
+- exp1: initialization expression that sets the initial value of the loop variable.
+condition: loop condition expression that evaluates to a Boolean value. The loop will continue to execute as long as this expression is true.
+- exp2: update expression that modifies the loop variable at the end of each iteration.
+body: loop body that contains the statements to be executed on each iteration.
+
+##### Implementation
+The For function is implemented using a While loop construct. The code first evaluates the initialization expression exp1 and the loop condition expression condition in the given environment (here global). It then appends the exp2 expression to the end of the body.statements list, which is a list of statements that make up the loop body. The code then evaluates a While loop construct, passing in the loop condition condition and the loop body body. The result of the While loop (i.e., the list of results from each iteration of the loop) is returned as the final result of the For loop.
+
+##### Code breakdown
+Here's a step-by-step breakdown of the For loop implementation code:
+
+- eval(exp1, environment): Evaluate the initialization expression exp1 in the given environment. 
+- cond = eval(condition, environment): Evaluate the loop condition expression condition in the given environment and assign the result to a variable cond. 
+- body.statements.append(exp2): Append the exp2 expression to the end of the body.statements list, which is a list of statements that make up the loop body. 
+- body_iteration_lst = (eval(While(condition, body))): Evaluate a While loop construct, passing in the loop condition condition and the loop body body. The result of the While loop (i.e., the list of results from each iteration of the loop) is assigned to body_iteration_lst. 
+- return body_iteration_lst: Return the body_iteration_lst list as the final result of the For loop.
+
+Example:
+```
+for(assign i = 0; i < 4; assign i = i + 1)
+{
+    assign i = i + 1;
+    print(i);
+};
+```
+Output:
+```
+1
+3
+```
+
+##### TestCase factorial
+```python
+import os, sys
+current_dir = os.getcwd()
+sys.path.append(current_dir)
+# print(f"syst path {sys.path}")
+
+
+from my_parser import *
+
+
+def test_parse_factorial():
+    # print("test_parse_fact")
+    text = """
+    assign i = 1;
+    assign fact = 1;
+    while(i <5) {assign i = i + 1; assign fact = fact * i;};
+    print(fact);
+    """
+   
+    obj_parser = Parser.from_lexer(
+        Lexer.from_stream(Stream.from_string(text)))
+    # print(obj_parser)
+    a = obj_parser.parse_program()
+    # print("Program\n",a)
+    lst = [
+        None,
+        None,
+        [[None, None, 2], [None, None, 6], [None, None, 24], [None, None, 120]]]
+    program_env = Environment()
+    eval(a, program_env)
+    # print("ans",eval(a, program_env))
+    # assert eval(a,program_env ) == lst
+    # print("ans",ans)
+    # for i in ans:
+    #     print(i)
+
+
+if __name__ == "__main__":
+    # test_eval()
+    test_parse_factorial()
+    # print("All tests passed")
+```
+Output:
+```
+120
+```
+
+
 ## Dheeraj Yadav(@dheera-01)
 
-### Work done:
+### Work Done:
 - Integrated the `Environment` with the already implemented parser and eval.
 - Modified `Environment` for handling mutability of the Identifiers.
 - Introduced new keyword `const` for immutable variables. Wrote the parser for immutable variables.
+- Compiled the weekly report and formatted in markdown.
 
 #### Description
 The final modified class of `Environment` is as follows:

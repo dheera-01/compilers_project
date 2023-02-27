@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8c636333-d42b-4485-88c6-e1aa6ebc7a6f" name="Changes" comment="Added the const keyword for declaring immutable variables. Added evironment for a program.">
-      <change afterPath="$PROJECT_DIR$/docs/week_report_md/27_feb.md" afterDir="false" />
+    <list default="true" id="8c636333-d42b-4485-88c6-e1aa6ebc7a6f" name="Changes" comment="Weekly_report update.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/team.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/team.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/weekly_report.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/weekly_report.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/week_report_md/27_feb.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/week_report_md/27_feb.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,7 +80,14 @@
       <option name="project" value="LOCAL" />
       <updated>1677144778829</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Weekly_report update.">
+      <created>1677447411434</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1677447411434</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -101,6 +106,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Added the const keyword for declaring immutable variables. Added evironment for a program." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added the const keyword for declaring immutable variables. Added evironment for a program." />
+    <MESSAGE value="Weekly_report update." />
+    <option name="LAST_COMMIT_MESSAGE" value="Weekly_report update." />
   </component>
 </project>
