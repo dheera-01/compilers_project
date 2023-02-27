@@ -292,8 +292,12 @@ class Parser:
         left_part = self.parse_atom()
         self.lexer.match(Operator("="))
         right_part = self.parse_expr()
+        self.lexer.match(Bracket("("))
+        body = self.parse_expr()
+        self.lexer.match(Bracket(")"))
+        return Let(Assign(left_part, right_part), body)
 
-        return Let(Assign(left_part,right_part), self.parse_expr())
+        # return Let(Assign(left_part,right_part), self.parse_expr())
 
 
     def parse_expr(self):
