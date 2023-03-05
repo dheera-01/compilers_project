@@ -397,9 +397,12 @@ class Parser:
         return self.mySequence
 
 
-if __name__ == '__main__':
+def parse_code_file(file_location:str):
+    '''
+    to parse and evalulate given file present file_Location
+    '''
 
-    file = open("tests_parser/let.txt", "r")
+    file = open(file_location, "r")
 
     program = file.read()
     obj_parser = Parser.from_lexer(
@@ -410,5 +413,17 @@ if __name__ == '__main__':
     program_env = Enviroment()
     print(program_env)
     ans = eval(a, program_env)
-    for i in ans:
-        print(i)
+
+if __name__ == '__main__':
+
+    file = open("tests_parser/let.txt", "r")
+
+    program = file.read()
+    obj_parser = Parser.from_lexer(
+        Lexer.from_stream(Stream.from_string(program)))
+
+    a = obj_parser.parse_program()
+
+    program_env = Enviroment()
+    
+    ans = eval(a, program_env)

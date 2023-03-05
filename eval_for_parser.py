@@ -70,7 +70,7 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
         #     return None
 
         case While(cond, body):
-
+            program_env.enter_scope()
             c = eval(cond, program_env, environment)
             # if(c==True):
             #     eval(body)
@@ -80,9 +80,11 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
                 body_iteration_lst.append(eval(body, program_env, environment))
                 c = eval(cond, program_env, environment)
             # while loop cannot be implemented recursively as max recursion depth of python restricts it
+            program_env.exit_scope()
             return body_iteration_lst
 
         case For(exp1, condition, exp2, body):
+            program_env.enter_scope()
             eval(exp1, program_env, environment)
             cond = eval(condition, program_env, environment)
             body_iteration_lst = []
@@ -92,6 +94,7 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
                 body.statements.append(exp2)
                 body_iteration_lst = (eval(While(condition, body), program_env))
                 body_iteration_lst.insert(0, temp)
+            program_env.exit_scope()
             return body_iteration_lst
 
         case Slice(string_var, start, end, step):
@@ -113,10 +116,16 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
             # print(f"The condition result {condition_res}")
             if condition_res == True:
                 # print(f"Inside the if of IfElse")
-                return eval(if_ast, program_env, environment)
+                program_env.enter_scope()
+                rtr= eval(if_ast, program_env, environment)
+                program_env.exit_scope()
+                return rtr
             else:
                 # print('Inside else of IfElse')
-                return eval(else_ast, program_env, environment)
+                program_env.enter_scope()
+                rtr= eval(else_ast, program_env, environment)
+                program_env.exit_scope()
+                return rtr
 
         # comparison operation
         case ComparisonOp(x, ">", const):
@@ -270,27 +279,6 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
                 eval(expr, program_env, environment)
             return None
 
-        case While_Seq(cond, body):
-
-            c = eval(cond, program_env, environment)
-
-            while (c == True):
-                eval(body, program_env, environment)
-                c = eval(cond, program_env, environment)
-            # while loop cannot be implemented recursivly as max recursion depth of python restricts it
-            return None
-
-        # case While(cond, body):
-        #     c = eval(cond, environment)
-        #     # if(c==True):
-        #     #     eval(body)
-        #     #     eval(While(cond,body))
-        #     while (c == True):
-        #         eval(body, environment)
-        #         c = eval(cond, environment)
-        #     # while loop cannot be implemented recursivly as max recursion depth of python restricts it
-        #     return None
-
         case For(exp1, condition, exp2, Seq(lst)):
             eval(exp1)
             cond = eval(condition, program_env)
@@ -298,7 +286,7 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
                 eval(Seq(lst), program_env)
                 eval(exp2, program_env)
                 lst.append(exp2)
-                eval(While_Seq(condition, Seq(lst)), program_env)
+                eval(While(condition, Seq(lst)), program_env)
             return None
 
         case Assign(identifier, right):
