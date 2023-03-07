@@ -59,9 +59,9 @@ def eval(program: AST, program_env, environment: Mapping[str, Value] = None) -> 
         case Print(val):
             # The print function will print the evaluated value of val and return the AST val
             if isinstance(val, NumLiteral) or isinstance(val, StringLiteral) or isinstance(val, BinOp) or isinstance(val, Identifier) or isinstance(val, BoolLiteral):
-                print(f"----------------------------------------")
+                # print(f"----------------------------------------")
                 print(eval_literals(eval(val, program_env)))
-                print(f"----------------------------------------")
+                # print(f"----------------------------------------")
                 return None
             else:
                 raise InvalidProgram()
