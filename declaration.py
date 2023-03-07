@@ -18,7 +18,6 @@ class NumLiteral:
         return f"NumLiteral({self.value})"
 
 
-# Define a StringLiteral class for testing in test_print
 @dataclass
 class StringLiteral:
     value: str
