@@ -238,6 +238,7 @@ class Enviroment:
         assert self.envs
         self.envs.pop()
 
+    # value here is also a Literal
     def add(self, identifier, value):
         curr_env = self.envs[-1]
         if identifier.name in curr_env:
@@ -253,12 +254,12 @@ class Enviroment:
                 else:
                     raise InvalidProgram(f"Variable {identifier.name} is immutable")
                 return
-        raise KeyError()
+        raise InvalidProgram(f"Variable {identifier.name} is not defined")
 
     def get(self, name):
         for env in reversed(self.envs):
             if name in env:
                 return env[name][0]
-        raise KeyError()
+        raise InvalidProgram(f"Variable {name} is not defined")
 
 AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assign | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp| While

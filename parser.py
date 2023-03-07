@@ -379,7 +379,7 @@ class Parser:
 
 if __name__ == '__main__':
 
-    file = open("tests_parser/const.txt", "r")
+    file = open("tests_parser/arithmetics.txt", "r")
 
     program = file.read()
     obj_parser = Parser.from_lexer(

@@ -1,0 +1,6 @@
+assign a = 4;
+assign b = 5;
+print(a+b);
+print(a*b);
+print(a-b);
+print(a/b);
