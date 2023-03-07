@@ -333,7 +333,7 @@ class Lexer:
 
 if __name__ == "__main__":
 
-    file = open("program.txt", "r")
+    file = open("tests_lexer/program.txt", "r")
     program = file.read()
     # print("Program:")
     # print(program)

@@ -58,11 +58,11 @@ def eval(program: AST, program_env, environment: Mapping[str, Value] = None) -> 
 
         case Print(val):
             # The print function will print the evaluated value of val and return the AST val
-            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral) or isinstance(val, BinOp) or isinstance(val, Identifier):
+            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral) or isinstance(val, BinOp) or isinstance(val, Identifier) or isinstance(val, BoolLiteral):
                 print(f"----------------------------------------")
                 print(eval_literals(eval(val, program_env)))
                 print(f"----------------------------------------")
-                return val
+                return None
             else:
                 raise InvalidProgram()
 
@@ -122,7 +122,7 @@ def eval(program: AST, program_env, environment: Mapping[str, Value] = None) -> 
         # comparison operation
         case ComparisonOp(x, ">", const):
             try:
-                if eval(x, program_env, environment) > eval(const, program_env, environment):
+                if eval_literals(eval(x, program_env, environment)) > eval_literals(eval(const, program_env, environment)):
                     return BoolLiteral(True)
                 return BoolLiteral(False)
             except Exception as e:
@@ -131,7 +131,7 @@ def eval(program: AST, program_env, environment: Mapping[str, Value] = None) -> 
 
         case ComparisonOp(x, "<", const):
             try:
-                if eval(x, program_env, environment) < eval(const, program_env, environment):
+                if eval_literals(eval(x, program_env, environment)) < eval_literals(eval(const, program_env, environment)):
                     return BoolLiteral(True)
                 return BoolLiteral(False)
             except Exception as e:
@@ -140,7 +140,7 @@ def eval(program: AST, program_env, environment: Mapping[str, Value] = None) -> 
 
         case ComparisonOp(x, "==", const):
             try:
-                if eval(x, program_env, environment) == eval(const, program_env, environment):
+                if eval_literals(eval(x, program_env, environment)) == eval_literals(eval(const, program_env, environment)):
                     return BoolLiteral(True)
                 return BoolLiteral(False)
             except Exception as e:
@@ -149,7 +149,7 @@ def eval(program: AST, program_env, environment: Mapping[str, Value] = None) -> 
 
         case ComparisonOp(x, "!=", const):
             try:
-                if eval(x, program_env, environment) != eval(const, program_env, environment):
+                if eval_literals(eval(x, program_env, environment)) != eval_literals(eval(const, program_env, environment)):
                     return BoolLiteral(True)
                 return BoolLiteral(False)
             except Exception as e:
@@ -158,7 +158,7 @@ def eval(program: AST, program_env, environment: Mapping[str, Value] = None) -> 
 
         case ComparisonOp(x, "<=", const):
             try:
-                if eval(x, program_env, environment) <= eval(const, program_env, environment):
+                if eval_literals(eval(x, program_env, environment)) <= eval_literals(eval(const, program_env, environment)):
                     return BoolLiteral(True)
                 return BoolLiteral(False)
             except Exception as e:
@@ -167,7 +167,7 @@ def eval(program: AST, program_env, environment: Mapping[str, Value] = None) -> 
 
         case ComparisonOp(x, ">=", const):
             try:
-                if eval(x, program_env, environment) >= eval(const, program_env, environment):
+                if eval_literals(eval(x, program_env, environment)) >= eval_literals(eval(const, program_env, environment)):
                     return BoolLiteral(True)
                 return BoolLiteral(False)
             except Exception as e:
