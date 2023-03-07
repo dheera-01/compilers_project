@@ -199,7 +199,9 @@ def eval(program: AST, program_env, environment: Mapping[str, Value] = None) -> 
                     return StringLiteral(res)
                 else:
                     res = eval_literals(eval_left) + eval_literals(eval_right)
-                    if isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
+                    if isinstance(eval_left, StringLiteral) and isinstance(eval_right, StringLiteral):
+                        return StringLiteral(res)
+                    elif isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
                         return FloatLiteral(res)
                     else:
                         return NumLiteral(res)
