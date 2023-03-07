@@ -225,12 +225,14 @@ def eval(program: AST, program_env, environment: Mapping[str, Value] = None) -> 
             eval_right = eval(right, program_env, environment)
             try:
                 res = eval_literals(eval_left) * eval_literals(eval_right)
-                if isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
+                if isinstance(eval_left, StringLiteral) and isinstance(eval_right, NumLiteral):
+                    return StringLiteral(res)
+                elif isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
                     return FloatLiteral(res)
                 else:
                     return NumLiteral(res)
             except Exception as e:
-                raise InvalidProgram(f"TypeError: ** not supported between instances of {left} and {right}")
+                raise InvalidProgram(f"TypeError: * not supported between instances of {left} and {right}")
 
         case BinOp(left, "/", right):
             eval_left = eval(left, program_env, environment)
