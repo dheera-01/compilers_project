@@ -417,7 +417,7 @@ def parse_code_file(file_location:str):
 
 if __name__ == '__main__':
 
-    file = open("tests_parser/let.txt", "r")
+    file = open("tests_parser/assign.txt", "r")
 
     program = file.read()
     obj_parser = Parser.from_lexer(

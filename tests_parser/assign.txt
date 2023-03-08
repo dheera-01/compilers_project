@@ -1,0 +1,10 @@
+#1
+assign i = 0;
+while(i<5){assign i = i + 1;};
+print(i);
+
+assign i = 0;
+while(i<5){assign i = i + 1; assign k = 4;print(k);};
+print(i);
+#should throw error
+print(k);

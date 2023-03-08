@@ -310,11 +310,12 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
 
         case Assign(identifier, right):
             value = eval(right, program_env, environment)
-            curr_env = program_env.envs[-1]
-            if identifier.name in curr_env:
-                program_env.update(identifier, value)
-            else:
-                program_env.add(identifier, value)
+            for env in reversed(program_env.envs):
+                if identifier.name in env:
+                    program_env.update(identifier, value)
+                    return None
+
+            program_env.add(identifier, value)
             return None
 
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
