@@ -62,14 +62,12 @@ def eval(program: AST, program_env, environment: Mapping[str, Value] = None) -> 
         case While(cond, body):
 
             c = eval(cond, program_env, environment)
-            # if(c==True):
-            #     eval(body)
-            #     eval(While(cond,body))
+
             body_iteration_lst = []
             while (c == True):
                 body_iteration_lst.append(eval(body, program_env, environment))
                 c = eval(cond, program_env, environment)
-            # while loop cannot be implemented recursively as max recursion depth of python restricts it
+
             return body_iteration_lst
 
         case For(exp1, condition, exp2, body):
