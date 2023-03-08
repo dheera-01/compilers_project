@@ -308,14 +308,60 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
                 eval(expr, program_env, environment)
             return None
 
-        case Assign(identifier, right):
-            value = eval(right, program_env, environment)
-            for env in reversed(program_env.envs):
-                if identifier.name in env:
-                    program_env.update(identifier, value)
-                    return None
+        # case Assign(identifier, right):
+        #     value = eval(right, program_env, environment)
+        #     for env in reversed(program_env.envs):
+        #         if identifier.name in env:
+        #             program_env.update(identifier, value)
+        #             return None
 
-            program_env.add(identifier, value)
-            return None
-
+        #     program_env.add(identifier, value)
+        #     return None
+        case Assign(left, right):
+        
+            curr_env = program_env.envs[-1]
+            if isinstance(left, tuple):  # check if left-hand side is a tuple
+    
+                value = [eval(i, program_env, environment) for i in right]
+       
+                for i, identifier in enumerate(left):
+                    if identifier.name in curr_env:
+                        program_env.update(identifier, value[i])
+                    else:
+                        program_env.add(identifier, value[i])
+        
+                return None
+        
+            else:  # left-hand side is a single identifier
+        
+       
+                value = eval(right, program_env, environment)
+        
+                if left.name in curr_env:
+                    program_env.update(left, value)
+                else:
+                    program_env.add(left, value)
+                return None
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
+def test_assign_case():
+   
+ 
+ program_env = Enviroment()
+ program_env.add(Identifier('a'), 1)
+
+    # single assignment x = 2
+ ast = Assign(Identifier('x'), NumLiteral(2))
+ eval(ast, program_env)
+    
+ assert program_env.envs[-1]['x'][0] == 2
+
+    
+    # multiple assignments : y, z = 3, 4
+ ast = Assign((Identifier('y'), Identifier('z')), (NumLiteral(3), NumLiteral(4)))
+ eval(ast, program_env)
+    
+
+assert program_env.envs[-1]['y'][0] == 3
+assert program_env.envs[-1]['z'][0] == 4
+
+raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
