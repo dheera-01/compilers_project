@@ -5,10 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8c636333-d42b-4485-88c6-e1aa6ebc7a6f" name="Changes" comment="Added implementation and usage docs for assign and const.#7">
-      <change afterPath="$PROJECT_DIR$/docs/Implementation/assign_const.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/usage/assign_const.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/documentation.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/documentation.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/usage/assign_const.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/usage/assign_const.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,6 +75,7 @@
       <option name="presentableId" value="Default" />
       <updated>1676649169598</updated>
       <workItem from="1677487209288" duration="2519000" />
+      <workItem from="1678278949952" duration="98000" />
     </task>
     <task id="LOCAL-00001" summary="Added the const keyword for declaring immutable variables. Added evironment for a program.">
       <created>1677144778829</created>

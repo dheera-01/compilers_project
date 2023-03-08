@@ -1,5 +1,6 @@
 # Assign and Const
 
+*Note: By default all variables are mutable variables. If we want to declare immutable variables, then `const` explicitly should be specified.*
 ## Assign
 Following example illustrates the usage of `assign` keyword for declaring and updating variables.
 #### Example 1
