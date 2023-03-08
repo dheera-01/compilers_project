@@ -91,10 +91,16 @@ def test_case5():
     print(f"\nTest Case 5")
     text = """
     assign j = 0;
-    while(j<10)
+    while(j<5)
     {
-        j = j +1;
         print(j);
+        assign k = 0;
+        while(k<2)
+        {
+            print(k);
+            k = k + 1;
+        }
+        j = j +1;
     }
     """
     obj_parser = Parser.from_lexer(Lexer.from_stream(Stream.from_string(text)))
@@ -145,14 +151,17 @@ def test_case7():
     for i in a.statements:
         print(i)
     
+
+
+
 if __name__ == "__main__":
 
-    # test_case1()
-    # test_case2()
-    # test_case3()
-    # test_case4()
-    # test_case5()
-    # test_case6()
-    test_case7()
+    # # test_case1()
+    # # test_case2()
+    # # test_case3()
+    # # test_case4()
+    test_case5()
+    # # test_case6()
+    # test_case7()
     print("\nAll test cases passed")
     pass
