@@ -11,3 +11,4 @@
 
 - [Print](Language_docs/Print.md)
 - [Const](Language_docs/const.md)
+- [Strings](usage/strings.md)
