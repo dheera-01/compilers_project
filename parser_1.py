@@ -36,9 +36,9 @@ class Parser:
 
         c = self.parse_expr()  # parse the condition
 
-        if_branch = self.parse_expr()
+        if_branch = self.parse_block()
         self.lexer.match(Keyword("else"))
-        else_branch = self.parse_expr()
+        else_branch = self.parse_block()
 
         return IfElse(c, if_branch, else_branch)
 
@@ -258,6 +258,7 @@ class Parser:
         """
         parse the assign expression
         """
+        self.lexer.peek_current_token()
         self.lexer.advance()
         left_part = self.parse_atom()
         self.lexer.match(Operator("="))
