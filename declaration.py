@@ -172,11 +172,18 @@ class While_Seq():
 #     condn: ComparisonOp
 #     body: 'AST'
 
+# @dataclass
+# class Assign:
+#     v:Identifier
+#     right:'AST'
 @dataclass
 class Assign:
-    v:Identifier
-    right:'AST'
-
+    v: List[Identifier]
+    right: List['AST']
+    
+    def __repr__(self) -> str:
+        assignments = ", ".join([f"{var} = {expr}" for var, expr in zip(self.v, self.right)])#used list comprehension to iterate over 'v'(variable names) and 'right'(values)
+        return f"Assign({assignments})"
 # @dataclass
 # class For:
 #     exp1: Assign
@@ -238,26 +245,46 @@ class Enviroment:
         self.envs.pop()
 
     # value here is also a Literal
-    def add(self, identifier, value):
-        curr_env = self.envs[-1]
-        if identifier.name in curr_env:
-            raise InvalidProgram(f"Variable {identifier.name} already defined")
-            return
+    # def add(self, identifier, value):
+    #     curr_env = self.envs[-1]
+    #     if identifier.name in curr_env:
+    #         raise InvalidProgram(f"Variable {identifier.name} already defined")
+    #         return
 
-        self.envs[-1][identifier.name] = [value, identifier]
-        return
+    #     self.envs[-1][identifier.name] = [value, identifier]
+    #     return
 
-    def update(self, identifier:Identifier, value):
-        for env in reversed(self.envs):
+    # def update(self, identifier:Identifier, value):
+    #     for env in reversed(self.envs):
+    #         if identifier.name in env:
+    #             if env[identifier.name][-1].is_mutable:
+    #                 env[identifier.name] = [value, identifier]
+
+    #             else:
+    #                 raise InvalidProgram(f"Variable {identifier.name} is immutable")
+    #             return
+    #     raise InvalidProgram(f"Variable {identifier.name} is not defined")
+    def update(self, identifier, value):
+        if isinstance(value, tuple):
+         for i, val in enumerate(value):
+            self.update(identifier[i], val)
+        else:
+         for env in reversed(self.envs):
             if identifier.name in env:
                 if env[identifier.name][-1].is_mutable:
                     env[identifier.name] = [value, identifier]
-
                 else:
                     raise InvalidProgram(f"Variable {identifier.name} is immutable")
                 return
-        raise InvalidProgram(f"Variable {identifier.name} is not defined")
-
+    def add(self, identifier, value):
+       curr_env = self.envs[-1]
+       if identifier.name in curr_env:
+        raise InvalidProgram(f"Variable {identifier.name} already defined")
+        return
+       if isinstance(value, tuple):
+        self.envs[-1][identifier.name] = list(value) + [identifier]
+       else:
+        self.envs[-1][identifier.name] = [value, identifier]
     def get(self, name):
         for env in reversed(self.envs):
             if name in env:
