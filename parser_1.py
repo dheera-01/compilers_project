@@ -34,12 +34,18 @@ class Parser:
         c = self.parse_simple()  # parse the condition which is a simple expression
         if_branch = self.parse_block()
         # single if statement
-        if self.lexer.peek_current_token() != Keyword("else"):
+        if self.lexer.peek_current_token() != Keyword("else") and self.lexer.peek_current_token() != Keyword("elif"):
             return IfElse(c, if_branch)
+        elif_list = []
+        while self.lexer.peek_current_token() == Keyword("elif"):
+            self.lexer.advance()
+            elif_condition = self.parse_simple()
+            elif_body = self.parse_block()
+            elif_list.append(IfElse(elif_condition, elif_body))            
         self.lexer.match(Keyword("else"))
         else_branch = self.parse_block()
 
-        return IfElse(c, if_branch, else_branch)
+        return IfElse(c, if_branch, elif_list, else_branch)
 
 
     def parse_while(self):
@@ -374,6 +380,8 @@ class Parser:
             case c if isinstance(c, EndOfFile):
                 return EndOfFile("EOF")
                 sys.exit(0)
+            case Keyword("elif"):
+                raise InvalidProgram(f"Syntax Error: elif can only be used after if")
             case Keyword("if"):
                 # print(self.lexer.peek_current_token())
                 return self.parse_if()
@@ -453,6 +461,6 @@ if __name__ == '__main__':
     program = file.read()
     obj_parser = Parser.from_lexer(
         Lexer.from_stream(Stream.from_string(program)))
-    print(f"object parser {obj_parser}")
+    # print(f"object parser {obj_parser}")
     a = obj_parser.parse_program()
     print(f"Parsed program: {a}")

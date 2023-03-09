@@ -71,6 +71,33 @@ def test_case3():
     program_env = Environment()
     eval(parsed_output, program_env)
     # ans = eval(parsed_output)
+# elif test case
+def test_case3_1():
+    print(f"\nTestcase 3.1")
+    text = """
+    assign i = 5;
+    if(i>5)
+    {
+        print("inside if");
+    } 
+    elif(i == 4)
+    {
+        print("elif 1");
+    }
+    elif(i == 5)
+    {
+        print("elif 2");
+    }
+    else
+    {
+        print("else");
+    }
+    """
+    parsed_output = Parser.from_lexer(Lexer.from_stream(
+        Stream.from_string(text))).parse_program()
+    program_env = Environment()
+    eval(parsed_output, program_env)
+    # ans = eval(parsed_output)
 
 # scoping test
 def test_case4():
@@ -228,6 +255,7 @@ if __name__ == "__main__":
     test_case1()
     test_case2()
     test_case3()
+    test_case3_1()
     test_case4()
     test_case5()
     test_case6()

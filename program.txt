@@ -1,10 +1,18 @@
 #print("hello", i);
-assign i = 4;
-if(i>2 and i<5 and i == 3)
+assign i = 0;
+if(i>5)
 {
-    print("i<2 and i < 5");
+    print("inside if");
 } 
+elif(i == 4)
+{
+    print("elif 1");
+}
+elif(i == 5)
+{
+    print("elif 2");
+}
 else
 {
-    print("not");
+    print("else");
 }

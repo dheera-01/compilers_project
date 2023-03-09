@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
 
 
@@ -159,10 +159,17 @@ class Slice:
 class IfElse:
     condition: ComparisonOp
     if_body: Sequence
-    else_body: Sequence = None
+    elif_body: list(["AST"])
+    else_body: Sequence
 
+    def __init__(self, cond, if_, elif_ = [], else_ = None) -> None:
+        self.condition = cond
+        self.if_body = if_
+        self.elif_body = elif_
+        self.else_body = else_    
+    
     def __repr__(self) -> str:
-        return f"IfElse({self.condition} then {self.if_body} else {self.else_body})"
+        return f"\nIfElse\n{self.condition}\n{self.if_body}\n{self.elif_body}\n{self.else_body})"
 
 @dataclass
 class While():

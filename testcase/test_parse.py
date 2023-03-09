@@ -67,7 +67,33 @@ def test_case3():
     obj_parser = Parser.from_lexer(Lexer.from_stream(Stream.from_string(text)))
     for i in obj_parser.parse_program().statements:
         print(i)
-
+        
+# elif test case        
+def test_case3_1():
+    print("\nTest case 3.1")
+    text = """
+    assign i = 4;
+    if(i>5)
+    {
+        print("i<2 and i < 5");
+    } 
+    elif(i == 0)
+    {
+        print(heello);
+    }
+    elif(k != 5)
+    {
+        assign k = k +5;
+    }
+    else
+    {
+        print("not");
+    }
+    """
+    obj_parser = Parser.from_lexer(Lexer.from_stream(Stream.from_string(text)))
+    for i in obj_parser.parse_program().statements:
+        print(i)
+    
 
 # for test
 def test_case4():
@@ -159,6 +185,7 @@ if __name__ == "__main__":
     test_case1()
     test_case2()
     test_case3()
+    test_case3_1()
     test_case4()
     test_case5()
     test_case6()

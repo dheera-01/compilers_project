@@ -174,21 +174,33 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
             else:
                 raise InvalidProgram(f"TypeError: slice indices must be NumLiteral")
 
-        case IfElse(condition_ast, if_ast, else_ast):
+        case IfElse(condition_ast, if_ast, elif_list ,else_ast):
             condition_res = eval(condition_ast, program_env, environment)
             # print(f"The condition result {condition_res}")
             if eval_literals(condition_res) == True:
                 # print(f"Inside the if of IfElse")
                 program_env.enter_scope()
-                rtr= eval(if_ast, program_env, environment)
+                eval(if_ast, program_env, environment)
                 program_env.exit_scope()
-                return rtr
-            else:
+                return None
+            
+            if len(elif_list) != 0:
+                for elif_ast in elif_list:
+                    elif_condition = eval(elif_ast.condition, program_env, environment )
+                    if eval_literals(elif_condition) == True:
+                        program_env.enter_scope()
+                        eval(elif_ast.if_body, program_env, environment)
+                        program_env.exit_scope()
+                        return None
+            
+            if else_ast != None:
                 # print('Inside else of IfElse')
                 program_env.enter_scope()
-                rtr= eval(else_ast, program_env, environment)
+                eval(else_ast, program_env, environment)
                 program_env.exit_scope()
-                return rtr
+                return None
+            
+            return None
 
         # comparison operation
         case ComparisonOp(x, ">", const):
@@ -383,7 +395,7 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
 if __name__ == "__main__":
     file = open("program.txt", "r")
     program = file.read()
-    parsed_output = Parser.from_lexer(Lexer.from_stream(
-        Stream.from_string(program))).parse_program()
+    parsed_output = Parser.from_lexer(Lexer.from_stream(Stream.from_string(program))).parse_program()
+    print(f"Parsed Output\n{parsed_output}")
     eval(parsed_output)
     file.close()
