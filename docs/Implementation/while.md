@@ -8,9 +8,14 @@ To implement the repeatative nature of while loop we used inbuilt python while l
 We can see exact implementation of while loop by looking at the code below.
 
 ```python
-
-
-
+ case While(cond, body):
+            c = eval(cond, program_env, environment)
+            while (eval_literals(c) == True) :
+                program_env.enter_scope()
+                eval(body, program_env ,environment)
+                program_env.exit_scope()
+                c = eval(cond, program_env, environment)
+            return None
 ```
 
 Whenever we enter a while loop we create a new scope. Once evalaution of while loop is done we destroy this scope. 
@@ -18,6 +23,23 @@ Whenever we enter a while loop we create a new scope. Once evalaution of while l
 ## Example
 
 ```python
+assign i=1;
+while(i<=5)
+{
+    print(i);
+    assign i=i+1;
+};
 ```
 
-To know more about about how to use while loop checkout this [link](usage/while.md)
+Output:
+
+```python
+1
+2
+3
+4
+5
+```
+
+
+To know more about about how to use while loop checkout [this](usage/while.md).
