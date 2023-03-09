@@ -254,16 +254,29 @@ class Parser:
 
         return self.parse_cmp()
 
-    def parse_assign(self):
+    """ def parse_assign(self):
         """
         parse the assign expression
         """
+
         self.lexer.peek_current_token()
         self.lexer.advance()
         left_part = self.parse_atom()
         self.lexer.match(Operator("="))
         right_part = self.parse_expr()
-        return Assign(left_part, right_part)
+        return Assign(left_part, right_part) """
+    def parse_assign(self):
+   
+     assignments = []
+     while True:
+        self.lexer.advance()
+        left_part = self.parse_atom()
+        self.lexer.match(Operator("="))
+        right_part = self.parse_expr()
+        assignments.append(Assign(left_part, right_part))
+        if not self.lexer.peek() == Operator("="):
+            break
+     return assignments
 
     def parse_const(self):
         self.lexer.advance()
