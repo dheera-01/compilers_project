@@ -6,8 +6,8 @@ def test_parse_assign():
     assignments = obj_parser.parse_assign()
     assert len(assignments) == 2
     assert isinstance(assignments[0], Assign)
-    assert assignments[0].left_side == "x"
-    assert assignments[0].right_side == 5
+    assert assignments[0].left_part == "x"
+    assert assignments[0].right_part == 5
     assert isinstance(assignments[1], Assign)
-    assert assignments[1].left_side== "y"
-    assert assignments[1].right_side == 6
+    assert assignments[1].left_part== "y"
+    assert assignments[1].right_part == 6
