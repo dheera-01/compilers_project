@@ -14,6 +14,7 @@ def test_case1():
     + - / * % //   ** 
     < > <= >= == != 
     << >> = ++ -- += -= *= /= %= //= **=
+    and or
     """
     object_lexer = Lexer.from_stream(Stream.from_string(text))
     for token in object_lexer:

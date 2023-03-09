@@ -5,7 +5,7 @@ from typing import List
 # datatype for AST
 @dataclass
 class Sequence:
-    statements: ["AST"]
+    statements: list(["AST"])
     
     def __repr__(self) -> str:
         return f"Sequence({self.statements})"

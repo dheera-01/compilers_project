@@ -1,0 +1,10 @@
+#print("hello", i);
+assign i = 4;
+if(i>2 and i<5 and i == 3)
+{
+    print("i<2 and i < 5");
+} 
+else
+{
+    print("not");
+}

@@ -230,7 +230,45 @@ class Parser:
                 return ComparisonOp(left, op, right)
 
         return left
+    
+    def parse_and(self):
+        """parse the and Operator
 
+        Returns:
+            AST: return the AST of the and operator
+        """
+        
+        left = self.parse_cmp()
+        while True:
+            match self.lexer.peek_current_token():
+                case Operator(op) if op == "and":
+                    self.lexer.advance()
+                    right = self.parse_cmp()
+                    left = ComparisonOp(left, op, right)
+                case _:
+                    break
+        return left
+        pass
+    
+    def parse_or(self):
+        """parse the or operator
+
+        Returns:
+            AST: return AST of the or operator
+        """
+        
+        left = self.parse_and()
+        while True:  
+            match self.lexer.peek_current_token():
+                case Operator(op) if op == "or":
+                    self.lexer.advance()
+                    right = self.parse_and()
+                    left =  ComparisonOp(left, op, right)
+                case _:
+                    break
+        return left
+        
+        pass
     def parse_simple(self):
         """parse the simple expression (without if else, while, for, assign, const and update, or something returning none) 
 
@@ -238,7 +276,7 @@ class Parser:
             AST: return AST of the simple expression
         """
 
-        return self.parse_cmp()
+        return self.parse_or()
     
     def parse_assign(self):
         """

@@ -61,6 +61,7 @@ symbolic_operators = """
     >> <<
     -= += *= /= %= //= **=
     : =
+    ,
     """.split()
 
 word_operators = "and or not is in".split()

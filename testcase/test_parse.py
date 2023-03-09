@@ -45,7 +45,7 @@ def test_case3():
     print("\nTest case 3")
     text = """
     # if else both
-    if("hello world" > "chirag")
+    if("hello world" > "chirag" and "hi" == "hi")
     {
         i = i + k +l;
         i = 10;
@@ -57,7 +57,7 @@ def test_case3():
     
     
     # only if
-    if(i>5)
+    if(i>5 or j != 5)
     {
         i = i +5;
         8+5

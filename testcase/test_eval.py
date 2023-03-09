@@ -204,6 +204,26 @@ def test_case9():
     # ans = eval(parsed_output)
     eval(parsed_output)
 
+# and, or operator
+def test_case10():
+    print(f"\nTestcase 10")
+    text = """
+    assign i = 1;
+    # and has high precedence 
+    if(i == 1 and i == 0 or i > -1)
+    {
+        print("Inside if");
+    }
+    else
+    {
+        print("Inside else");
+    }
+    """
+    parsed_output = Parser.from_lexer(Lexer.from_stream(
+        Stream.from_string(text))).parse_program()
+    eval(parsed_output)
+    
+
 if __name__ == "__main__":
     test_case1()
     test_case2()
@@ -214,4 +234,5 @@ if __name__ == "__main__":
     test_case7()
     test_case8()
     test_case9()
+    test_case10()
     print(f"\nAll testcases passed")

@@ -244,6 +244,24 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
             except Exception as e:
                 raise InvalidProgram(
                     f"TypeError: >= not supported between instances of {x} and {const}")
+        
+        case ComparisonOp(cond1, "and", cond2):
+            try:
+                if eval_literals(eval(cond1, program_env, environment)) and eval_literals(eval(cond2, program_env, environment)):
+                    return BoolLiteral(True)
+                return BoolLiteral(False)
+            except Exception as e:
+                raise InvalidProgram(
+                    f"TypeError: and not supported between instances of {cond1} and {cond2}")
+        
+        case ComparisonOp(cond1, "or", cond2):
+            try:
+                if eval_literals(eval(cond1, program_env, environment)) or eval_literals(eval(cond2, program_env, environment)):
+                    return BoolLiteral(True)
+                return BoolLiteral(False)
+            except Exception as e:
+                raise InvalidProgram(
+                    f"TypeError: or not supported between instances of {cond1} and {cond2}")
 
         # unary operation
         case UnaryOp("-", x):
@@ -361,3 +379,11 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
             
 
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
+
+if __name__ == "__main__":
+    file = open("program.txt", "r")
+    program = file.read()
+    parsed_output = Parser.from_lexer(Lexer.from_stream(
+        Stream.from_string(program))).parse_program()
+    eval(parsed_output)
+    file.close()
