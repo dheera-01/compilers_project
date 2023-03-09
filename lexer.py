@@ -1,6 +1,4 @@
-from fractions import Fraction
 from dataclasses import dataclass
-from typing import Optional, NewType
 from declaration import *
 
 # comments are not tokens they are removed by the lexer
@@ -48,8 +46,23 @@ class Stream:
         self.pos = self.pos - 1
 
 
-keywords = "if then else end while for do done let int string float def assign print slice const let in".split()
-symbolic_operators = "+ - * / % // ** < > <= >= == !=  << >> = += -= *= /= %= //= **= :".split()
+keywords = """
+    int string float const assign slice
+    if elif else break continue
+    for while
+    def
+    print let 
+    slice in 
+    """.split()
+    
+symbolic_operators = """
+    + - * / % // **
+    > < <= >= == !=
+    >> <<
+    -= += *= /= %= //= **=
+    : =
+    """.split()
+
 word_operators = "and or not is in".split()
 opening_brackets = "( [ { ".split()
 closing_brackets = ") ] }".split()
@@ -306,40 +319,12 @@ class Lexer:
 
         return nxt_t
 
-
-# @dataclass
-# class Program:
-#     # 2d list of statements which make up the program and made of list of tokens
-#     program_instruction = []
-
-#     def form_instructions_of(self, t):
-#         self.instruction_lists.append(list([]))
-#         for i in Lexer.from_stream(Stream.from_string(t)):
-#             if isinstance(i, Comments):
-#                 pass
-#             elif isinstance(i, EndOfLine):
-#                 self.instruction_lists[-1].append(i)
-#                 self.instruction_lists.append(list([]))
-#             else:
-#                 self.instruction_lists[-1].append(i)
-#         self.instruction_lists[-1].append(EndOfFile("EOF"))
-
-#     def print_tokens(self):
-#         print("Instruction:")
-#         for i in range(len(self.instruction_lists)):
-#             print(self.instruction_lists[i])
-#             pass
-
-
 if __name__ == "__main__":
-
-    file = open("tests_parser/let.txt", "r")
+    
+    # testing on playground
+    file = open("program.txt", "r")
     program = file.read()
-    # print("Program:")
-    # print(program)
-    # program = "+-+--+6"
-    for i in Lexer.from_stream(Stream.from_string(program)):
-        print(i, end=" ")
-    # ins = Instruction()
-    # ins.form_instructions_of(program)
-    # ins.print_instructions()
+    lexer_object = Lexer.from_stream(Stream.from_string(program))
+    print(lexer_object)
+    for token in lexer_object:
+        print(token)

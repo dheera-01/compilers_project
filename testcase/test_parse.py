@@ -3,7 +3,7 @@ current_dir = os.getcwd()
 sys.path.append(current_dir)
 # print(f"syst path {sys.path}")
 
-from my_parser import *
+from parser_1 import *
 
 # arithmetic, unary operation, precedence and associativity
 def test_case1():
@@ -156,12 +156,12 @@ def test_case7():
 
 if __name__ == "__main__":
 
-    # # test_case1()
-    # # test_case2()
-    # # test_case3()
-    # # test_case4()
+    test_case1()
+    test_case2()
+    test_case3()
+    test_case4()
     test_case5()
-    # # test_case6()
-    # test_case7()
+    test_case6()
+    test_case7()
     print("\nAll test cases passed")
     pass

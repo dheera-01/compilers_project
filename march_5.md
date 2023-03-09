@@ -60,13 +60,13 @@ For measuring time taken by program we have used the time module of pyhton.
 Pyhton Code:
 ```python
 i=0
-    while(i<1000):
-        print(i)
-        i=i+1
+ while(i<1000):
+    print(i)
+    i=i+1
 ```
 
 Our Language Code:
-```
+```python
 assign i=0;
 while(i<1000)
 {

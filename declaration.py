@@ -304,7 +304,7 @@ class Environment:
                 return env[name][0]
         raise KeyError(f"Variable {name} not defined")
 
-
+display_output = [] # list to store the output of print statements as strings
 
 Value_literal = int | float | bool | str
 Value = None | NumLiteral | StringLiteral | BoolLiteral | FloatLiteral

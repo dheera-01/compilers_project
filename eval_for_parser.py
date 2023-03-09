@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Union, Mapping
 from declaration import *
+from parser_1 import *
 
 
 global_env = {}
@@ -21,10 +22,13 @@ def eval_literals(literal: Value) -> Value_literal:
             return value
 
 
-def eval(program: AST, program_env:Environment, environment: Mapping[str, Value] = None) -> Value:
+def eval(program: AST, program_env:Environment = None, environment: Mapping[str, Value] = None) -> Value:
     global global_env
-    if environment is None:
-        environment = {}
+    # if environment is None:
+    #     environment = {}
+    if program_env is None:
+        display_output.clear()
+        program_env = Environment()
 
     match program:
         case Sequence(statements):
@@ -96,6 +100,7 @@ def eval(program: AST, program_env:Environment, environment: Mapping[str, Value]
                 # print(f"----------------------------------------")
                 ans = eval_literals(eval(val, program_env))
                 print(ans)
+                display_output.append(str(ans))
                 # print(eval_literals(eval(val, program_env)))
                 # print(f"----------------------------------------")
                 return None
@@ -353,6 +358,6 @@ def eval(program: AST, program_env:Environment, environment: Mapping[str, Value]
         #     return None
 
         
-            pass
+            
 
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
