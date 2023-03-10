@@ -1,0 +1,11 @@
+const assign n = 600851475143;
+assign m = n;
+assign i = 2;
+while(i * i <= m){
+    if(m%i == 0){
+        m = m//i;
+    }else{
+        i = i + 1;
+    }
+}
+print(m);

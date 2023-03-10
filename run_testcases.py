@@ -8,6 +8,7 @@ for path in os.listdir(test_dir_inputs):
     if os.path.isfile(os.path.join(test_dir_inputs, path)):
         tests.append(path)
 
+tests.sort()
 total_tests = len(tests)
 passed_tests = 0
 failed_tests = 0
@@ -22,21 +23,21 @@ for test in tests:
     output_file = open(os.path.join("testcases/outputs/"+test), "r").read()
 
     parsed_output = Parser.from_lexer(Lexer.from_stream(Stream.from_string(input_file))).parse_program()
+    display_output.clear()
     eval(parsed_output)
 
     output_file_lst = []
     for line in output_file.split('\n'):
         output_file_lst.append(line)
 
-    try:
-        assert display_output == output_file_lst
+    if display_output == output_file_lst:
         passed_tests += 1
         passed_tests_lst.append(test)
-    except:
+    else:
         failed_tests += 1
         failed_tests_lst.append(test)
         failed_tests_lst_expected.append(output_file_lst)
-        failed_tests_lst_output.append(display_output)
+        failed_tests_lst_output.append(display_output.copy())
 
 
 def print_failed_comparison():

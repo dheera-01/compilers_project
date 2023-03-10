@@ -1,0 +1,11 @@
+const assign n = 1000;
+assign summ = 0;
+assign i = 1;
+for(i = 1; i < n; i = i + 1;)
+{
+    if(i%3 == 0 or i%5 == 0)
+    {
+        summ += i;
+    }
+}
+print(summ);
