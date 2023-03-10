@@ -49,7 +49,7 @@ class Stream:
 keywords = """
     int string float const assign slice
     if elif else break continue
-    for while
+    for while break continue
     def
     print let 
     slice in 

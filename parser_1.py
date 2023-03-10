@@ -42,9 +42,13 @@ class Parser:
             elif_condition = self.parse_simple()
             elif_body = self.parse_block()
             elif_list.append(IfElse(elif_condition, elif_body))            
+        
+        # if and elif are allowed without else  
+        if self.lexer.peek_current_token() != Keyword("else"):
+            return IfElse(c, if_branch, elif_list)
+        
         self.lexer.match(Keyword("else"))
         else_branch = self.parse_block()
-
         return IfElse(c, if_branch, elif_list, else_branch)
 
 

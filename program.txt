@@ -1,18 +1,13 @@
-#print("hello", i);
-assign i = 0;
-if(i>5)
+for(assign i = 0; i<10; i = i + 1) 
 {
-    print("inside if");
-} 
-elif(i == 4)
-{
-    print("elif 1");
-}
-elif(i == 5)
-{
-    print("elif 2");
-}
-else
-{
-    print("else");
+    if(i == 5) 
+    {
+        print("i is 5");
+        break;
+    }
+    if(i == 4)
+    {
+        continue;
+    }
+    print(i);
 }
