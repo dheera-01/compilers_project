@@ -1,7 +1,5 @@
 # Parser
 
-# Parser
-
 ## Operator Precedence and Associativity
 
 | Operator                         | Description                                      | Associativity |
@@ -17,7 +15,7 @@
 
 ## Grammar
 
-```ebnf
+```bnf
 atom:
     "(" simple_expr ")"
     | "[" simple_expr  "]"
@@ -105,13 +103,13 @@ EndOfFile:
     "EOF"
 ```
 
-##Syntax Tree
+## Syntax Tree
 
 #### For loop
 
-```ebnf
+```bnf
 for_expr:
-    "for" "(" expr simple_expr EndOfLine simple_expr EndofLine expr block_expr
+    "for" "(" expr simple_expr EndOfLine simple_expr EndofLine expr ")" block_expr
 ```
 
 Sample codes
@@ -131,7 +129,7 @@ for(i = 0; i < 10; i = i + 1)
 
 #### While loop
 
-```ebnf
+```bnf
 while_expr:
     "while" simple_expr block_expr
 ```
@@ -147,7 +145,7 @@ while(i < 10)
 
 #### If else
 
-```ebnf
+```bnf
 if_else_expr:
     "if" simple_expr block_expr
     | "if" simple_expr block_expr "else" block_expr
@@ -211,7 +209,7 @@ elif(i < 30)
 
 #### Print
 
-```ebnf
+```bnf
 print_expr:
     "print" simple_expr EndOfLine
 ```
@@ -224,7 +222,7 @@ print(True);
 
 #### Assign
 
-```ebnf
+```bnf
 assign_expr:
     "assign" Identifier "=" simple_expr EndOfLine
 ```
@@ -235,7 +233,7 @@ assign i = 10;
 
 #### Const Assign
 
-```ebnf
+```bnf
 const_assign_expr:
     "const" assign_expr
 ```
@@ -246,7 +244,7 @@ const assign i = 10;
 
 #### Update
 
-```ebnf
+```bnf
 update_expr:
     Identifier arg_assign simple_expr EndOfLine
 ```
@@ -259,7 +257,7 @@ i = i + 10;
 
 #### Slice
 
-```ebnf
+```bnf
 slice:
     "slice" "(" simple_expr ":" simple_expr ":" simple_expr ":" simple_expr ")"
 ```
@@ -270,7 +268,7 @@ slice("HelloWorld!":10:2:3);
 ```
 
 #### Let
-```ebnf
+```bnf
 let_expr:
     "let" Identifier "=" simple_expr "(" simple_expr ")"
 ```
@@ -279,6 +277,3 @@ Sample code
 ```python
 let i = 5 (i + 5);
 ```
-
-
-
