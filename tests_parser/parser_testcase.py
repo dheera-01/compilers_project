@@ -1,4 +1,4 @@
-from my_parser import *
+from parser_1 import *
 
 def test_parse_fact():
     print("test_parse_fact")
