@@ -121,11 +121,12 @@ class UnaryOp:
 
 @dataclass
 class Let:
-    assign: 'AST'
+    var: 'AST'
+    e1: 'AST'
     e2: 'AST'
 
     def __repr__(self) -> str:
-        return f"Let({self.assign} {self.e2})"
+        return f"Let({self.var} = {self.e1} in {self.e2})"
 
 
 @dataclass
@@ -176,14 +177,7 @@ class While_Seq():
 # class Assign:
 #     v:Identifier
 #     right:'AST'
-@dataclass
-class Assign:
-    v: List[Identifier]
-    right: List['AST']
-    
-    def __repr__(self) -> str:
-        assignments = ", ".join([f"{var} = {expr}" for var, expr in zip(self.v, self.right)])#used list comprehension to iterate over 'v'(variable names) and 'right'(values)
-        return f"Assign({assignments})"
+
 # @dataclass
 # class For:
 #     exp1: Assign
@@ -209,14 +203,21 @@ class While():
     def __repr__(self) -> str:
         return f"While({self.condn} do {self.body})"
     
+# @dataclass
+# class Assign:
+#     v:Identifier
+#     right:'AST'
+    
+#     def __repr__(self) -> str:
+#         return f"Assign({self.v} = {self.right})"
 @dataclass
 class Assign:
-    v:Identifier
-    right:'AST'
+    v: List[Identifier]
+    right: List['AST']
     
     def __repr__(self) -> str:
-        return f"Assign({self.v} = {self.right})"
-
+        assignments = ", ".join([f"{var} = {expr}" for var, expr in zip(self.v, self.right)])#used list comprehension to iterate over 'v'(variable names) and 'right'(values)
+        return f"Assign({assignments})"
 @dataclass
 class For:
     exp1: 'AST'
@@ -244,52 +245,52 @@ class Enviroment:
         assert self.envs
         self.envs.pop()
 
-    # value here is also a Literal
     # def add(self, identifier, value):
     #     curr_env = self.envs[-1]
     #     if identifier.name in curr_env:
     #         raise InvalidProgram(f"Variable {identifier.name} already defined")
     #         return
-
     #     self.envs[-1][identifier.name] = [value, identifier]
-    #     return
 
-    # def update(self, identifier:Identifier, value):
+  
+    def add(self, identifier, value):
+      curr_env = self.envs[-1]
+      if identifier.name in curr_env:
+        raise InvalidProgram(f"Variable {identifier.name} already defined")
+        return
+      if isinstance(value, tuple):
+        self.envs[-1][identifier.name] = list(value) + [identifier]
+      else:
+        self.envs[-1][identifier.name] = [value, identifier]
+
+
+    # def update(self, identifier, value):
     #     for env in reversed(self.envs):
     #         if identifier.name in env:
     #             if env[identifier.name][-1].is_mutable:
     #                 env[identifier.name] = [value, identifier]
-
     #             else:
     #                 raise InvalidProgram(f"Variable {identifier.name} is immutable")
     #             return
-    #     raise InvalidProgram(f"Variable {identifier.name} is not defined")
+    #     raise KeyError()
     def update(self, identifier, value):
-        if isinstance(value, tuple):
-         for i, val in enumerate(value):
+     if isinstance(value, tuple):
+        for i, val in enumerate(value):
             self.update(identifier[i], val)
-        else:
-         for env in reversed(self.envs):
+     else:
+        for env in reversed(self.envs):
             if identifier.name in env:
                 if env[identifier.name][-1].is_mutable:
                     env[identifier.name] = [value, identifier]
                 else:
                     raise InvalidProgram(f"Variable {identifier.name} is immutable")
                 return
-    def add(self, identifier, value):
-       curr_env = self.envs[-1]
-       if identifier.name in curr_env:
-        raise InvalidProgram(f"Variable {identifier.name} already defined")
-        return
-       if isinstance(value, tuple):
-        self.envs[-1][identifier.name] = list(value) + [identifier]
-       else:
-        self.envs[-1][identifier.name] = [value, identifier]
+    #     raise KeyError()
+
     def get(self, name):
         for env in reversed(self.envs):
             if name in env:
-
                 return env[name][0]
-        raise InvalidProgram(f"Variable {name} is not defined")
+        raise KeyError()
 
 AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assign | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp| While
