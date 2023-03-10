@@ -279,6 +279,7 @@ class Parser:
         return left
         
         pass
+    
     def parse_simple(self):
         """parse the simple expression (without if else, while, for, assign, const and update, or something returning none) 
 
@@ -302,7 +303,6 @@ class Parser:
         self.lexer.match(EndOfLine(";"))
         return Assign(left_part, right_part)
     
-
     def parse_const(self):
         """paster the immutable assign expression
 
@@ -338,7 +338,6 @@ class Parser:
         self.lexer.match(EndOfLine(";"))
         return Update(left_part, op, right_part)
     
-
     def parse_print(self):
         """parse the print expression
 
