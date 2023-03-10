@@ -81,11 +81,12 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
             #     if identifier.name in env:
             #         program_env.update(identifier, value)
             #         return None
-
+            identifier.first_assign.append(value)
             program_env.add(identifier, value)
             return None
         case Update(identifier, op, right):
             value = eval(right, program_env, environment)
+
             if op._operator == "=":
                 program_env.update(identifier, value)
             else:# op is +=, -=, *=, /=, %=, **= (binop of first to second last char)

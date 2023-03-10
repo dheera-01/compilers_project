@@ -56,6 +56,7 @@ class Keyword:
 class Identifier:
     name: str
     is_mutable: bool = True
+    first_assign = []
 
     def __repr__(self) -> str:
         return f"Identifier({self.name})"
@@ -288,6 +289,10 @@ class Environment:
         for env in reversed(self.envs):
             if identifier.name in env:
                 if env[identifier.name][-1].is_mutable:
+                    if type(identifier.first_assign[0]).__name__ != type(value).__name__:
+                        raise InvalidProgram(
+                            f"TypeError: Cannot assign {type(value).__name__} to a Identifier of type {type(identifier.first_assign[0]).__name__}")
+
                     env[identifier.name] = [value, identifier]
                 else:
                     raise InvalidProgram(f"Variable {identifier.name} is immutable")

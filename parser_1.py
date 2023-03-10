@@ -461,10 +461,11 @@ def parse_code_file(file_location:str):
 
 if __name__ == '__main__':
 
-    file = open("program.txt", "r")
+    file = open("tests_parser/const.txt", "r")
     program = file.read()
     obj_parser = Parser.from_lexer(
         Lexer.from_stream(Stream.from_string(program)))
     # print(f"object parser {obj_parser}")
     a = obj_parser.parse_program()
+    eval(a)
     print(f"Parsed program: {a}")
