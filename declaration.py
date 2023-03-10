@@ -125,7 +125,7 @@ class ComparisonOp:
     right: 'AST'
 
     def __repr__(self) -> str:
-        return f"ComparisonOp({self.left} {self.operand} {self.right})"
+        return f"ComparisonOp({self.left} {self.operator} {self.right})"
 
 @dataclass
 class Let:
