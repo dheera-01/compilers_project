@@ -237,7 +237,7 @@ def test_case10():
     text = """
     assign i = 1;
     # and has high precedence 
-    if(i == 1 and i == 0 or i > -1)
+    if(i == 0  and i == 1 or i > -1)
     {
         print("Inside if");
     }

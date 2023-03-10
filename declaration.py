@@ -121,7 +121,7 @@ class UnaryOp:
 @dataclass
 class ComparisonOp:
     left: 'AST'
-    operand: str  # >,<
+    operator: str  # >,<
     right: 'AST'
 
     def __repr__(self) -> str:
@@ -174,11 +174,11 @@ class IfElse:
 @dataclass
 class While():
 
-    condn: 'AST'
+    condition: 'AST'
     body: 'AST'
     
     def __repr__(self) -> str:
-        return f"While({self.condn} do {self.body})"
+        return f"While({self.condition} do {self.body})"
     
 @dataclass
 class Assign:
@@ -192,7 +192,7 @@ class Assign:
 @dataclass
 class Update:
     variable: "AST"
-    _operator: Operator
+    _operator: Operator # +=, -=, *= etc are all valid assignment operators
     right: "AST"
     
     def __repr__(self) -> str:
