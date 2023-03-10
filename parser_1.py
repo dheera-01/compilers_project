@@ -223,6 +223,30 @@ class Parser:
         step = self.parse_expr()
         self.lexer.match(Bracket(")"))
         return Slice(string_literal, start, end, step)
+    def parse_assign(self):
+     assignments_l = []
+     assignments_r = []
+     while True:
+        self.lexer.advance()
+        left_part = self.parse_atom()
+        if self.lexer.match(","):
+            assignments_l.append(left_part)
+            continue  # Move on to the next assignment
+        
+        elif not self.lexer.match("="):
+            break  # End of statement
+        
+        right_part = self.parse_expr()
+        assignments_r.append(right_part)
+        
+        if not self.lexer.match(","):
+            break  # End of statement
+        
+    # Making a list of tuples by checking length of assignments_l list which will contain the variables
+        if len(assignments_l) > 1:
+         return list(zip(assignments_l, assignments_r))
+        else:
+         return [(assignments_l[0], assignments_r[0])] if assignments_l else []
 
     def parse_cmp(self):
         """parse the comparison operator
@@ -254,29 +278,29 @@ class Parser:
 
         return self.parse_cmp()
 
-    """ def parse_assign(self):
-        """
-        parse the assign expression
-        """
+    # """ def parse_assign(self):
+    #     """
+    #     #parse the assign expression
+    #     """
 
-        self.lexer.peek_current_token()
-        self.lexer.advance()
-        left_part = self.parse_atom()
-        self.lexer.match(Operator("="))
-        right_part = self.parse_expr()
-        return Assign(left_part, right_part) """
-    def parse_assign(self):
+    #     self.lexer.peek_current_token()
+    #     self.lexer.advance()
+    #     left_part = self.parse_atom()
+    #     self.lexer.match(Operator("="))
+    #     right_part = self.parse_expr()
+    #     return Assign(left_part, right_part) """
+    # def parse_assign(self):
    
-     assignments = []
-     while True:
-        self.lexer.advance()
-        left_part = self.parse_atom()
-        self.lexer.match(Operator("="))
-        right_part = self.parse_expr()
-        assignments.append(Assign(left_part, right_part))
-        if not self.lexer.peek() == Operator("="):
-            break
-     return assignments
+    #  assignments = []
+    #  while True:
+    #     self.lexer.advance()
+    #     left_part = self.parse_atom()
+    #     self.lexer.match(Operator("="))
+    #     right_part = self.parse_expr()
+    #     assignments.append(Assign(left_part, right_part))
+    #     if not self.lexer.peek() == Operator("="):
+    #         break
+    #  return assignments
 
     def parse_const(self):
         self.lexer.advance()
