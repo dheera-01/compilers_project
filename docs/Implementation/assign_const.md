@@ -10,8 +10,7 @@ class Assign:
     def __repr__(self) -> str:
         return f"Assign({self.v} = {self.right})"
 ```
-`Assign` class has 2 members where v stores the Identifier and right stores the AST which can be any expression. Following is the Identifier class which stores the name of the Identifier and property(`is_mutable`) whether this Identifier can be reassigned in future.
-
+`Assign` class has 2 members where v stores the Identifier and right stores the AST which can be any expression. Following is the Identifier class which stores the name of the Identifier
 ```python
 @dataclass
 class Identifier:
