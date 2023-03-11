@@ -84,16 +84,26 @@ class Parser:
 
     def parse_atom(self):
         """parse the atomic expression"""
-        match self.lexer.peek_current_token():
-
+        match self.lexer.peek_current_token():  
             case Identifier(name):
                 self.lexer.advance()
-                return Identifier(name)
+                match self.lexer.peek_current_token():
+                    case Bracket("["):
+                        self.lexer.advance()
+                        right_part = self.parse_atom()
+                        self.lexer.match(Bracket("]"))
+                        return Indexer(Identifier(name), right_part)
+                    case _:
+                        # self.lexer.advance()
+                        return Identifier(name)
+            
             case StringLiteral(value):
                 self.lexer.advance()
                 return StringLiteral(value)
             case NumLiteral(value):
+                # print(self.lexer.peek_current_token())
                 self.lexer.advance()
+                # print(self.lexer.peek_current_token())
                 return NumLiteral(value)
             case FloatLiteral(value):
                 self.lexer.advance()
@@ -298,10 +308,28 @@ class Parser:
         self.lexer.match(Keyword("assign"))  # consume the assign keyword
         left_part = self.parse_atom()
         self.lexer.match(Operator("="))
-        right_part = self.parse_simple()
-        self.lexer.match(EndOfLine(";"))
-        return Assign(left_part, right_part)
-    
+        # 2 cases: 1. assign to a variable 2. assign to a list
+        match self.lexer.peek_current_token():
+            case Bracket("["):
+                # Till you dont encounter a closing bracket, keep parsing the expression and store the literals
+                # in a list and skip the operator ","
+                self.lexer.advance()
+                right_part = []
+                while True:
+                    match self.lexer.peek_current_token():
+                        case Bracket("]"):
+                            self.lexer.advance()
+                            break
+                        case Operator(","):
+                            self.lexer.advance()
+                        case _:
+                            right_part.append(self.parse_expr())
+                return Assign(left_part, right_part)
+            case _:
+                right_part = self.parse_expr()
+                return Assign(left_part, right_part)
+        
+        
 
     def parse_const(self):
         """paster the immutable assign expression
@@ -367,9 +395,6 @@ class Parser:
         self.lexer.match(Bracket(")"))
         return Let(Assign(left_part, right_part), body)
 
-        # return Let(Assign(left_part,right_part), self.parse_expr())
-
-
     def parse_expr(self):
         """parse the expression
 
@@ -402,7 +427,6 @@ class Parser:
                 return self.parse_update()          
             case Keyword("print"):
                 return self.parse_print()
-
             case _:
                 return self.parse_simple()
 
@@ -461,7 +485,8 @@ def parse_code_file(file_location:str):
 
 if __name__ == '__main__':
 
-    file = open("testcases/inputs/nested_for_loop.txt", "r")
+    file = open("tests_parser/list.txt", "r")
+
     program = file.read()
     obj_parser = Parser.from_lexer(
         Lexer.from_stream(Stream.from_string(program)))
