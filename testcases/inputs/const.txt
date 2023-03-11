@@ -1,4 +1,0 @@
-assign a = 7;
-print(a);
-assign a = 5;
-print(a);

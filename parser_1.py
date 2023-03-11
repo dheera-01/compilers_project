@@ -461,7 +461,7 @@ def parse_code_file(file_location:str):
 
 if __name__ == '__main__':
 
-    file = open("program.txt", "r")
+    file = open("testcases/inputs/nested_for_loop.txt", "r")
     program = file.read()
     obj_parser = Parser.from_lexer(
         Lexer.from_stream(Stream.from_string(program)))

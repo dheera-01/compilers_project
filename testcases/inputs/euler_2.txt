@@ -1,0 +1,14 @@
+assign x = 0;
+assign y = 1;
+assign z = 0;
+assign summ = 0;
+const assign limit = 4000000;
+while(z <= limit){
+    z = x + y;
+    x = y;
+    y = z;
+    if(z%2 == 0){
+        summ += z;
+    }
+}
+print(summ);
