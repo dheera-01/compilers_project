@@ -89,15 +89,16 @@ class Parser:
         """parse the atomic expression"""
         match self.lexer.peek_current_token():  
             case Identifier(name):
-                # match self.lexer.peek_current_token():
-                #     case Bracket("["):
-                #         right_part = self.parse_atom()
-                #         self.lexer.match(Bracket("]"))
-                #         return Indexer(name, right_part)
-                #     case _:
-                #         return Identifier(name)
                 self.lexer.advance()
-                return Identifier(name)
+                match self.lexer.peek_current_token():
+                    case Bracket("["):
+                        self.lexer.advance()
+                        right_part = self.parse_atom()
+                        self.lexer.match(Bracket("]"))
+                        return Indexer(Identifier(name), right_part)
+                    case _:
+                        # self.lexer.advance()
+                        return Identifier(name)
             
             case StringLiteral(value):
                 self.lexer.advance()
