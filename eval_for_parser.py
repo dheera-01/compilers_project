@@ -323,4 +323,33 @@ def eval(program: AST, program_env, environment: Mapping[str, Value] = None) -> 
                 else:
                     program_env.add(left, value)
                 return None
+        case UnaryBoolOp(a, env):
+    
+         if isinstance(a, StringLiteral):
+           if len(eval(a.value, env)) > 0:
+          
+            return True
+           else:
+            return False
+         elif isinstance(a, NumLiteral):
+          if eval(a.value, env) != 0:
+            return True
+         else:
+            return False
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
+             
+def test_UnaryBoolOp():
+    # Test for a non-empty string
+    assert UnaryBoolOp(StringLiteral("hello")) == True
+    
+    # Test for an empty string
+    assert UnaryBoolOp(StringLiteral("")) == False
+    
+    # Test for a non-zero number
+    assert UnaryBoolOp(NumLiteral(10)) == True
+    
+    # Test for zero
+    assert UnaryBoolOp(NumLiteral(0)) == False
+
+
+   
