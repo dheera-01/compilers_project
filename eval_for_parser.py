@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Union, Mapping
 from declaration import *
-from parser_1 import *
+# from parser_1 import *
 
 
 global_env = {}
@@ -22,7 +22,7 @@ def eval_literals(literal: Value) -> Value_literal:
             return value
 
 
-def eval(program: AST, program_env:Environment = None, environment: Mapping[str, Value] = None) -> Value:
+def eval(program: AST, program_env:Environment = None) -> Value:
     global global_env
     # if environment is None:
     #     environment = {}
@@ -34,7 +34,7 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
         case Sequence(statements):
             for statement in statements:
                 # print(f"statement: {statement}")
-                eval(statement, program_env ,environment)
+                eval(statement, program_env)
             return None
             # print(f"ans: {ans}")
             # ans = []
@@ -76,7 +76,7 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
             return e2_val
         
         case Assign(identifier, right):
-            value = eval(right, program_env, environment)
+            value = eval(right, program_env)
             # for env in reversed(program_env.envs):
             #     if identifier.name in env:
             #         program_env.update(identifier, value)
@@ -85,17 +85,16 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
             program_env.add(identifier, value)
             return None
         case Update(identifier, op, right):
-            value = eval(right, program_env, environment)
-
+            value = eval(right, program_env)
             if op._operator == "=":
                 program_env.update(identifier, value)
             else:# op is +=, -=, *=, /=, %=, **= (binop of first to second last char)
-                v = eval(BinOp(identifier, op._operator[: len(op._operator) -1], right), program_env, environment)
+                v = eval(BinOp(identifier, op._operator[: len(op._operator) -1], right), program_env)
                 program_env.update(identifier, v)
             return None 
         case Print(value):
             # The print function will print the evaluated value of val and return the AST val
-            val = eval(value, program_env, environment)
+            val = eval(value, program_env)
             # print(f"val: {val}")
             if isinstance(val, NumLiteral) or isinstance(val, StringLiteral)  or isinstance(val, Identifier) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral):
                 # print(f"----------------------------------------")
@@ -116,12 +115,12 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
         #     raise InvalidProgram()
 
         case While(cond, body):
-            c = eval(cond, program_env, environment)
+            c = eval(cond, program_env)
             while (eval_literals(c) == True) :
                 program_env.enter_scope()
-                eval(body, program_env ,environment)
+                eval(body, program_env )
                 program_env.exit_scope()
-                c = eval(cond, program_env, environment)
+                c = eval(cond, program_env)
             return None
             
             
@@ -140,10 +139,16 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
 
         case For(exp1, condition, exp2, body):
             program_env.enter_scope()
-            eval(exp1, program_env ,environment)
-            cond = eval(condition, program_env ,environment)
-            body.statements.append(exp2)
-            eval(While(condition, body), program_env ,environment)
+            eval(exp1, program_env)
+            cond=eval(condition,program_env)
+
+            while(cond==BoolLiteral(True)):
+                program_env.enter_scope()
+                eval(body,program_env)
+                eval(exp2,program_env)
+                cond=eval(condition,program_env)
+                program_env.exit_scope()
+
             program_env.exit_scope()
             return None
             
@@ -161,10 +166,10 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
             # return body_iteration_lst
 
         case Slice(string_var, start, end, step):
-            string_var = eval(string_var, program_env, environment)
-            start = eval(start, program_env, environment)
-            end = eval(end, program_env, environment)
-            step = eval(step, program_env, environment)
+            string_var = eval(string_var, program_env)
+            start = eval(start, program_env)
+            end = eval(end, program_env)
+            step = eval(step, program_env)
             if isinstance(string_var, StringLiteral) and isinstance(start, NumLiteral) and isinstance(end, NumLiteral) and isinstance(step,NumLiteral):
                 string_var = eval_literals(string_var)
                 start = eval_literals(start)
@@ -176,28 +181,28 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
                 raise InvalidProgram(f"TypeError: slice indices must be NumLiteral")
 
         case IfElse(condition_ast, if_ast, elif_list ,else_ast):
-            condition_res = eval(condition_ast, program_env, environment)
+            condition_res = eval(condition_ast, program_env)
             # print(f"The condition result {condition_res}")
             if eval_literals(condition_res) == True:
                 # print(f"Inside the if of IfElse")
                 program_env.enter_scope()
-                eval(if_ast, program_env, environment)
+                eval(if_ast, program_env)
                 program_env.exit_scope()
                 return None
             
             if len(elif_list) != 0:
                 for elif_ast in elif_list:
-                    elif_condition = eval(elif_ast.condition, program_env, environment )
+                    elif_condition = eval(elif_ast.condition, program_env )
                     if eval_literals(elif_condition) == True:
                         program_env.enter_scope()
-                        eval(elif_ast.if_body, program_env, environment)
+                        eval(elif_ast.if_body, program_env)
                         program_env.exit_scope()
                         return None
             
             if else_ast != None:
                 # print('Inside else of IfElse')
                 program_env.enter_scope()
-                eval(else_ast, program_env, environment)
+                eval(else_ast, program_env)
                 program_env.exit_scope()
                 return None
             
@@ -206,7 +211,7 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
         # comparison operation
         case ComparisonOp(x, ">", const):
             try:
-                if eval_literals(eval(x, program_env, environment)) > eval_literals(eval(const, program_env, environment)):
+                if eval_literals(eval(x, program_env)) > eval_literals(eval(const, program_env)):
                     return BoolLiteral(True)
                 return BoolLiteral(False)
             except Exception as e:
@@ -215,7 +220,7 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
 
         case ComparisonOp(x, "<", const):
             try:
-                if eval_literals(eval(x, program_env, environment)) < eval_literals(eval(const, program_env, environment)):
+                if eval_literals(eval(x, program_env)) < eval_literals(eval(const, program_env)):
                     return BoolLiteral(True)
                 return BoolLiteral(False)
             except Exception as e:
@@ -224,7 +229,7 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
 
         case ComparisonOp(x, "==", const):
             try:
-                if eval_literals(eval(x, program_env, environment)) == eval_literals(eval(const, program_env, environment)):
+                if eval_literals(eval(x, program_env)) == eval_literals(eval(const, program_env)):
                     return BoolLiteral(True)
                 return BoolLiteral(False)
             except Exception as e:
@@ -233,7 +238,7 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
 
         case ComparisonOp(x, "!=", const):
             try:
-                if eval_literals(eval(x, program_env, environment)) != eval_literals(eval(const, program_env, environment)):
+                if eval_literals(eval(x, program_env)) != eval_literals(eval(const, program_env)):
                     return BoolLiteral(True)
                 return BoolLiteral(False)
             except Exception as e:
@@ -242,7 +247,7 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
 
         case ComparisonOp(x, "<=", const):
             try:
-                if eval_literals(eval(x, program_env, environment)) <= eval_literals(eval(const, program_env, environment)):
+                if eval_literals(eval(x, program_env)) <= eval_literals(eval(const, program_env)):
                     return BoolLiteral(True)
                 return BoolLiteral(False)
             except Exception as e:
@@ -251,7 +256,7 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
 
         case ComparisonOp(x, ">=", const):
             try:
-                if eval_literals(eval(x, program_env, environment)) >= eval_literals(eval(const, program_env, environment)):
+                if eval_literals(eval(x, program_env)) >= eval_literals(eval(const, program_env)):
                     return BoolLiteral(True)
                 return BoolLiteral(False)
             except Exception as e:
@@ -260,7 +265,7 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
         
         case ComparisonOp(cond1, "and", cond2):
             try:
-                if eval_literals(eval(cond1, program_env, environment)) and eval_literals(eval(cond2, program_env, environment)):
+                if eval_literals(eval(cond1, program_env)) and eval_literals(eval(cond2, program_env)):
                     return BoolLiteral(True)
                 return BoolLiteral(False)
             except Exception as e:
@@ -269,7 +274,7 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
         
         case ComparisonOp(cond1, "or", cond2):
             try:
-                if eval_literals(eval(cond1, program_env, environment)) or eval_literals(eval(cond2, program_env, environment)):
+                if eval_literals(eval(cond1, program_env)) or eval_literals(eval(cond2, program_env)):
                     return BoolLiteral(True)
                 return BoolLiteral(False)
             except Exception as e:
@@ -291,8 +296,8 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
 
         # binary operation
         case BinOp(left, "+", right):
-            eval_left = eval(left, program_env, environment)
-            eval_right = eval(right, program_env, environment)
+            eval_left = eval(left, program_env)
+            eval_right = eval(right, program_env)
 
             try:
                 if isinstance(eval_left, StringLiteral) and isinstance(eval_right, NumLiteral) or isinstance(eval_left,
@@ -311,8 +316,8 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
                 raise InvalidProgram(f"+ not supported between instances of {left} and {right}")
 
         case BinOp(left, "-", right):
-            eval_left = eval(left, program_env, environment)
-            eval_right = eval(right, program_env, environment)
+            eval_left = eval(left, program_env)
+            eval_right = eval(right, program_env)
             try:
                 res = eval_literals(eval_left) - eval_literals(eval_right)
                 if isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
@@ -323,8 +328,8 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
                 raise InvalidProgram(f"TypeError: - not supported between instances of {left} and {right}")
 
         case BinOp(left, "*", right):
-            eval_left = eval(left, program_env, environment)
-            eval_right = eval(right, program_env, environment)
+            eval_left = eval(left, program_env)
+            eval_right = eval(right, program_env)
             try:
                 res = eval_literals(eval_left) * eval_literals(eval_right)
                 if isinstance(eval_left, StringLiteral) and isinstance(eval_right, NumLiteral):
@@ -337,8 +342,8 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
                 raise InvalidProgram(f"TypeError: * not supported between instances of {left} and {right}")
 
         case BinOp(left, "/", right):
-            eval_left = eval(left, program_env, environment)
-            eval_right = eval(right, program_env, environment)
+            eval_left = eval(left, program_env)
+            eval_right = eval(right, program_env)
             try:
                 res = eval_literals(eval_left) / eval_literals(eval_right)
                 return FloatLiteral(res)
@@ -349,8 +354,8 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
                     f"TypeError: / not supported between instances of {left} and {right}")
 
         case BinOp(left, "//", right):
-            eval_left = eval(left, program_env, environment)
-            eval_right = eval(right, program_env, environment)
+            eval_left = eval(left, program_env)
+            eval_right = eval(right, program_env)
             try:
                 res = eval_literals(eval_left) // eval_literals(eval_right)
                 return NumLiteral(res)
@@ -362,8 +367,8 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
                     f"TypeError: // not supported between instances of {left} and {right}")
 
         case BinOp(left, "%", right):
-            eval_left = eval(left, program_env, environment)
-            eval_right = eval(right, program_env, environment)
+            eval_left = eval(left, program_env)
+            eval_right = eval(right, program_env)
             try:
                 res = eval_literals(eval_left) % eval_literals(eval_right)
                 return FloatLiteral(res)
@@ -374,8 +379,8 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
                     f"TypeError: % not supported between instances of {left} and {right}")
 
         case BinOp(left, "**", right):
-            eval_left = eval(left, program_env, environment)
-            eval_right = eval(right, program_env, environment)
+            eval_left = eval(left, program_env)
+            eval_right = eval(right, program_env)
             try:
                 res = eval_literals(eval_left) ** eval_literals(eval_right)
                 return NumLiteral(res)
