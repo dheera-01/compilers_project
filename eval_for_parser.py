@@ -21,7 +21,7 @@ def eval_literals(Literal: AST) -> Value_literal:
 
         case BoolLiteral(Value):
             return Value
-
+        
 
 def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] = None) -> Value:
     global global_env
@@ -46,7 +46,7 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
 
         case BoolLiteral(Value):
             return program
-
+        
         case Identifier(name):
             # This will return the Literal stored
             return program_env.get(name)
@@ -71,6 +71,9 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
                 # print(f"----------------------------------------")
                 print(eval_literals(eval(val, program_env)))
                 # print(f"----------------------------------------")
+                return None
+            elif (isinstance(val, Identifier)):
+                print(eval(val, program_env))
                 return None
             else:
                 raise InvalidProgram()

@@ -90,14 +90,32 @@ class Parser:
         match self.lexer.peek_current_token():
 
             case Identifier(name):
+                # print(self.lexer.peek_current_token())
+                # If Identifier is a list and followed by a bracket, then index it and return Indexer
+                # match self.lexer.peek_current_token():
+                #     case EndOfLine(";"):
+                #         self.lexer.advance()
+                #         return Identifier(name)
+                #     case self.lexer.match(Bracket("[")):
+                #         print("here")
+                #         # print(self.lexer.peek_current_token())
+                #         # self.lexer.advance()
+                #         # self.lexer.match(Bracket("["))
+                #         index = self.parse_expr()
+                #         self.lexer.match(Bracket("]"))
+                #         return Indexer(name, index)
+                
                 self.lexer.advance()
-
+                # print(self.lexer.peek_current_token())
+                
                 return Identifier(name)
             case StringLiteral(value):
                 self.lexer.advance()
                 return StringLiteral(value)
             case NumLiteral(value):
+                # print(self.lexer.peek_current_token())
                 self.lexer.advance()
+                # print(self.lexer.peek_current_token())
                 return NumLiteral(value)
             case FloatLiteral(value):
                 self.lexer.advance()
@@ -264,6 +282,8 @@ class Parser:
         self.lexer.match(Operator("="))
         right_part = self.parse_expr()
         return Assign(left_part, right_part)
+    
+
 
     def parse_const(self):
         self.lexer.advance()
@@ -272,6 +292,7 @@ class Parser:
         identifier.is_mutable = False
         self.lexer.match(Operator("="))
         right_part = self.parse_expr()
+        # print("right part", right_part)
         return Assign(identifier, right_part)
 
     def parse_print(self):
@@ -298,8 +319,20 @@ class Parser:
         self.lexer.match(Bracket(")"))
         return Let(Assign(left_part, right_part), body)
 
-        # return Let(Assign(left_part,right_part), self.parse_expr())
+    def parse_index(self):
+        """parse the index expression
 
+        Returns:
+            AST: return AST of the index expression
+        """
+        self.lexer.match(Keyword("index"))
+        left_part = self.parse_atom()
+        self.lexer.match(Bracket("["))
+        right_part = self.parse_expr()
+        self.lexer.match(Bracket("]"))
+        # print("left part", left_part)
+        # print("right part", right_part)
+        return Indexer(left_part, right_part)
 
     def parse_expr(self):
         """parse the expression
@@ -336,6 +369,8 @@ class Parser:
                 return self.parse_const()
             case Keyword("let"):
                 return self.parse_let()
+            case Keyword("index"):
+                return self.parse_index()
             case _:
                 return self.parse_simple()
 
@@ -417,7 +452,7 @@ def parse_code_file(file_location:str):
 
 if __name__ == '__main__':
 
-    file = open("tests_parser/assign.txt", "r")
+    file = open("tests_parser/list.txt", "r")
 
     program = file.read()
     obj_parser = Parser.from_lexer(
