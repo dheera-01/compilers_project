@@ -1,5 +1,3 @@
-print("------------TEST CASE STARTS------------");
-
 # Variable
 assign a = 5;
 print(a);
@@ -12,9 +10,9 @@ assign p = arr[3];
 print(p);
 
 # Reassign arr and index it
-assign arr = [22, 26, 11, 3, 5, 7, 2];
+arr = [22, 26, 11, 3, 5, 7, 2];
 print(arr);
-assign p = arr[1];
+p = arr[1];
 print(p);
 
 
@@ -23,5 +21,3 @@ assign str = "hello";
 print(str);
 assign m = str[4];
 print(m);
-
-print("------------TEST CASE ENDS--------------");

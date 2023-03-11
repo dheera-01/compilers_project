@@ -26,7 +26,6 @@ class Parser:
 
     def parse_if(self):
         """parse if else statement
-
         Returns:
             IfElse: return AST of if else statement
         """
@@ -35,18 +34,18 @@ class Parser:
         if_branch = self.parse_block()
         # single if statement
         if self.lexer.peek_current_token() != Keyword("else") and self.lexer.peek_current_token() != Keyword("elif"):
-            return IfElse(c, if_branch)
+            return IfElse(c, if_branch, [], None)
         elif_list = []
         while self.lexer.peek_current_token() == Keyword("elif"):
             self.lexer.advance()
             elif_condition = self.parse_simple()
             elif_body = self.parse_block()
-            elif_list.append(IfElse(elif_condition, elif_body))            
-        
-        # if and elif are allowed without else  
+            elif_list.append(IfElse(elif_condition, elif_body, [], None))
+
+            # if and elif are allowed without else
         if self.lexer.peek_current_token() != Keyword("else"):
-            return IfElse(c, if_branch, elif_list)
-        
+            return IfElse(c, if_branch, elif_list, None)
+
         self.lexer.match(Keyword("else"))
         else_branch = self.parse_block()
         return IfElse(c, if_branch, elif_list, else_branch)
@@ -323,10 +322,12 @@ class Parser:
                         case Operator(","):
                             self.lexer.advance()
                         case _:
-                            right_part.append(self.parse_expr())
+                            right_part.append(self.parse_simple())
+                self.lexer.match(EndOfLine(";"))
                 return Assign(left_part, right_part)
             case _:
-                right_part = self.parse_expr()
+                right_part = self.parse_simple()
+                self.lexer.match(EndOfLine(";"))
                 return Assign(left_part, right_part)
         
         
@@ -361,10 +362,28 @@ class Parser:
         if op._operator not in assignment_operator_list:
             raise InvalidProgram(f"Syntax Error: {op} not a valid assignment operator")
         self.lexer.advance() # consuming the assignment operator
-        
-        right_part = self.parse_simple()
-        self.lexer.match(EndOfLine(";"))
-        return Update(left_part, op, right_part)
+
+        match self.lexer.peek_current_token():
+            case Bracket("["):
+                # Till you dont encounter a closing bracket, keep parsing the expression and store the literals
+                # in a list and skip the operator ","
+                self.lexer.advance()
+                right_part = []
+                while True:
+                    match self.lexer.peek_current_token():
+                        case Bracket("]"):
+                            self.lexer.advance()
+                            break
+                        case Operator(","):
+                            self.lexer.advance()
+                        case _:
+                            right_part.append(self.parse_simple())
+                self.lexer.match(EndOfLine(";"))
+                return Update(left_part, op, right_part)
+            case _:
+                right_part = self.parse_simple()
+                self.lexer.match(EndOfLine(";"))
+                return Update(left_part, op, right_part)
     
 
     def parse_print(self):
@@ -412,7 +431,6 @@ class Parser:
             case Keyword("elif"):
                 raise InvalidProgram(f"Syntax Error: elif can only be used after if")
             case Keyword("if"):
-                # print(self.lexer.peek_current_token())
                 return self.parse_if()
             case Keyword("while"):
                 return self.parse_while()
@@ -485,7 +503,7 @@ def parse_code_file(file_location:str):
 
 if __name__ == '__main__':
 
-    file = open("tests_parser/list.txt", "r")
+    file = open("tests_parser/assign.txt", "r")
 
     program = file.read()
     obj_parser = Parser.from_lexer(

@@ -93,6 +93,10 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             return None
         
         case Update(identifier, op, right):
+            if type(right).__name__ == 'list':
+                program_env.update(identifier, right)
+                return None
+
             value = eval(right, program_env)
             if op._operator == "=":
                 program_env.update(identifier, value)
@@ -104,17 +108,13 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             # The print function will print the evaluated value of val and return the AST val
             val = eval(value, program_env)
             # print(f"val: {val}")
-            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral)  or isinstance(val, Identifier) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral):
+            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral)  or isinstance(val, Identifier) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral) or isinstance(val, list):
                 # print(f"----------------------------------------")
-                ans = eval_literals(eval(val, program_env))
+                ans = eval_literals(val)
                 print(ans)
                 display_output.append(str(ans))
                 # print(eval_literals(eval(val, program_env)))
                 # print(f"----------------------------------------")
-                return None
-            elif (isinstance(val, Identifier)):
-                # print("value is", val)
-                print(eval_literals(eval(val, program_env)))
                 return None
             else:
                 raise InvalidProgram(f"SyntaxError: invalid syntax for print")
