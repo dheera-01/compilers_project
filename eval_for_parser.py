@@ -18,9 +18,16 @@ def eval_literals(literal: Value) -> Value_literal:
         case StringLiteral(value):
             return value
 
-        case BoolLiteral(value):
-            return value
-
+        case BoolLiteral(Value):
+            return Value
+        
+        # This is a case for list literal
+        case _ :
+            ans = []
+            for x in Literal:
+                ans.append(eval_literals(x))
+            return ans
+        
 
 def eval(program: AST, program_env:Environment = None) -> Value:
     global global_env
@@ -45,6 +52,7 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             # return ans
 
         case NumLiteral(value):
+            # print(program)
             return program
 
         case FloatLiteral(value):
@@ -55,9 +63,9 @@ def eval(program: AST, program_env:Environment = None) -> Value:
 
         case BoolLiteral(value):
             return program
-
+        
+        
         case Identifier(name):
-            # This will return the Literal stored
             return program_env.get(name)
 
         case Let(assign, e2):
@@ -93,15 +101,17 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             return None 
         case Print(value):
             # The print function will print the evaluated value of val and return the AST val
-            val = eval(value, program_env)
-            # print(f"val: {val}")
-            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral)  or isinstance(val, Identifier) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral):
+            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral) or isinstance(val, BinOp) or isinstance(val, BoolLiteral):
                 # print(f"----------------------------------------")
                 ans = eval_literals(eval(val, program_env))
                 print(ans)
                 display_output.append(str(ans))
                 # print(eval_literals(eval(val, program_env)))
                 # print(f"----------------------------------------")
+                return None
+            elif (isinstance(val, Identifier)):
+                # print("value is", val)
+                print(eval_literals(eval(val, program_env)))
                 return None
             else:
                 raise InvalidProgram(f"SyntaxError: invalid syntax for print")
@@ -389,9 +399,43 @@ def eval(program: AST, program_env:Environment = None) -> Value:
         #         eval(expr, program_env, environment)
         #     return None
 
-        
-            
+        case Assign(identifier, right):
+            # print(right)
+            if(type(right) == list):
+                # print("Yes, its a list")
+                for env in reversed(program_env.envs):
+                    if identifier.name in env:
+                        program_env.update(identifier, right)
+                        return None
+                program_env.add(identifier, right)
+            else:
+                # print("Its a variable")
+                value = eval(right, program_env, environment)
+                for env in reversed(program_env.envs):
+                    if identifier.name in env:
+                        program_env.update(identifier, value)
+                        return None
 
+                program_env.add(identifier, value)
+            return None
+        
+        case Indexer(identifier, indexVal):
+            i = eval_literals(indexVal)
+            objectToBeIndexed = eval_literals(program_env.get(identifier.name))
+            if(len(objectToBeIndexed) <= i):
+                print("Index out of range")
+            for env in reversed(program_env.envs):
+                if identifier.name in env:
+                    if(type(program_env.get(identifier.name)) == list):
+                        return program_env.get(identifier.name)[i]
+                    elif(type(program_env.get(identifier.name)) == StringLiteral):
+                        res = eval_literals(program_env.get(identifier.name))[i]
+                        return StringLiteral(res)        
+                    else:
+                        print(f"The Indentifier {identifier} is not iterable")
+                        return None
+            
+        
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
 
 if __name__ == "__main__":

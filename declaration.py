@@ -43,6 +43,12 @@ class BoolLiteral:
     def __repr__(self) -> str:
         return f"BoolLiteral({self.value})"
 
+@dataclass
+class ListLiteral:
+    value: list
+
+    def __repr__(self) -> str:
+        return f"ListLiteral({self.value})"
 
 @dataclass
 class Keyword:
@@ -153,7 +159,11 @@ class Slice:
 
     def __repr__(self) -> str:
         return f"Slice({self.string_var}[{self.start}:{self.end}:{self.step}])"
-
+    
+@dataclass
+class Assign:
+    v:Identifier
+    right:'AST' or list['AST']
 
 @dataclass
 class IfElse:
@@ -209,6 +219,15 @@ class For:
     
     def __repr__(self) -> str:
         return f"For(({self.exp1} ;{self.condition};{self.exp2}) do {self.body})"
+    
+@dataclass
+class Indexer:
+    val: Identifier
+    index: 'AST'
+
+    def __repr__(self) -> str:
+        return f"Indexer({self.val}[{self.index}])"
+
 
 
 # @dataclass
@@ -320,6 +339,5 @@ display_output = [] # list to store the output of print statements as strings
 Value_literal = int | float | bool | str
 Value = None | NumLiteral | StringLiteral | BoolLiteral | FloatLiteral
 
-AST = Value | Identifier | Sequence | BinOp | ComparisonOp | UnaryOp | Let | Assign| Update | IfElse | While | For | Print | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile
-
+AST = Value | Identifier | Sequence | BinOp | ComparisonOp | UnaryOp | Let | Assign| Update | IfElse  | Print | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | NumLiteral | StringLiteral | Indexer | Slice | While | FloatLiteral | BoolLiteral 
 
