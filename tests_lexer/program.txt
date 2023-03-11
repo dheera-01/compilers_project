@@ -12,3 +12,5 @@ if then else while
 assign x = 5
 print("HelloWorld")
 slice("Hello":0:2:1)
+
+assign arr = [11, 2, 4, 6]

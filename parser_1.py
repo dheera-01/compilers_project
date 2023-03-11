@@ -280,10 +280,28 @@ class Parser:
         self.lexer.advance()
         left_part = self.parse_atom()
         self.lexer.match(Operator("="))
-        right_part = self.parse_expr()
-        return Assign(left_part, right_part)
-    
-
+        # 2 cases: 1. assign to a variable 2. assign to a list
+        match self.lexer.peek_current_token():
+            case Bracket("["):
+                # Till you dont encounter a closing bracket, keep parsing the expression and store the literals
+                # in a list and skip the operator ","
+                self.lexer.advance()
+                right_part = []
+                while True:
+                    match self.lexer.peek_current_token():
+                        case Bracket("]"):
+                            self.lexer.advance()
+                            break
+                        case Operator(","):
+                            self.lexer.advance()
+                        case _:
+                            right_part.append(self.parse_expr())
+                return Assign(left_part, right_part)
+            case _:
+                right_part = self.parse_expr()
+                return Assign(left_part, right_part)
+        
+        
 
     def parse_const(self):
         self.lexer.advance()

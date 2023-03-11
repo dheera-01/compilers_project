@@ -22,6 +22,14 @@ def eval_literals(Literal: AST) -> Value_literal:
         case BoolLiteral(Value):
             return Value
         
+        # This is a case for list literal
+        case _ :
+            # print(Literal)
+            ans = []
+            for x in Literal:
+                ans.append(eval_literals(x))
+            return ans
+        
 
 def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] = None) -> Value:
     global global_env
@@ -36,6 +44,7 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
             return ans
 
         case NumLiteral(value):
+            # print(program)
             return program
 
         case FloatLiteral(value):
@@ -47,8 +56,20 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
         case BoolLiteral(Value):
             return program
         
+        
         case Identifier(name):
-            # This will return the Literal stored
+            # if(type(program_env.get(name)) == list):
+            #     print("here")
+            #     l = program_env.get(name)
+            #     ans = []
+            #     for x in l:
+
+            #         ans.append(eval_literals(x))
+            #     return ans
+            # else:
+            #     return eval_literals(program_env.get(name))
+            
+            # print(program_env.get(name))
             return program_env.get(name)
 
         case Let(assign, e2):
@@ -67,13 +88,15 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
 
         case Print(val):
             # The print function will print the evaluated value of val and return the AST val
-            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral) or isinstance(val, BinOp) or isinstance(val, Identifier) or isinstance(val, BoolLiteral):
+            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral) or isinstance(val, BinOp) or isinstance(val, BoolLiteral):
                 # print(f"----------------------------------------")
                 print(eval_literals(eval(val, program_env)))
                 # print(f"----------------------------------------")
                 return None
             elif (isinstance(val, Identifier)):
-                print(eval(val, program_env))
+                # print(val)
+                # print(program_env.get(eval(val, program_env)))
+                print(eval_literals(eval(val, program_env)))
                 return None
             else:
                 raise InvalidProgram()
@@ -312,13 +335,24 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
             return None
 
         case Assign(identifier, right):
-            value = eval(right, program_env, environment)
-            for env in reversed(program_env.envs):
-                if identifier.name in env:
-                    program_env.update(identifier, value)
-                    return None
+            # print(right)
+            # Check type of right
+            if(type(right) == list):
+                # print("Yes, its a list")
+                for env in reversed(program_env.envs):
+                    if identifier.name in env:
+                        program_env.update(identifier, right)
+                        return None
+                program_env.add(identifier, right)
+            else:
+                # print("Its a variable")
+                value = eval(right, program_env, environment)
+                for env in reversed(program_env.envs):
+                    if identifier.name in env:
+                        program_env.update(identifier, value)
+                        return None
 
-            program_env.add(identifier, value)
+                program_env.add(identifier, value)
             return None
 
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")

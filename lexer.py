@@ -49,7 +49,7 @@ class Stream:
 
 
 keywords = "if then else end while for do done let int string float def assign print slice const let in".split()
-symbolic_operators = "+ - * / % // ** < > <= >= == !=  << >> = += -= *= /= %= //= **= :".split()
+symbolic_operators = "+ - * / % // ** < > <= >= == !=  << >> = += -= *= /= %= //= **= : ,".split()
 word_operators = "and or not is in".split()
 opening_brackets = "( [ { ".split()
 closing_brackets = ") ] }".split()
@@ -333,7 +333,7 @@ class Lexer:
 
 if __name__ == "__main__":
 
-    file = open("tests_parser/let.txt", "r")
+    file = open("tests_lexer/program.txt", "r")
     program = file.read()
     # print("Program:")
     # print(program)

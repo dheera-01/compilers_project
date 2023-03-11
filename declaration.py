@@ -42,6 +42,12 @@ class BoolLiteral:
     def __repr__(self) -> str:
         return f"BoolLiteral({self.value})"
 
+# @dataclass
+# class ListLiteral:
+#     value: list
+
+#     def __repr__(self) -> str:
+#         return f"ListLiteral({self.value})"
 
 @dataclass
 class Keyword:
@@ -166,16 +172,11 @@ class While_Seq():
     condn: ComparisonOp
     body: 'AST'
 
-# @dataclass
-# class While():
-#
-#     condn: ComparisonOp
-#     body: 'AST'
 
 @dataclass
 class Assign:
     v:Identifier
-    right:'AST'
+    right:'AST' or list['AST']
 
 # @dataclass
 # class For:
@@ -265,4 +266,4 @@ class Enviroment:
                 return env[name][0]
         raise InvalidProgram(f"Variable {name} is not defined")
 
-AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assign | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp| While
+AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assign | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp| While 

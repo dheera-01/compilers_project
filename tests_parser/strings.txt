@@ -1,3 +1,5 @@
+print("------------TEST CASE STARTS------------");
+
 #1
 #assign a = "Hello World!";
 #print(a);
@@ -9,3 +11,5 @@
 
 #3
 #slice("Hello World!": 0: 5: 1);
+
+print("------------TEST CASE ENDS--------------");

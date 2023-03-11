@@ -1,2 +1,11 @@
+print("------------TEST CASE STARTS------------");
+
 assign a = 5;
 print(a);
+assign arr = [1, 2, 3];
+print(arr);
+
+assign arr = [22, 26];
+print(arr);
+
+print("------------TEST CASE ENDS--------------");
