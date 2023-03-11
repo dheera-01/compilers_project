@@ -1,22 +1,30 @@
 print("------------TEST CASE STARTS------------");
 
+# Variable
 assign a = 5;
 print(a);
 
+# List declaration and Indexing
 assign arr = [1, 2, 3, 11, 18];
 print(arr);
-
-
 assign t = index arr[4];
 print(t);
 
+# Reassign arr and index it
 assign arr = [22, 26, 11, 3, 5, 7, 2];
 print(arr);
-
 assign p = index arr[1];
 print(p);
 
 
+# Indexing of Strings
+assign str = "hello";
+print(str);
+assign m = index str[1];
+print(m);
+
+# Could not write parser for this, therefore introduce keyword index
 #arr[2];
+
 
 print("------------TEST CASE ENDS--------------");

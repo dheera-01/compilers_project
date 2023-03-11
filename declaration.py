@@ -42,12 +42,12 @@ class BoolLiteral:
     def __repr__(self) -> str:
         return f"BoolLiteral({self.value})"
 
-# @dataclass
-# class ListLiteral:
-#     value: list
+@dataclass
+class ListLiteral:
+    value: list
 
-#     def __repr__(self) -> str:
-#         return f"ListLiteral({self.value})"
+    def __repr__(self) -> str:
+        return f"ListLiteral({self.value})"
 
 @dataclass
 class Keyword:

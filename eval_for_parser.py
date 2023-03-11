@@ -24,7 +24,6 @@ def eval_literals(Literal: AST) -> Value_literal:
         
         # This is a case for list literal
         case _ :
-            # print(Literal)
             ans = []
             for x in Literal:
                 ans.append(eval_literals(x))
@@ -58,7 +57,6 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
         
         
         case Identifier(name):
-            # print("name is", name)
             return program_env.get(name)
 
         case Let(assign, e2):
@@ -328,8 +326,6 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
                 # print("Yes, its a list")
                 for env in reversed(program_env.envs):
                     if identifier.name in env:
-                        # print("yoyo", program_env.get(identifier.name))
-                        # print(program_env.get(identifier.name)[2])
                         program_env.update(identifier, right)
                         return None
                 program_env.add(identifier, right)
@@ -338,7 +334,6 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
                 value = eval(right, program_env, environment)
                 for env in reversed(program_env.envs):
                     if identifier.name in env:
-                        # print("yoyo", program_env.get(identifier.name))
                         program_env.update(identifier, value)
                         return None
 
@@ -347,13 +342,16 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
         
         case Indexer(identifier, indexVal):
             i = eval_literals(indexVal)
-            objectToBeIndexed = program_env.get(identifier.name)
+            objectToBeIndexed = eval_literals(program_env.get(identifier.name))
             if(len(objectToBeIndexed) <= i):
                 print("Index out of range")
             for env in reversed(program_env.envs):
                 if identifier.name in env:
                     if(type(program_env.get(identifier.name)) == list):
                         return program_env.get(identifier.name)[i]
+                    elif(type(program_env.get(identifier.name)) == StringLiteral):
+                        res = eval_literals(program_env.get(identifier.name))[i]
+                        return StringLiteral(res)        
                     else:
                         print(f"The Indentifier {identifier} is not iterable")
                         return None

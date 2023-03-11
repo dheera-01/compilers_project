@@ -1,8 +1,8 @@
 print("------------TEST CASE STARTS------------");
 
 #1
-#assign a = "Hello World!";
-#print(a);
+assign a = "Hello World!";
+print(a);
 
 #2
 #assign a = "Hello World!";
