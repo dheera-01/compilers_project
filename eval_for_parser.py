@@ -81,7 +81,6 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             #     if identifier.name in env:
             #         program_env.update(identifier, value)
             #         return None
-            identifier.first_assign.append(value)
             program_env.add(identifier, value)
             return None
         case Update(identifier, op, right):
@@ -300,15 +299,12 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             eval_right = eval(right, program_env)
 
             try:
-                if isinstance(eval_left, StringLiteral) and isinstance(eval_right, NumLiteral) or isinstance(eval_left,
-                                                                                            NumLiteral) and isinstance(eval_right, StringLiteral):
+                if isinstance(eval_left, StringLiteral) or isinstance(eval_right, StringLiteral):
                     res = str(eval_literals(eval_left)) + str(eval_literals(eval_right))
                     return StringLiteral(res)
                 else:
                     res = eval_literals(eval_left) + eval_literals(eval_right)
-                    if isinstance(eval_left, StringLiteral) and isinstance(eval_right, StringLiteral):
-                        return StringLiteral(res)
-                    elif isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
+                    if isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
                         return FloatLiteral(res)
                     else:
                         return NumLiteral(res)
