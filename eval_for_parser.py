@@ -58,18 +58,7 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
         
         
         case Identifier(name):
-            # if(type(program_env.get(name)) == list):
-            #     print("here")
-            #     l = program_env.get(name)
-            #     ans = []
-            #     for x in l:
-
-            #         ans.append(eval_literals(x))
-            #     return ans
-            # else:
-            #     return eval_literals(program_env.get(name))
-            
-            # print(program_env.get(name))
+            # print("name is", name)
             return program_env.get(name)
 
         case Let(assign, e2):
@@ -94,8 +83,7 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
                 # print(f"----------------------------------------")
                 return None
             elif (isinstance(val, Identifier)):
-                # print(val)
-                # print(program_env.get(eval(val, program_env)))
+                # print("value is", val)
                 print(eval_literals(eval(val, program_env)))
                 return None
             else:
@@ -336,11 +324,12 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
 
         case Assign(identifier, right):
             # print(right)
-            # Check type of right
             if(type(right) == list):
                 # print("Yes, its a list")
                 for env in reversed(program_env.envs):
                     if identifier.name in env:
+                        # print("yoyo", program_env.get(identifier.name))
+                        # print(program_env.get(identifier.name)[2])
                         program_env.update(identifier, right)
                         return None
                 program_env.add(identifier, right)
@@ -349,10 +338,25 @@ def eval(program: AST, program_env:Enviroment, environment: Mapping[str, Value] 
                 value = eval(right, program_env, environment)
                 for env in reversed(program_env.envs):
                     if identifier.name in env:
+                        # print("yoyo", program_env.get(identifier.name))
                         program_env.update(identifier, value)
                         return None
 
                 program_env.add(identifier, value)
             return None
-
+        
+        case Indexer(identifier, indexVal):
+            i = eval_literals(indexVal)
+            objectToBeIndexed = program_env.get(identifier.name)
+            if(len(objectToBeIndexed) <= i):
+                print("Index out of range")
+            for env in reversed(program_env.envs):
+                if identifier.name in env:
+                    if(type(program_env.get(identifier.name)) == list):
+                        return program_env.get(identifier.name)[i]
+                    else:
+                        print(f"The Indentifier {identifier} is not iterable")
+                        return None
+            
+        
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")

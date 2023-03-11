@@ -220,6 +220,15 @@ class For:
     
     def __repr__(self) -> str:
         return f"For(({self.exp1} ;{self.condition};{self.exp2}) do {self.body})"
+    
+@dataclass
+class Indexer:
+    val: Identifier
+    index: 'AST'
+
+    def __repr__(self) -> str:
+        return f"Indexer({self.val}[{self.index}])"
+
 
 class InvalidProgram(Exception):
     pass
@@ -266,4 +275,4 @@ class Enviroment:
                 return env[name][0]
         raise InvalidProgram(f"Variable {name} is not defined")
 
-AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assign | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp| While 
+AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assign | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp| While | Indexer

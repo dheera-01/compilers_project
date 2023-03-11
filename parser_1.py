@@ -90,25 +90,10 @@ class Parser:
         match self.lexer.peek_current_token():
 
             case Identifier(name):
-                # print(self.lexer.peek_current_token())
-                # If Identifier is a list and followed by a bracket, then index it and return Indexer
-                # match self.lexer.peek_current_token():
-                #     case EndOfLine(";"):
-                #         self.lexer.advance()
-                #         return Identifier(name)
-                #     case self.lexer.match(Bracket("[")):
-                #         print("here")
-                #         # print(self.lexer.peek_current_token())
-                #         # self.lexer.advance()
-                #         # self.lexer.match(Bracket("["))
-                #         index = self.parse_expr()
-                #         self.lexer.match(Bracket("]"))
-                #         return Indexer(name, index)
-                
+                s = Identifier(name)
                 self.lexer.advance()
-                # print(self.lexer.peek_current_token())
                 
-                return Identifier(name)
+                return s
             case StringLiteral(value):
                 self.lexer.advance()
                 return StringLiteral(value)

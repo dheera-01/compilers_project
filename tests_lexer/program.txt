@@ -14,3 +14,5 @@ print("HelloWorld")
 slice("Hello":0:2:1)
 
 assign arr = [11, 2, 4, 6]
+
+index arr[2]

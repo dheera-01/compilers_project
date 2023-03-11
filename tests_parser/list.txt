@@ -2,10 +2,21 @@ print("------------TEST CASE STARTS------------");
 
 assign a = 5;
 print(a);
-assign arr = [1, 2, 3];
+
+assign arr = [1, 2, 3, 11, 18];
 print(arr);
 
-assign arr = [22, 26];
+
+assign t = index arr[4];
+print(t);
+
+assign arr = [22, 26, 11, 3, 5, 7, 2];
 print(arr);
+
+assign p = index arr[1];
+print(p);
+
+
+#arr[2];
 
 print("------------TEST CASE ENDS--------------");
