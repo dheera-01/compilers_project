@@ -56,7 +56,7 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             return program
 
         case FloatLiteral(value):
-            return value
+            return program
 
         case StringLiteral(value):
             return program
@@ -88,7 +88,9 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 if type(right[i]).__name__ == 'list':
                     program_env.add(ident, right[i])
                 else:
+                    print(right[i])
                     value = eval(right[i], program_env)
+                    print(value)
                     program_env.add(ident, value)
             return None
         
@@ -201,7 +203,7 @@ def eval(program: AST, program_env:Environment = None) -> Value:
         case IfElse(condition_ast, if_ast, elif_list ,else_ast):
             condition_res = eval(condition_ast, program_env)
             # print(f"The condition result {condition_res}")
-            if condition_res == True:
+            if eval_literals(condition_res) == True:
                 # print(f"Inside the if of IfElse")
                 program_env.enter_scope()
                 eval(if_ast, program_env)
@@ -338,25 +340,34 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             eval_left = eval(left, program_env)
             eval_right = eval(right, program_env)
             try:
-                return eval_left - eval_right
+                res = eval_literals(eval_left) - eval_literals(eval_right)
+                if isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
+                    return FloatLiteral(res)
+                else:
+                    return NumLiteral(res)
             except Exception as e:
-                raise InvalidProgram(
-                    f"TypeError: - not supported between instances of {left} and {right}")
+                raise InvalidProgram(f"TypeError: - not supported between instances of {left} and {right}")
 
         case BinOp(left, "*", right):
             eval_left = eval(left, program_env)
             eval_right = eval(right, program_env)
             try:
-                return eval_left * eval_right
+                res = eval_literals(eval_left) * eval_literals(eval_right)
+                if isinstance(eval_left, StringLiteral) and isinstance(eval_right, NumLiteral):
+                    return StringLiteral(res)
+                elif isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
+                    return FloatLiteral(res)
+                else:
+                    return NumLiteral(res)
             except Exception as e:
-                raise InvalidProgram(
-                    f"TypeError: ** not supported between instances of {left} and {right}")
+                raise InvalidProgram(f"TypeError: * not supported between instances of {left} and {right}")
 
         case BinOp(left, "/", right):
             eval_left = eval(left, program_env)
             eval_right = eval(right, program_env)
             try:
-                return eval_left / eval_right
+                res = eval_literals(eval_left) / eval_literals(eval_right)
+                return FloatLiteral(res)
             except ZeroDivisionError as e:
                 raise InvalidProgram(f"ZeroDivisionError: division by zero")
             except Exception as e:
@@ -367,7 +378,8 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             eval_left = eval(left, program_env)
             eval_right = eval(right, program_env)
             try:
-                return eval_left // eval_right
+                res = eval_literals(eval_left) // eval_literals(eval_right)
+                return NumLiteral(res)
             except ZeroDivisionError as e:
                 raise InvalidProgram(
                     f"ZeroDivisionError: floor division by zero")
@@ -379,7 +391,8 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             eval_left = eval(left, program_env)
             eval_right = eval(right, program_env)
             try:
-                return eval_left % eval_right
+                res = eval_literals(eval_left) % eval_literals(eval_right)
+                return NumLiteral(res)
             except ZeroDivisionError as e:
                 raise InvalidProgram(f"ZeroDivisionError: modulo by zero")
             except Exception as e:
@@ -395,11 +408,6 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             except Exception as e:
                 raise InvalidProgram(
                     f"TypeError: ** not supported between instances of {left} and {right}")
-
-        # case Seq(lst):
-        #     for expr in lst:
-        #         eval(expr, program_env, environment)
-        #     return None
 
         case Indexer(identifier, indexVal):
             i = eval_literals(indexVal)
