@@ -1,0 +1,6 @@
+assign i=0;
+while(i<1000)
+{
+    print(i);
+    assign i=i+1;
+};

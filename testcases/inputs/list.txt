@@ -1,0 +1,23 @@
+# Variable
+assign a = 5;
+print(a);
+
+# List declaration and Indexing
+assign arr = [1, 2, 3, 11, 18];
+print(arr);
+
+assign p = arr[3];
+print(p);
+
+# Reassign arr and index it
+arr = [22, 26, 11, 3, 5, 7, 2];
+print(arr);
+p = arr[1];
+print(p);
+
+
+# Indexing of Strings
+assign str = "hello";
+print(str);
+assign m = str[4];
+print(m);

@@ -1,0 +1,4 @@
+for(assign i=0; i<1000 ; assign i=i+1)
+{
+    print(i);
+};

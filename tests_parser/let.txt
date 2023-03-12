@@ -1,0 +1,17 @@
+print("------------TEST CASE STARTS------------");
+
+
+let x=1+2*3 (x+1) ;
+let y=2 (let x=2 (x+y));
+print(x);
+print("hello");
+let x=2 (let y=3 (let z=4 (x+y+z)));
+assign v=let u=2
+(
+    let t=2
+        (let a=2(u+ a*t))
+);
+print(v);
+
+
+print("------------TEST CASE ENDS--------------");

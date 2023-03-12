@@ -1,4 +1,6 @@
-if (5 > 3) {5 + 9 *3;  45 + 6;}else{3; 45+ 9}
+#if (5 > 3) {5 + 9 *3;  45 + 6;}else{3; 45+ 9}
+
+if(5>3){print("Hello");}else{print("World")}
 
 a1 = "chirag";
 # i mane is chirag
@@ -10,3 +12,7 @@ if then else while
 assign x = 5
 print("HelloWorld")
 slice("Hello":0:2:1)
+
+assign arr = [11, 2, 4, 6]
+
+index arr[2]

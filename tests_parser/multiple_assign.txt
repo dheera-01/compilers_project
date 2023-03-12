@@ -1,0 +1,14 @@
+assign x = 4, y = 6*5, z = "HelloWorld!", w = [1,2,3,4];
+const assign x_1 = 4, y_1 = 6*5, z_1 = "HelloWorld!", w_1 = [1,2,3,4];
+assign a = 7;
+const assign b = 6;
+print(x);
+print(y);
+print(z);
+print(w);
+print(x_1);
+print(y_1);
+print(z_1);
+print(w_1);
+print(a);
+print(b);
