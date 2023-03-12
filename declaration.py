@@ -135,7 +135,8 @@ class ComparisonOp:
 
 @dataclass
 class Let:
-    assign: 'AST'
+    var: 'AST'
+    e1: 'AST'
     e2: 'AST'
 
     def __repr__(self) -> str:
@@ -186,9 +187,16 @@ class While():
     def __repr__(self) -> str:
         return f"While({self.condition} do {self.body})"
     
+# @dataclass
+# class Assign:
+#     v:Identifier
+#     right:'AST'
+    
+#     def __repr__(self) -> str:
+#         return f"Assign({self.v} = {self.right})"
 @dataclass
 class Assign:
-    v: "AST"
+    v: "AST" or list['AST']
     right:'AST' or list['AST']
     
     def __repr__(self) -> str:

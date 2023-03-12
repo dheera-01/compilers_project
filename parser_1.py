@@ -232,6 +232,28 @@ class Parser:
         self.lexer.match(Bracket(")"))
         return Slice(string_literal, start, end, step)
 
+    def parse_assign(self):
+        self.lexer.match(Keyword("assign"))
+        assignments_l = []
+        assignments_r = []
+        while True:
+            # self.lexer.advance()
+            left_part = self.parse_atom()
+            assignments_l.append(left_part)
+            self.lexer.match(Operator("="))
+            right_part = self.parse_expr()
+            assignments_r.append(right_part)
+
+            match self.lexer.peek_current_token():
+                case Operator(op) if op in ",":
+                    self.lexer.advance()
+                    continue
+                case _:
+                    break
+
+        # Making a list of tuples by checking length of assignments_l list which will contain the variables
+        return Assign(tuple(assignments_l),tuple(assignments_r))
+
     def parse_cmp(self):
         """parse the comparison operator
 
