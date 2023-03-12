@@ -210,7 +210,30 @@ class For:
     def __repr__(self) -> str:
         return f"For(({self.exp1} ;{self.condition};{self.exp2}) do {self.body})"
 
+@dataclass
+class Function:
+    name: str
+    args:List[Identifier]
+    body:'AST'
+    return_value: 'AST'
+    def __init__(self, name, args, body, return_value) -> None:
+        self.name = name
+        self.args = args
+        self.body = body
+        self.return_value = return_value
 
+
+
+
+@dataclass
+class FunctionCall:
+    function_name: str
+    args: List['AST']
+    def __init__(self, function_name, args) -> None:
+        self.function_name=function_name
+        self.args=args
+    def __repr__(self) -> str:
+        return f"FunctionCall({self.function_name}({self.args}))"
 # @dataclass
 # class Seq:
 #     lst : list['AST']
@@ -274,6 +297,19 @@ class Environment:
             return
         self.envs[-1][identifier.name] = [value, identifier]
 
+    def add_function(self,function:Function)->None:
+        '''
+        Adds function to the environment
+        :param function: Function
+        :return: None
+        '''
+        curr_env = self.envs[-1]
+        if function.name in curr_env:
+            raise InvalidProgram(f"Variable {function.name} already defined")
+            return
+
+        self.envs[-1][function.name] = function
+
     def update(self, identifier: Identifier, value):
         """Update the value of a variable in the current scope
 
@@ -310,12 +346,17 @@ class Environment:
             if name in env:
                 return env[name][0]
         raise KeyError(f"Variable {name} not defined")
+    def get_function(self,name:str):
+        for env in reversed(self.envs):
+            if name in env:
+                return env[name]
+        raise KeyError(f"Function {name} not defined")
 
 display_output = [] # list to store the output of print statements as strings
 
 Value_literal = int | float | bool | str
 Value = None | NumLiteral | StringLiteral | BoolLiteral | FloatLiteral
 
-AST = Value | Identifier | Sequence | BinOp | ComparisonOp | UnaryOp | Let | Assign| Update | IfElse | While | For | Print | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile
+AST = Value | Identifier | Sequence | BinOp | ComparisonOp | UnaryOp | Let | Assign| Update | IfElse | While | For | Print | Keyword | Operator | Bracket | Comments | Function | FunctionCall | EndOfLine | EndOfFile
 
 

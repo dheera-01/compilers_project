@@ -381,7 +381,25 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
             except Exception as e:
                 raise InvalidProgram(
                     f"TypeError: ** not supported between instances of {left} and {right}")
+        case FunctionCall(name, args):
+            program_env.enter_scope()
+            func=program_env.get_function(name)
+            if(len(args)!=len(func.args)):
+                raise InvalidProgram("Unexpected number of arguments")
+            else:
+                for i in range(len(args)):
+                    program_env.add(func.args[i],eval(args[i]))
+            rtr=eval(func,program_env)
+            program_env.exit_scope()
+            return rtr
 
+        case Function(name,args , body,return_value):
+            print(name)
+            print(args)
+            eval(body,program_env)
+            rtr= eval(return_value, program_env)
+
+            return rtr
         # case Seq(lst):
         #     for expr in lst:
         #         eval(expr, program_env, environment)
