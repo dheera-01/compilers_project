@@ -1,4 +1,4 @@
-#Weekly Report - 13 March 23
+# Weekly Report - 13 March 23
 
 ## @chirag-25
 - Made an ide for our complier
@@ -286,3 +286,20 @@ Output
 ```python
 elif 2
 ```
+
+## Dheeraj Yadav(@dheera-01)
+
+### Work Done
+- Documentation: Implementation and usage docs of strings, assign, const, and variable scoping(environment). Issue reference [#7](https://github.com/dheera-01/compilers_project/issues/7).
+- Eval fix: Eval was returning the values of python's datatype. Fixed issue [#5](https://github.com/dheera-01/compilers_project/issues/5).
+- Disallow mutable variables to change type. Issue reference [#11](https://github.com/dheera-01/compilers_project/issues/11).
+- Added a python script for testing all the added testcases in a single run and see the report. Issue reference [#12](https://github.com/dheera-01/compilers_project/issues/12).
+- Added first 4 euler questions as testcases and their expected output for above script. Issue reference [#22](https://github.com/dheera-01/compilers_project/issues/22).
+- Fixed the Multiple assign parser. [Commit reference](https://github.com/dheera-01/compilers_project/commit/d1ff5277f74526aa2b130330690ce3401bd32f93).
+- Reviewed everyone's code and merged features logically from different branches into development. Resolved errors which evolved due to conflicts in the feature implementation. Following are some significant commits related to this work:
+  - https://github.com/dheera-01/compilers_project/commit/e5869a7ef2674daff3816f2ab57fb5fdcc5be790
+  - https://github.com/dheera-01/compilers_project/commit/0745aa483be8f5ab240f3d8b2d7cdb53a3075d0b
+  - https://github.com/dheera-01/compilers_project/commit/bf4dd015e7db1e4f5ba069fc1754dfeb5af671c1
+  - https://github.com/dheera-01/compilers_project/commit/cf78937fdebf784728567bf706a26cbdb9be9785
+  - https://github.com/dheera-01/compilers_project/commit/3c6e46e0a48064c595f3aff41d2aa34380f7f1c1
+  - https://github.com/dheera-01/compilers_project/commit/383d6bf9e6196c1be4d34a4b94c828e3bf44878f

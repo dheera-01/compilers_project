@@ -26,12 +26,12 @@ This defines an Abstract Syntax Tree (AST) for a programming language, where eac
 22. `Update`: Represents an update operation, consisting of a `variable`, an `operator`, and a value as `right` to update it with.
 23. `For`: Represents a for loop, consisting of three expressions `exp1` for initialization, `condition` for executing the code block, and `exp2` for updating and a body to evaluate for each iteration of the loop.
 
-###Error Handling
+### Error Handling
 1. `InvalidProgram`, error class for an invalid program 
 2. `KeyError`, error class for a key errors 
 3. `End0fLineError`, error class for end of line error 
 
-###Environment
+### Environment
 `Environment`, a class for storing variables and their values in a dictionary 
 `envs` a list of dictionaries to store environments 
 - `init` initializes the `envs` list with an empty dictionary 
