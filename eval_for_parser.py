@@ -88,9 +88,9 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 if type(right[i]).__name__ == 'list':
                     program_env.add(ident, right[i])
                 else:
-                    print(right[i])
+                    # print(right[i])
                     value = eval(right[i], program_env)
-                    print(value)
+                    # print(value)
                     program_env.add(ident, value)
             return None
         
