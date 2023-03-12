@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List,Union,Dict
+from typing import List
 
 
 @dataclass
@@ -218,26 +218,6 @@ class Assign:
     def __repr__(self) -> str:
         assignments = ", ".join([f"{var} = {expr}" for var, expr in zip(self.v, self.right)])#used list comprehension to iterate over 'v'(variable names) and 'right'(values)
         return f"Assign({assignments})"
-@dataclass    
-class UnaryBoolOp:
-    def __init__(self, a):
-        self.a = a
-    
-    # def evaluate(self):
-    #     if isinstance(self.a, StringLiteral):
-    #         if len(self.a.value) > 0:
-    #             return True
-    #         else:
-    #             return False
-    def evaluate(self, env: Dict[str, Union[str, int, float]]) -> bool:
-        if isinstance(self.a, StringLiteral):
-            return bool(eval(self.a.value, env))
-        elif isinstance(self.a, NumLiteral):
-            return bool(eval(self.a.value, env))
-     
-             
-    def __repr__(self)->str:
-        return f"UnaryBoolOp({repr(self.a)})"
 @dataclass
 class For:
     exp1: 'AST'
@@ -313,4 +293,4 @@ class Enviroment:
                 return env[name][0]
         raise KeyError()
 
-AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assign | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp| While|UnaryBoolOp
+AST = NumLiteral | BinOp | Let | StringLiteral | Slice | Assign | ComparisonOp | Identifier | IfElse | Sequence | Print | FloatLiteral | BoolLiteral | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | UnaryOp| While

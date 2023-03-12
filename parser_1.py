@@ -135,29 +135,6 @@ class Parser:
         while len(temp) > 0:
             left = BinOp(temp.pop(), "**", left)
         return left
-    def parse_unary_bool_op(self):
-    # """parse the UnaryBoolOp operation
-
-    # Returns:
-    #     AST: return AST of the UnaryBoolOp operation
-    # """
-     self.lexer.match(Keyword("UnaryBoolOp"))
-     self.lexer.match(Bracket("("))
-     a = self.parse_expr()
-     self.lexer.match(EndOfLine(","))
-     env = self.parse_expr()
-     self.lexer.match(Bracket(")"))
-    
-     if isinstance(a, StringLiteral):
-        if eval(a.value, env):
-            return True
-        else:
-            return False
-     elif isinstance(a, NumLiteral):
-        if eval(a.value, env) != 0:
-            return True
-     else:
-        return False
 
     def parse_uniary(self):
         """parse the uniary operator, this is left associative
@@ -165,9 +142,7 @@ class Parser:
         Returns:
             AST: return AST of the uniory operation
         """
-        match self.lexer.peek_current_token():
-         case Keyword("UnaryBoolOp"):
-            return self.parse_unary_bool_op()
+
         # uniary operator is left associative
         left = self.parse_exponent()
         if left == None:
@@ -248,30 +223,28 @@ class Parser:
         step = self.parse_expr()
         self.lexer.match(Bracket(")"))
         return Slice(string_literal, start, end, step)
+
     def parse_assign(self):
-     assignments_l = []
-     assignments_r = []
-     while True:
-        self.lexer.advance()
-        left_part = self.parse_atom()
-        if self.lexer.match(","):
+        self.lexer.match(Keyword("assign"))
+        assignments_l = []
+        assignments_r = []
+        while True:
+            # self.lexer.advance()
+            left_part = self.parse_atom()
             assignments_l.append(left_part)
-            continue  # Move on to the next assignment
-        
-        elif not self.lexer.match("="):
-            break  # End of statement
-        
-        right_part = self.parse_expr()
-        assignments_r.append(right_part)
-        
-        if not self.lexer.match(","):
-            break  # End of statement
-        
-    # Making a list of tuples by checking length of assignments_l list which will contain the variables
-        if len(assignments_l) > 1:
-         return list(zip(assignments_l, assignments_r))
-        else:
-         return [(assignments_l[0], assignments_r[0])] if assignments_l else []
+            self.lexer.match(Operator("="))
+            right_part = self.parse_expr()
+            assignments_r.append(right_part)
+
+            match self.lexer.peek_current_token():
+                case Operator(op) if op in ",":
+                    self.lexer.advance()
+                    continue
+                case _:
+                    break
+
+        # Making a list of tuples by checking length of assignments_l list which will contain the variables
+        return Assign(tuple(assignments_l),tuple(assignments_r))
 
     def parse_cmp(self):
         """parse the comparison operator
@@ -300,7 +273,6 @@ class Parser:
         Returns:
             AST: return AST of the simple expression
         """
-
         return self.parse_cmp()
 
     # """ def parse_assign(self):
@@ -486,7 +458,7 @@ if __name__ == '__main__':
         Lexer.from_stream(Stream.from_string(program)))
 
     a = obj_parser.parse_program()
-
+    print(a)
     program_env = Enviroment()
     
     ans = eval(a, program_env)
