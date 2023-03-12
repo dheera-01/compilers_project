@@ -557,3 +557,110 @@ def parse_atom(self):
             case ......:
                 pass
 ```
+
+## Sankskriti Sarkar(@Sanskriti-56)
+
+# Correcting parallel let :-
+The final corrected code for parallel let which is logically same as assigning values to multiple variables in one statement has been pushed into the repository. The modification for eval_for_parser file and parser_1 is as given below:
+
+```python
+case Assign(left, right):
+        
+            curr_env = program_env.envs[-1]
+            if isinstance(left, tuple):  # check if left-hand side is a tuple(for multiple assignments)
+    
+                value = [eval(i, program_env, environment) for i in right]
+       
+                for i, identifier in enumerate(left):
+                    if identifier.name in curr_env:
+                        program_env.update(identifier, value[i])
+                    else:
+                        program_env.add(identifier, value[i])
+        
+                return None
+        
+            else:  # left-hand side is a single identifier
+        
+       
+                value = eval(right, program_env, environment)
+        
+                if left.name in curr_env:
+                    program_env.update(left, value)
+                else:
+                    program_env.add(left, value)
+                return None
+```
+
+```python
+def parse_assign(self):
+        self.lexer.match(Keyword("assign"))
+        assignments_l = []
+        assignments_r = []
+        while True:
+            # self.lexer.advance()
+            left_part = self.parse_atom()
+            assignments_l.append(left_part)
+            self.lexer.match(Operator("="))
+
+            # 2 cases: 1. assign to a variable 2. assign to a list
+            match self.lexer.peek_current_token():
+                case Bracket("["):
+                    # Till you dont encounter a closing bracket, keep parsing the expression and store the literals
+                    # in a list and skip the operator ","
+                    self.lexer.advance()
+                    right_part = []
+                    while True:
+                        match self.lexer.peek_current_token():
+                            case Bracket("]"):
+                                self.lexer.advance()
+                                break
+                            case Operator(","):
+                                self.lexer.advance()
+                            case _:
+                                right_part.append(self.parse_simple())
+                    assignments_r.append(right_part)
+                case _:
+                    right_part = self.parse_simple()
+                    assignments_r.append(right_part)
+
+            match self.lexer.peek_current_token():
+                case Operator(op) if op in ",":
+                    self.lexer.match(Operator(","))
+                    continue
+                case _:
+                    break
+
+        self.lexer.match(EndOfLine(";"))
+        return Assign(tuple(assignments_l),tuple(assignments_r))
+```
+
+The code above implements parallel let in following form:
+assign x = 4, y = 6*5, z = "HelloWorld!", w = [1,2,3,4];    
+
+# Implementing unary boolifying operator
+For declaration.py
+
+```python
+@dataclass
+class Boolify:
+    operand: 'AST'
+
+    def __repr__(self) -> str:
+        return f"Boolify({self.operand})"
+
+    def __bool__(self):
+        if isinstance(self.operand, StringLiteral):
+            return bool(self.operand.value)
+        elif isinstance(self.operand, NumLiteral):
+            return bool(self.operand.value)
+        else:
+            raise InvalidException
+_bool method checks if operand is string or number then accordingly if it is empty or 0 it returns False else it returns True_            
+```
+
+For eval_for_parser.py
+
+```python
+case Boolify(e):
+    return bool(eval(e, program_env, environment))
+```
