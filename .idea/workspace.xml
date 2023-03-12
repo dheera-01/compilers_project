@@ -5,11 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8c636333-d42b-4485-88c6-e1aa6ebc7a6f" name="Changes" comment="Added the const keyword for declaring immutable variables. Added evironment for a program.">
-      <change afterPath="$PROJECT_DIR$/testcase/test_func.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/declaration.py" beforeDir="false" afterPath="$PROJECT_DIR$/declaration.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval_for_parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/eval_for_parser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/testcase/test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/march_5.md" beforeDir="false" afterPath="$PROJECT_DIR$/march_5_12.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +57,7 @@
       <recent name="$PROJECT_DIR$/tests" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python tests.Python tests for sim.test_strings">
     <configuration name="Python tests for sim.test_strings" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="compilers_project" />
       <option name="INTERPRETER_OPTIONS" value="" />
