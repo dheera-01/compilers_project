@@ -389,14 +389,16 @@ def eval(program: AST, program_env:Environment = None, environment: Mapping[str,
             else:
                 for i in range(len(args)):
                     program_env.add(func.args[i],eval(args[i]))
+
             rtr=eval(func,program_env)
             program_env.exit_scope()
             return rtr
 
         case Function(name,args , body,return_value):
-            print(name)
-            print(args)
+
             eval(body,program_env)
+            if(return_value==None):
+                return None
             rtr= eval(return_value, program_env)
 
             return rtr

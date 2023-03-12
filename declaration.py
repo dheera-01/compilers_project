@@ -216,7 +216,11 @@ class Function:
     args:List[Identifier]
     body:'AST'
     return_value: 'AST'
-    def __init__(self, name, args, body, return_value) -> None:
+    '''
+    Function class takes in a name, list of arguments, body and return value
+    return value could be none if it should not return anything (void functions)
+    '''
+    def __init__(self, name: str, args: List[Identifier], body : 'AST', return_value:'AST') -> None:
         self.name = name
         self.args = args
         self.body = body
