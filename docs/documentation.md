@@ -10,6 +10,9 @@
 - [Assign and const](Implementation/assign_const.md)
 - [For loop](Implementation/for.md)
 - [While loop](Implementation/while.md)
+- [Indexer](Implementation/Indexer.md)
+- [Lists](Implementation/List_declaration.md)
+- [Print](Implementation/print.md)
 
 ## Language Docs
 
@@ -17,3 +20,6 @@
 - [Assign and const](usage/assign_const.md)
 - [For loop](usage/for.md)
 - [While loop](usage/while.md)
+- [Indexer](usage/Indexer.md)
+- [Lists](usage/Lists.md)
+- [Print](usage/print.md)
