@@ -1,5 +1,5 @@
 import streamlit as st
-from eval_for_parser import *
+from parser_1 import *
 
 
 st.title("IDE for Our Complier")
