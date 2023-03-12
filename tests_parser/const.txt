@@ -1,4 +1,4 @@
-assign a = 7;
+const assign a = 7;
 print(a);
 a = "Hello"; #TypeError: Cannot assign StringLiteral to a Identifier of type NumLiteral
 print(a);
