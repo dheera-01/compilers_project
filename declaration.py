@@ -164,6 +164,22 @@ class Slice:
 class Assign:
     v:Identifier
     right:'AST' or list['AST']
+@dataclass
+class Boolify:
+    operand: 'AST'
+
+    def __repr__(self) -> str:
+        return f"Boolify({self.operand})"
+
+    def __bool__(self):
+        if isinstance(self.operand, StringLiteral):
+            return bool(self.operand.value)
+        elif isinstance(self.operand, NumLiteral):
+            return bool(self.operand.value)
+        else:
+
+            return True
+
 
 @dataclass
 class IfElse:

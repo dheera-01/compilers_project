@@ -418,7 +418,9 @@ def eval(program: AST, program_env:Environment = None) -> Value:
 
                 program_env.add(identifier, value)
             return None
-        
+        case Boolify(e):
+          return bool(eval(e, program_env, environment))
+
         case Indexer(identifier, indexVal):
             i = eval_literals(indexVal)
             objectToBeIndexed = eval_literals(program_env.get(identifier.name))
@@ -437,11 +439,13 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             
         
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
+def test_empty_string():
+ print( Boolify("") == False)
 
-if __name__ == "__main__":
-    file = open("program.txt", "r")
-    program = file.read()
-    parsed_output = Parser.from_lexer(Lexer.from_stream(Stream.from_string(program))).parse_program()
-    print(f"Parsed Output\n{parsed_output}")
-    eval(parsed_output)
-    file.close()
+# if __name__ == "__main__":
+#     file = open("program.txt", "r")
+#     program = file.read()
+#     parsed_output = Parser.from_lexer(Lexer.from_stream(Stream.from_string(program))).parse_program()
+#     print(f"Parsed Output\n{parsed_output}")
+#     eval(parsed_output)
+#     file.close()
