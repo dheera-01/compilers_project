@@ -4,14 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8c636333-d42b-4485-88c6-e1aa6ebc7a6f" name="Changes" comment="Added the const keyword for declaring immutable variables. Added evironment for a program.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Implementation/environment.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/Implementation/environment.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Implementation/for.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/Implementation/for.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Implementation/strings.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/Implementation/strings.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Implementation/while.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/Implementation/while.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/usage/for.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/usage/for.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/usage/strings.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/usage/strings.md" afterDir="false" />
+    <list default="true" id="8c636333-d42b-4485-88c6-e1aa6ebc7a6f" name="Changes" comment="Updated.">
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -109,7 +103,14 @@
       <option name="project" value="LOCAL" />
       <updated>1678596346288</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Updated.">
+      <created>1678824413967</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1678824413968</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -132,6 +133,7 @@
     <MESSAGE value="#7 Added implementation and usage docs for assign and const." />
     <MESSAGE value="Added implementation and usage docs for assign and const.#7" />
     <MESSAGE value="Rearranged docs and weekly report." />
-    <option name="LAST_COMMIT_MESSAGE" value="Rearranged docs and weekly report." />
+    <MESSAGE value="Updated." />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated." />
   </component>
 </project>
