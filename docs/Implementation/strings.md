@@ -38,24 +38,23 @@ For implementing the concatenation, same case which is used for 2 numbers is use
 Second case is checked and then left and right AST is typecasted to python's string for concatenation. Finally wrapped in `StringLiteral` before returning.
 ```python
 case BinOp(left, "+", right):
-            eval_left = eval(left, program_env, environment)
-            eval_right = eval(right, program_env, environment)
+            eval_left = eval(left, program_env)
+            eval_right = eval(right, program_env)
 
             try:
-                if isinstance(eval_left, StringLiteral) and isinstance(eval_right, NumLiteral) or isinstance(eval_left,
-                                                                                            NumLiteral) and isinstance(eval_right, StringLiteral):
+                if isinstance(eval_left, StringLiteral) or isinstance(eval_right, StringLiteral):
                     res = str(eval_literals(eval_left)) + str(eval_literals(eval_right))
                     return StringLiteral(res)
                 else:
                     res = eval_literals(eval_left) + eval_literals(eval_right)
-                    if isinstance(eval_left, StringLiteral) and isinstance(eval_right, StringLiteral):
-                        return StringLiteral(res)
-                    elif isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
+                    if isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
                         return FloatLiteral(res)
                     else:
                         return NumLiteral(res)
             except Exception as e:
-                raise InvalidProgram(f"+ not supported between instances of {left} and {right}")
+                # raise TypeError(f"+ not supported between instances of {type(eval_left).__name__} and {type(eval_right).__name__}")
+                raise InvalidProgram(
+                    f"+ not supported between instances of {left} and {right}")
 ```
 
 ### Multiplication
@@ -64,8 +63,8 @@ For implementing the replication, it is checked whether first literal is `String
 
 ```python
 case BinOp(left, "*", right):
-            eval_left = eval(left, program_env, environment)
-            eval_right = eval(right, program_env, environment)
+            eval_left = eval(left, program_env)
+            eval_right = eval(right, program_env)
             try:
                 res = eval_literals(eval_left) * eval_literals(eval_right)
                 if isinstance(eval_left, StringLiteral) and isinstance(eval_right, NumLiteral):
@@ -82,10 +81,10 @@ case BinOp(left, "*", right):
 Strings also support slicing which is implemented using the slicing of the python's strings. This just checks whether all the start, end and step are all numliterals and slicing is done on `StringLiteral`.
 ```python
 case Slice(string_var, start, end, step):
-            string_var = eval(string_var, program_env, environment)
-            start = eval(start, program_env, environment)
-            end = eval(end, program_env, environment)
-            step = eval(step, program_env, environment)
+            string_var = eval(string_var, program_env)
+            start = eval(start, program_env)
+            end = eval(end, program_env)
+            step = eval(step, program_env)
             if isinstance(string_var, StringLiteral) and isinstance(start, NumLiteral) and isinstance(end, NumLiteral) and isinstance(step,NumLiteral):
                 string_var = eval_literals(string_var)
                 start = eval_literals(start)
@@ -94,5 +93,9 @@ case Slice(string_var, start, end, step):
                 res = string_var[start:end:step]
                 return StringLiteral(res)
             else:
-                raise InvalidProgram(f"TypeError: slice indices must be NumLiteral")
+                raise InvalidProgram(
+                    f"TypeError: slice indices must be NumLiteral")
 ```
+
+### String Indexing
+String indexing description is added in implementation/Indexer docs.

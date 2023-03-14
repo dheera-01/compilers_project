@@ -16,13 +16,19 @@ We can understand the implementation of for loop by looking at the code below.
 
 ```python
 case For(exp1, condition, exp2, body):
-    program_env.enter_scope()
-    eval(exp1, program_env ,environment)
-    cond = eval(condition, program_env ,environment)
-    body.statements.append(exp2)
-    eval(While(condition, body), program_env ,environment)
-    program_env.exit_scope()
-    return None
+            program_env.enter_scope()
+            eval(exp1, program_env)
+            cond=eval(condition,program_env)
+
+            while(cond==BoolLiteral(True)):
+                program_env.enter_scope()
+                eval(body,program_env)
+                eval(exp2,program_env)
+                cond=eval(condition,program_env)
+                program_env.exit_scope()
+
+            program_env.exit_scope()
+            return None
 ```
 
 On complete execution of for loop we return ```None```.
@@ -30,7 +36,7 @@ On complete execution of for loop we return ```None```.
 Example:
 
 ```python
-for(assign i=1; i<=5; i=i+1)
+for(assign i=1; i<=5; i=i+1;)
 {
     print(i);
 };
@@ -45,4 +51,4 @@ Output:
 5
 ```
 
-To know more about about how to use for loop checkout [this](usage/for.md).
+To know more about about how to use for loop checkout in the usage docs of for.
