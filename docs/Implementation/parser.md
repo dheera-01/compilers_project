@@ -224,11 +224,18 @@ print(True);
 
 ```bnf
 assign_expr:
-    "assign" Identifier "=" simple_expr EndOfLine
+    "assign" Identifier "=" simple_expr EndOfLine |
+    assign_parallel_expr EndOfLine
+
+assign_parallel_expr:
+    Identifier "=" simple_expr |
+    Identifier "=" simple_expr "," assign_parallel_expr
+
 ```
 Sample code
 ```python
 assign i = 10;
+assign i = 10, j = 20;
 ```
 
 #### Const Assign
