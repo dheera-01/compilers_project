@@ -58,3 +58,15 @@ output:
 ```text
 Hello
 ```
+
+### String indexing
+#### Example 1
+```python
+assign str = "hello";
+assign q = str[1];
+print(q);
+```
+output:
+```python
+e
+```

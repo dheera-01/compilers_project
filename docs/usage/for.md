@@ -1,7 +1,7 @@
 # for loops
 Syntax:
 ```
-for(<assignment> ;<condition> ; <update>)
+for(<assignment> ;<condition> ; <update>;)
 {
     <body>
 };
@@ -12,7 +12,7 @@ Declares/update a variable (generally the iterator), evaluates body until condit
 Example:
 1. Print numbers from 1 to 10
 ```
-for(assign i=1; i<=10; i=i+1)
+for(assign i=1; i<=10; i=i+1;)
 {
     print(i);
 };
@@ -33,9 +33,9 @@ Output:
 
 2. Nexted for loops
 ```
-for(assign i=1; i<=3; i=i+1)
+for(assign i=1; i<=3; i=i+1;)
 {
-    for(assign j=i+1; j<=3; j=j+1)
+    for(assign j=i+1; j<=3; j=j+1;)
     {
         print(i+j);
     };

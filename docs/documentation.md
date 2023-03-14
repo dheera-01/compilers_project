@@ -7,7 +7,7 @@
 - [Declaration](Implementation/declaration.md)
 - [Strings](Implementation/strings.md)
 - [Environment](Implementation/environment.md)
-- [Assign and const](Implementation/assign_const.md)
+- [Assign and const](Implementation/Assign_Update_Const.md)
 - [For loop](Implementation/for.md)
 - [While loop](Implementation/while.md)
 - [Indexer](Implementation/Indexer.md)
