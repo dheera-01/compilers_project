@@ -1,2 +1,4 @@
-assign x=0;
-print(boolify(x));
+
+print(boolify(0));
+
+print(boolify(5));
