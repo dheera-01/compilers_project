@@ -20,17 +20,31 @@ We can see exact implementation of while loop by looking at the code below.
 
 Whenever we enter a while loop we create a new scope. Once evalaution of while loop is done we destroy this scope. 
 
+### Parsing while loop
 
+ ```python
+ def parse_while(self):
+        """parse while statement
+        Returns:
+            while AST: return AST of while loop
+        """
+        self.lexer.match(Keyword("while"))
+        # print(self.lexer.peek_current_token())
+        cond = self.parse_simple()  # parse the condition
+        # print("cond", cond)
+        while_body = self.parse_block()
+        return While(cond, while_body)
+```
 
 ## Example
 
-```python
+```
 assign i=1;
 while(i<=5)
 {
     print(i);
-    assign i=i+1;
-};
+    i=i+1;
+}
 ```
 
 Output:
