@@ -1,4 +1,1 @@
-
 print(boolify(0));
-
-print(boolify(5));

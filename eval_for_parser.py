@@ -436,7 +436,7 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                         return None
             
         case Boolify(e):
-            return bool(eval(e, program_env, environment))
+            return bool(eval(e, program_env,environment))
 
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
         
