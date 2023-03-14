@@ -1,0 +1,8 @@
+4.0
+-262144
+True
+-6.69
+True
+False
+True
+hello

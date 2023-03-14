@@ -3,7 +3,7 @@ current_dir = os.getcwd()
 sys.path.append(current_dir)
 # print(f"syst path {sys.path}")
 
-from parser_1 import *
+from my_parser import *
 
 # arithmetic, unary operation, precedence and associativity
 def test_case1():

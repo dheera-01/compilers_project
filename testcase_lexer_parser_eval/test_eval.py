@@ -3,7 +3,7 @@ import sys
 current_dir = os.getcwd()
 sys.path.append(current_dir)
 
-from parser_1 import *
+from my_parser import *
 from eval_for_parser import *
 # print(f"syst path {sys.path}")
 
@@ -195,14 +195,15 @@ def test_case7():
 def test_case8():
     print(f"\nTestcase 8")
     text = """
-        assign a = let b = 5  (b ** 2);
-        print(a);
-        print(b);
+    assign a = let b = 5  (b ** 2);
+    print(a);
+    print(b);
     """
     parsed_output = Parser.from_lexer(Lexer.from_stream(
         Stream.from_string(text))).parse_program()
     # print(f"parsed output: {parsed_output}")
     program_env = Environment()
+    print(f"eval")
     eval(parsed_output, program_env)
     # ans = eval(parsed_output)
 
@@ -248,6 +249,7 @@ def test_case10():
     """
     parsed_output = Parser.from_lexer(Lexer.from_stream(
         Stream.from_string(text))).parse_program()
+    # print(f"parsed output: {parsed_output}")
     eval(parsed_output)
     
 

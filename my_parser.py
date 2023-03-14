@@ -1,4 +1,4 @@
-from lexer import *
+from my_lexer import *
 from dataclasses import dataclass
 import sys
 from declaration import *
@@ -89,7 +89,7 @@ class Parser:
                 match self.lexer.peek_current_token():
                     case Bracket("["):
                         self.lexer.advance()
-                        right_part = self.parse_atom()
+                        right_part = self.parse_atom() # 
                         self.lexer.match(Bracket("]"))
                         return Indexer(Identifier(name), right_part)
                     case _:
@@ -459,7 +459,7 @@ class Parser:
         self.lexer.match(Bracket("("))
         body = self.parse_simple()
         self.lexer.match(Bracket(")"))
-        return Let(Assign(left_part, right_part), body)
+        return Let(left_part, right_part, body)
 
     def parse_expr(self):
         """parse the expression

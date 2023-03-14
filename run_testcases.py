@@ -1,5 +1,5 @@
 import os
-from parser_1 import *
+from my_parser import *
 
 tests = []
 test_dir_inputs = "testcases/inputs"

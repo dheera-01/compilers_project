@@ -1,0 +1,17 @@
+# all arithmetic operators
+print((5 + 2 * 8 // 3 - 2 ** 3 % 3)/2);
+
+# unary operator and right associativity of exponent
+print(-4**3**2);
+
+# conditional operator
+print(7>6);
+
+# unary operator
+print(++---6.69);
+
+# difference between "True" and True
+print(True);
+print(False);
+print("True");
+print("hello");

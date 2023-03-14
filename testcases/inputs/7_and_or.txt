@@ -1,0 +1,10 @@
+assign i = 1;
+# and has high precedence 
+if(i == 0  and i == 1 or i > -1)
+{
+    print("Inside if");
+}
+else
+{
+    print("Inside else");
+}

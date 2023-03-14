@@ -1,4 +1,11 @@
-for(assign i=0; i<1000 ; assign i=i+1)
+assign fib1 = 0;
+assign fib2 = 1; 
+assign fib = 0;
+assign n = 1000000;
+for(assign i=0; i<=n ;  i=i+1;)
 {
-    print(i);
-};
+    fib = fib1 + fib2;
+    fib1 = fib2;
+    fib2 = fib;
+    #print(fib);
+}

@@ -3,7 +3,7 @@ current_dir = os.getcwd()
 sys.path.append(current_dir)
 # print(f"syst path {sys.path}")
 
-from lexer import *
+from my_lexer import *
 
 # operator test
 def test_case1():

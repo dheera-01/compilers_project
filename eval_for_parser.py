@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from typing import Union, Mapping
 from declaration import *
-# from parser_1 import *
+from my_parser import *
 
 
-global_env = {}
 
 
 def eval_literals(literal: Value) -> Value_literal:
@@ -24,15 +23,14 @@ def eval_literals(literal: Value) -> Value_literal:
         # This is a case for list literal
         case _ :
             ans = []
+            print(f"literal: {literal}")
             for x in literal:
                 ans.append(eval_literals(x))
             return ans
         
 
 def eval(program: AST, program_env:Environment = None) -> Value:
-    global global_env
-    # if environment is None:
-    #     environment = {}
+    
     if program_env is None:
         display_output.clear()
         program_env = Environment()
@@ -68,22 +66,18 @@ def eval(program: AST, program_env:Environment = None) -> Value:
         case Identifier(name):
             return program_env.get(name)
 
-        case Let(assign, e2):
-            eval(assign, program_env)
-
-            # try:
-            #     program_env.update(identifier, v1)
-            # except:
-            #
-            #     program_env.add(identifier, v1)
-
+        case Let(variable as v, value as val, e2):  
+            program_env.enter_scope()
+            eval(Assign((v,), (val,)), program_env)
             program_env.enter_scope()
             e2_val = eval(e2, program_env)
-            
+            program_env.exit_scope()
             program_env.exit_scope()
             return e2_val
         
         case Assign(identifier, right):
+            # print(f"identifier: {identifier}")
+            # print(f"right: {right}")
             for i, ident in enumerate(identifier):
                 if type(right[i]).__name__ == 'list':
                     program_env.add(ident, right[i])
@@ -120,18 +114,6 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 return None
             else:
                 raise InvalidProgram(f"SyntaxError: invalid syntax for print")
-
-        # case BoolLiteral(tf):
-        #     if tf == "True":
-        #         return BoolLiteral(True)
-        #     elif tf == "False":
-        #         return BoolLiteral(False)
-        #     raise InvalidProgram()
-
-        # case Assign(left, right):
-        #     right_val = eval(right, environment)
-        #     global_env[left.name] = right_val
-        #     return None
 
         case While(cond, body):
             c = eval(cond, program_env)

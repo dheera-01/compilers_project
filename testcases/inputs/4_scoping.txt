@@ -1,0 +1,16 @@
+assign i = 6;
+if(i == 6)
+{
+    i -= 10;
+}
+print(i);
+
+if(i == -4)
+{
+    assign k = 5;
+    assign i = 6;
+    i = i * 9;
+    print(i);
+}
+#print(k); # give error
+print(i);

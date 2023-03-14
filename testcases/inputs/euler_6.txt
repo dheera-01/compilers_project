@@ -1,0 +1,10 @@
+assign s1 = 0;
+assign s2 = 0;
+assign n = 100;
+for(assign i = 1; i<=n; i+=1;)
+{
+   s1 = s1 + (i*i);
+   s2 = s2 + i;
+}
+s2 = s2 * s2;
+print(s2 - s1);

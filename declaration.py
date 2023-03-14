@@ -121,7 +121,7 @@ class UnaryOp:
     operand: 'AST'
 
     def __repr__(self) -> str:
-        return f"UnaryOp({self.operator}, {self.operand})"
+        return f"UnaryOp({self.operator} {self.operand})"
 
 @dataclass
 class ComparisonOp:
@@ -139,7 +139,7 @@ class Let:
     e2: 'AST'
 
     def __repr__(self) -> str:
-        return f"Let({self.assign} in {self.e2})"
+        return f"Let {self.var} = {self.e1} in {self.e2})"
 
 
 @dataclass
@@ -186,20 +186,21 @@ class While():
     def __repr__(self) -> str:
         return f"While({self.condition} do {self.body})"
     
-# @dataclass
-# class Assign:
-#     v:Identifier
-#     right:'AST'
-    
-#     def __repr__(self) -> str:
-#         return f"Assign({self.v} = {self.right})"
+
 @dataclass
 class Assign:
     v: "AST" or list['AST']
     right:'AST' or list['AST']
     
     def __repr__(self) -> str:
-        return f"Assign({self.v} = {self.right})"
+        v_ = self.v
+        right_ = self.right
+        if len(self.v) == 1:
+            v_ = self.v[0]
+        if len(self.right) == 1:
+            right_ = self.right[0]           
+            
+        return f"Assign({v_} = {right_})"
 
 
 @dataclass
@@ -209,7 +210,12 @@ class Update:
     right: 'AST' or list['AST']
     
     def __repr__(self) -> str:
-        return f"Update({self.variable} {self._operator} {self.right})"
+        right_ = self.right
+        # if len(self.v) == 1:
+        #     variable_ = self.variable[0]
+        if len(self.right) == 1:
+            right_ = self.right[0]           
+        return f"Update({self.variable} {self._operator} {right_})"
 
 
 
@@ -221,7 +227,7 @@ class For:
     body : Sequence
     
     def __repr__(self) -> str:
-        return f"For(({self.exp1} ;{self.condition};{self.exp2}) do {self.body})"
+        return f"For(({self.exp1} ;{self.condition};{self.exp2};) do {self.body})"
     
 @dataclass
 class Indexer:
@@ -326,5 +332,4 @@ display_output = [] # list to store the output of print statements as strings
 
 Value_literal = int | float | bool | str
 Value = None | NumLiteral | StringLiteral | BoolLiteral | FloatLiteral
-
 AST = Value | Identifier | Sequence | BinOp | ComparisonOp | UnaryOp | Let | Assign | Update | Indexer| IfElse | While | For | Print | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile

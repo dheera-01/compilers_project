@@ -1,0 +1,42 @@
+# without elif
+assign i = 8;
+if(i>6)
+{
+    print("Hello");
+}
+else
+{
+    print("else");
+}
+
+
+# with elif
+i = 5;
+if(i>5)
+{
+    print("inside if");
+} 
+elif(i == 4)
+{
+    print("elif 1");
+}
+elif(i == 5)
+{
+    print("elif 2");
+}
+else
+{
+    print("else");
+}
+
+# with elif and if only
+
+i = 4;
+if(i>5)
+{
+    print("inside if");
+} 
+elif(i == 4)
+{
+    print("elif 1");
+}

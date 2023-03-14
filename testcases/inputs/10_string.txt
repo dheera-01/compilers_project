@@ -1,0 +1,27 @@
+# simple string assignment 
+assign string1 = "Hello World";
+print(string1);
+
+# string concatenation
+string1 = "hello" + " " + "world";
+print(string1);
+string1 = "hello " * 3;
+print(string1);
+
+# empty string
+assign c = "";
+print(c);
+
+# space character treating
+assign b = "   ";
+print(b);
+
+# not treating the special character yet
+assign d = "\n";
+print(d);
+
+# slicing
+assign a = "Hello World!";
+print(a);
+a = slice(a: 0: 5: 1) + "Compiler";
+print(a);
