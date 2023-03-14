@@ -12,20 +12,17 @@ To lower the for loop to while loop we used the following steps:
 3. Create a while loop with condition and body
 4. Evaluate the while loop
 
+
+
 We can understand the implementation of for loop by looking at the code below.
 
 ```python
-case For(exp1, condition, exp2, body):
-    program_env.enter_scope()
-    eval(exp1, program_env ,environment)
-    cond = eval(condition, program_env ,environment)
-    body.statements.append(exp2)
-    eval(While(condition, body), program_env ,environment)
-    program_env.exit_scope()
-    return None
+
 ```
 
-On complete execution of for loop we return ```None```.
+On complete execution of for loop returns ```None```.
+
+
 
 Example:
 

@@ -7,7 +7,7 @@ Syntax:
 while(<condition>)
 {
     <body>
-};
+}
 ```
 
 Evaluates body until condition evaluates to false. 
@@ -19,8 +19,8 @@ assign i=1;
 while(i<=10)
 {
     print(i);
-    assign i=i+1;
-};
+    i=i+1;
+}
 ```
 Output:
 ```
@@ -42,27 +42,27 @@ assign i=1;
 assign n=3;
 while(i<=n)
 {
-    j=i+1;
+    assign j=1;
     while(j<=n)
     {
-        print(i+j);
-        assign j=j+1;
-    };
-    assign i=i+1;
-};
+       print(i+ "  "+ j);
+       j=j+1;
+    }
+    i=i+1;
+}
+
 ```
 Output:
 ```
-3
-4
-5
-5
-6
-7
-7
-8
-9
-
+1 1
+1 2
+1 3 
+2 1 
+2 2
+2 3
+3 1
+3 2
+3 3
 ```
 3. Infinite while loop
 

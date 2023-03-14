@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="8c636333-d42b-4485-88c6-e1aa6ebc7a6f" name="Changes" comment="Added the const keyword for declaring immutable variables. Added evironment for a program.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/week_report_md/13_march.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/week_report_md/13_march.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/Implementation/for.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/Implementation/for.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/Implementation/while.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/Implementation/while.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/usage/for.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/usage/for.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/usage/while.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/usage/while.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

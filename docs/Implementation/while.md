@@ -9,16 +9,18 @@ We can see exact implementation of while loop by looking at the code below.
 
 ```python
  case While(cond, body):
-            c = eval(cond, program_env, environment)
-            while (eval_literals(c) == True) :
-                program_env.enter_scope()
-                eval(body, program_env ,environment)
-                program_env.exit_scope()
-                c = eval(cond, program_env, environment)
-            return None
+    c = eval(cond, program_env, environment)
+    while (eval_literals(c) == True) :
+        program_env.enter_scope()
+        eval(body, program_env ,environment)
+        program_env.exit_scope()
+        c = eval(cond, program_env, environment)
+    return None
 ```
 
 Whenever we enter a while loop we create a new scope. Once evalaution of while loop is done we destroy this scope. 
+
+
 
 ## Example
 
