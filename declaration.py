@@ -195,10 +195,10 @@ class Assign:
     def __repr__(self) -> str:
         v_ = self.v
         right_ = self.right
-        if len(self.v) == 1:
-            v_ = self.v[0]
-        if len(self.right) == 1:
-            right_ = self.right[0]           
+        # if len(self.v) == 1:
+        #     v_ = self.v[0]
+        # if len(self.right) == 1:
+        #     right_ = self.right[0]           
             
         return f"Assign({v_} = {right_})"
 
@@ -213,8 +213,8 @@ class Update:
         right_ = self.right
         # if len(self.v) == 1:
         #     variable_ = self.variable[0]
-        if len(self.right) == 1:
-            right_ = self.right[0]           
+        # if len(self.right) == 1:
+        #     right_ = self.right[0]           
         return f"Update({self.variable} {self._operator} {right_})"
 
 
