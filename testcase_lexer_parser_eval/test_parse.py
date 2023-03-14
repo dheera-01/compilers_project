@@ -181,7 +181,6 @@ def test_case7():
 
 
 if __name__ == "__main__":
-
     test_case1()
     test_case2()
     test_case3()

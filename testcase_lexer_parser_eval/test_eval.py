@@ -197,7 +197,6 @@ def test_case8():
     text = """
     assign a = let b = 5  (b ** 2);
     print(a);
-    print(b);
     """
     parsed_output = Parser.from_lexer(Lexer.from_stream(
         Stream.from_string(text))).parse_program()
