@@ -227,7 +227,22 @@ class Indexer:
 
     def __repr__(self) -> str:
         return f"Indexer({self.val}[{self.index}])"
+@dataclass
+class Boolify:
+    operand: 'AST'
 
+    def __repr__(self) -> str:
+        return f"Boolify({self.operand})"
+
+    def __bool__(self):
+        if isinstance(self.operand, StringLiteral):
+            return bool(self.operand.value)
+        elif isinstance(self.operand, NumLiteral):
+            return bool(self.operand.value)
+        elif isinstance(self.operand, BoolLiteral):
+            return self.operand.value
+        else:
+            return InvalidProgram
 
 
 # @dataclass
@@ -339,5 +354,5 @@ display_output = [] # list to store the output of print statements as strings
 Value_literal = int | float | bool | str
 Value = None | NumLiteral | StringLiteral | BoolLiteral | FloatLiteral
 
-AST = Value | Identifier | Sequence | BinOp | ComparisonOp | UnaryOp | Let | Assign| Update | IfElse  | Print | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | NumLiteral | StringLiteral | Indexer | Slice | While | FloatLiteral | BoolLiteral 
+AST = Value | Identifier | Sequence | BinOp | ComparisonOp | UnaryOp | Let | Assign| Update | IfElse  | Print | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | NumLiteral | StringLiteral | Indexer | Slice | While | FloatLiteral | BoolLiteral|Boolify 
 

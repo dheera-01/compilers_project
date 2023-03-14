@@ -52,7 +52,7 @@ keywords = """
     for while break continue
     def
     print let 
-    slice in 
+    slice in boolify
     """.split()
     
 symbolic_operators = """

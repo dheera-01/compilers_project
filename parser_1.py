@@ -120,7 +120,8 @@ class Parser:
                 ans = self.parse_simple()  # calculating the expression inside the brackets
                 self.lexer.advance()  # consume the closing bracket
                 return ans
-
+            case Keyword("boolify"):
+                return self.parse_boolify()
     def parse_exponent(self):
         """parse the exponent operator, this is right associative
 
@@ -332,7 +333,7 @@ class Parser:
         
 
     def parse_const(self):
-        """paster the immutable assign expression
+        """parse the immutable assign expression
 
         Returns:
             Assign: return AST of the immutable assign expression
@@ -480,7 +481,14 @@ class Parser:
     
     def __repr__(self) -> str:
         return f"Parser:\nLexer: {self.lexer}\nSequence: {self.mySequence}"
-
+    def parse_boolify(self):
+        """parse boolify operator"""
+        self.lexer.match(Keyword("boolify"))
+        self.lexer.match(Bracket("("))
+        operand = self.parse_expr()
+        self.lexer.match(Bracket(")"))
+        self.lexer.match(EndOfLine(';'))
+        return Boolify(operand)    
 
 def parse_code_file(file_location:str):
     '''
@@ -501,7 +509,7 @@ def parse_code_file(file_location:str):
 
 if __name__ == '__main__':
 
-    file = open("testcases/inputs/nested_for_loop.txt", "r")
+    file = open("testcases/inputs/euler_1.txt", "r")
     program = file.read()
     obj_parser = Parser.from_lexer(
         Lexer.from_stream(Stream.from_string(program)))

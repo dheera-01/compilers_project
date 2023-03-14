@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Union, Mapping
 from declaration import *
-# from parser_1 import *
+from parser_1 import *
 
 
 global_env = {}
@@ -24,7 +24,7 @@ def eval_literals(literal: Value) -> Value_literal:
         # This is a case for list literal
         case _ :
             ans = []
-            for x in Literal:
+            for x in literal:
                 ans.append(eval_literals(x))
             return ans
         
@@ -435,9 +435,11 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                         print(f"The Indentifier {identifier} is not iterable")
                         return None
             
-        
-    raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
+        case Boolify(e):
+            return bool(eval(e, program_env, environment))
 
+    raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
+        
 if __name__ == "__main__":
     file = open("program.txt", "r")
     program = file.read()
