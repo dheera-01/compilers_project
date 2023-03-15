@@ -13,6 +13,7 @@
 - [Indexer](Implementation/Indexer.md)
 - [Lists](Implementation/List_declaration.md)
 - [Print](Implementation/print.md)
+- [Let](Implementation/let.md)
 
 ## Language Docs
 
@@ -23,3 +24,4 @@
 - [Indexer](usage/Indexer.md)
 - [Lists](usage/Lists.md)
 - [Print](usage/print.md)
+- [Let](usage/let.md)
