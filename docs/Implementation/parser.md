@@ -8,7 +8,7 @@
 | `**`                             | Exponentiation                                   | Right-to-left |
 | `+x`, `-x`                       | Positive, Negative                               | Right-to-left |
 | `*`, `/`, `//`, `%`              | Multiplication, Division, Floor Division, Modulo | Left-to-right |
-| `+`, `-`                         | Addition, Subtraction                            | Left-to-right |
+| `+`, `-`, `~`                    | Addition, Subtraction, Concatenation             | Left-to-right |
 | `<`, `<=`, `>`, `>=`, `!=`, `==` | Comparisons, Identity, Membership                | Left-to-right |
 | `and`                            | Boolean AND                                      | Left-to-right |
 | `or`                             | Boolean OR                                       | Left-to-right |
@@ -36,6 +36,7 @@ unary:
     exponent
     | "+" exponent
     | "-" exponent
+    | "~" exponent
 
 mult:
     unary
@@ -95,6 +96,7 @@ arg_assign:
     | '%='
     | '**='
     | '//='
+    | '~='
 
 EndOfLine:
     ';'

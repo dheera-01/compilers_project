@@ -295,10 +295,9 @@ class Environment:
         for env in reversed(self.envs):
             if identifier.name in env:
                 if env[identifier.name][-1].is_mutable:
-                    if str(type(env[identifier.name][0]).__name__) != str(type(value).__name__):
-                        raise InvalidProgram(
-                            f"TypeError: Cannot assign {str(type(value).__name__)} to a Identifier of type {str(type(env[identifier.name][0]).__name__)}")
-
+                    # if str(type(env[identifier.name][0]).__name__) != str(type(value).__name__):
+                    #     raise InvalidProgram(
+                    #         f"TypeError: Cannot assign {str(type(value).__name__)} to a Identifier of type {str(type(env[identifier.name][0]).__name__)}")
                     env[identifier.name] = [value, identifier]
                 else:
                     raise InvalidProgram(f"Variable {identifier.name} is immutable")

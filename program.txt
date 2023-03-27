@@ -1,1 +1,4 @@
-print("chirag" ~ " Sarda" ~ 1 ~ 1.5);
+assign a = 1;
+a = 1 ~ "";
+print(a);
+print(a  + 1);
