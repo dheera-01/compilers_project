@@ -64,8 +64,6 @@ def eval(program: AST, program_env:Environment = None) -> Value:
         
         
         case Identifier(name):
-            print(f"name: {name}")
-            print(f"program_env: {program_env.get(name)}")
             return program_env.get(name)
 
         case Let(variable as v, value as val, e2):  
