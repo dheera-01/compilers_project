@@ -12,14 +12,14 @@ while(i < 100)
         product = i * j;
         assign temp = product;
         product_str = "";
-        product_str = "" + product;
+        product_str = "" ~ product;
         len = 0;
         while(product > 0){
             len += 1;
             product = product // 10;
         }
 
-        cmpr = slice(product_str:len-1:0:0-1) + slice(product_str:0:1:1);
+        cmpr = slice(product_str:len-1:0:0-1) ~ slice(product_str:0:1:1);
         if(product_str == cmpr){
             if(temp > ans){
                 ans = temp;

@@ -304,19 +304,42 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             eval_right = eval(right, program_env)
 
             try:
-                if isinstance(eval_left, StringLiteral) or isinstance(eval_right, StringLiteral):
-                    res = str(eval_literals(eval_left)) + str(eval_literals(eval_right))
-                    return StringLiteral(res)
+                # if isinstance(eval_left, StringLiteral) or isinstance(eval_right, StringLiteral):
+                #     res = str(eval_literals(eval_left)) + str(eval_literals(eval_right))
+                #     return StringLiteral(res)
+                # else:
+                #     res = eval_literals(eval_left) + eval_literals(eval_right)
+                #     if isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
+                #         return FloatLiteral(res)
+                #     else:
+                #         return NumLiteral(res)
+                # addition is only supported for numbers and floats
+                if isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
+                    res = eval_literals(eval_left) + eval_literals(eval_right)
+                    return FloatLiteral(res)
                 else:
                     res = eval_literals(eval_left) + eval_literals(eval_right)
-                    if isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
-                        return FloatLiteral(res)
-                    else:
-                        return NumLiteral(res)
+                    return NumLiteral(res)
             except Exception as e:
                 # raise TypeError(f"+ not supported between instances of {type(eval_left).__name__} and {type(eval_right).__name__}")
                 raise InvalidProgram(
                     f"+ not supported between instances of {left} and {right}")
+        # concatenation operation
+        case BinOp(left, "~", right):
+            eval_left = eval(left, program_env)
+            eval_right = eval(right, program_env)
+            print("~ op",eval_left, eval_right)
+            print(f'name of left: {eval_left.__class__.__name__}')
+            print(f'name of right: {eval_right.__class__.__name__}')
+            try:
+                concat_similar_addition = ["StringLiteral", "NumLiteral", "FloatLiteral"]
+                if eval_left.__class__.__name__  in concat_similar_addition and eval_right.__class__.__name__ in concat_similar_addition:
+                    res = str(eval_literals(eval_left)) + str(eval_literals(eval_right))
+                    return StringLiteral(res)
+            except Exception as e:
+                # raise TypeError(f"+ not supported between instances of {type(eval_left).__name__} and {type(eval_right).__name__}")
+                raise InvalidProgram(
+                    f"~ not supported between instances of {left} and {right}")
 
         case BinOp(left, "-", right):
             eval_left = eval(left, program_env)
@@ -404,7 +427,7 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                         res = eval_literals(program_env.get(identifier.name))[i]
                         return StringLiteral(res)        
                     else:
-                        print(f"The Indentifier {identifier} is not iterable")
+                        print(f"The Identifier {identifier} is not iterable")
                         return None
         
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")

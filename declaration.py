@@ -161,18 +161,12 @@ class Slice:
         return f"Slice({self.string_var}[{self.start}:{self.end}:{self.step}])"
 
 
-@dataclass()
+@dataclass
 class IfElse:
     condition: ComparisonOp
     if_body: Sequence
     elif_body: list(["AST"])
     else_body: Sequence
-
-    # def __init__(self, cond, if_, elif_=[], else_=None) -> None:
-    #     self.condition = cond
-    #     self.if_body = if_
-    #     self.elif_body = elif_
-    #     self.else_body = else_
 
     def __repr__(self) -> str:
         return f"\nIfElse\n{self.condition}\n{self.if_body}\n{self.elif_body}\n{self.else_body})"

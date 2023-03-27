@@ -20,7 +20,7 @@ while(i < 3){
     j = 0;
     while(j < 3){
         str = "";
-        str = str + i + " " + j;
+        str = str ~ i ~ " " ~ j;
         print(str);
         j = j+1;
     }

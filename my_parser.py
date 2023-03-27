@@ -26,6 +26,7 @@ class Parser:
 
     def parse_if(self):
         """parse if else statement
+        
         Returns:
             IfElse: return AST of if else statement
         """
@@ -202,7 +203,7 @@ class Parser:
         while True:
             match self.lexer.peek_current_token():
 
-                case Operator(op) if op in "+-":
+                case Operator(op) if op in "+-~":
                     self.lexer.advance()
                     # print("before parse_add")
                     m = self.parse_mult()
@@ -345,14 +346,6 @@ class Parser:
         Returns:
             Assign: return AST of the immutable assign expression
         """
-        # self.lexer.match(Keyword("const"))
-        # self.lexer.match(Keyword("assign"))
-        # left_part = self.parse_atom()
-        # left_part.is_mutable = False
-        # self.lexer.match(Operator("="))
-        # right_part = self.parse_simple()
-        # self.lexer.match(EndOfLine(";"))
-        # return Assign(left_part, right_part)
         self.lexer.match(Keyword("const"))
         self.lexer.match(Keyword("assign"))
         assignments_l = []
@@ -550,13 +543,13 @@ def parse_code_file(file_location:str):
 
 if __name__ == '__main__':
 
-    file = open("tests_parser/multiple_assign.txt", "r")
+    file = open("program.txt", "r")
 
     program = file.read()
     obj_parser = Parser.from_lexer(
         Lexer.from_stream(Stream.from_string(program)))
     # print(f"object parser {obj_parser}")
     a = obj_parser.parse_program()
-    eval(a)
+    # eval(a)
     print(f"Parsed program: {a}")
 

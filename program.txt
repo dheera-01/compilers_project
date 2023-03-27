@@ -1,2 +1,1 @@
-assign i = 5;
-print(i);
+print("chirag" ~ " Sarda" ~ 1 ~ 1.5);
