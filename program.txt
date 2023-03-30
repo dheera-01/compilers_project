@@ -1,2 +1,6 @@
-assign i = 5;
-print(i);
+func test()
+{
+    print("test");
+}
+
+test();

@@ -237,7 +237,28 @@ class Indexer:
     def __repr__(self) -> str:
         return f"Indexer({self.val}[{self.index}])"
 
+@dataclass
+class Function:
+    name: Identifier
+    args: list[Identifier]
+    body: Sequence
 
+    def __repr__(self) -> str:
+        return f"Function({self.name}({self.args}) {self.body})"
+@dataclass
+class FunctionCall:
+    name: Identifier
+    args: list['AST']
+
+    def __repr__(self) -> str:
+        return f"FunctionCall({self.name}({self.args}))"
+
+@dataclass
+class Return:
+    val: 'AST'
+
+    def __repr__(self) -> str:
+        return f"Return({self.val})"
 # error classes
 class InvalidProgram(Exception):
     pass
@@ -332,4 +353,4 @@ display_output = [] # list to store the output of print statements as strings
 
 Value_literal = int | float | bool | str
 Value = None | NumLiteral | StringLiteral | BoolLiteral | FloatLiteral
-AST = Value | Identifier | Sequence | BinOp | ComparisonOp | UnaryOp | Let | Assign | Update | Indexer| IfElse | While | For | Print | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile
+AST = Value | Identifier | Sequence | BinOp | ComparisonOp | UnaryOp | Let | Assign | Update | Indexer| IfElse | While | For | Print | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | Function | FunctionCall | Return

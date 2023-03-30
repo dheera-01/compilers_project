@@ -401,6 +401,7 @@ class Parser:
         Returns:
             Update: return AST of the update expression
         """
+
         left_part = self.parse_atom()
         
         assignment_operator_list = "= -= += *= /= %= //= **=".split()
@@ -461,6 +462,59 @@ class Parser:
         self.lexer.match(Bracket(")"))
         return Let(left_part, right_part, body)
 
+    def parse_args(self):
+        """parse the arguments of a function
+        """
+        args = []
+
+        match self.lexer.peek_current_token():
+            case Bracket("("):
+                self.lexer.advance()
+                while True:
+                    match self.lexer.peek_current_token():
+                        case Bracket(")"):
+                            self.lexer.advance()
+                            break
+                        case Operator(","):
+                            self.lexer.advance()
+                        case _:
+                            args.append(self.parse_atom())
+                return args
+
+        raise InvalidProgram("Syntax Error: Expected '(' but got {self.lexer.peek_current_token()}")
+
+    def parse_func(self):
+        """parse the function expression
+        """
+        self.lexer.match(Keyword("func"))
+        func_name = self.parse_atom()
+
+        args = self.parse_args()
+
+
+        body = self.parse_block()
+
+        return Function(func_name, args, body)
+
+    def parse_return(self):
+        """parse the return expression
+        """
+        self.lexer.match(Keyword("return"))
+        return_value = self.parse_simple()
+        self.lexer.match(EndOfLine(";"))
+        return Return(return_value)
+
+    def parse_func_call(self):
+        """parse the function call expression
+        """
+        func_name= self.parse_atom()
+        args = self.parse_args()
+        self.lexer.match(EndOfLine(";"))
+        return FunctionCall(func_name, args)
+
+
+
+
     def parse_expr(self):
         """parse the expression
 
@@ -489,9 +543,17 @@ class Parser:
                 return self.parse_const()
             # update statements
             case c if isinstance(c, Identifier):
-                return self.parse_update()          
+
+                if self.lexer.peek_next_token() == Operator("="):
+                    return self.parse_update()
+
+
             case Keyword("print"):
                 return self.parse_print()
+            case Keyword("func"):
+                return self.parse_func()
+            case Keyword("return"):
+                return self.parse_return()
             case _:
                 return self.parse_simple()
 
@@ -550,7 +612,7 @@ def parse_code_file(file_location:str):
 
 if __name__ == '__main__':
 
-    file = open("tests_parser/multiple_assign.txt", "r")
+    file = open("program.txt", "r")
 
     program = file.read()
     obj_parser = Parser.from_lexer(
