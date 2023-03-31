@@ -10,7 +10,6 @@ class Sequence:
     def __repr__(self) -> str:
         return f"Sequence({self.statements})"
 
-
 @dataclass
 class NumLiteral:
     value: int
@@ -322,6 +321,18 @@ class Environment:
         raise KeyError(f"Variable {name} not defined")
 
 display_output = [] # list to store the output of print statements as strings
+# comments are not tokens they are removed by the lexer
+tokens = NumLiteral | FloatLiteral | BoolLiteral | Keyword | Identifier | Operator | StringLiteral | Bracket | EndOfLine | EndOfFile
+
+@dataclass
+class Token:
+    token: tokens
+    line: int
+    column: int
+
+    def __repr__(self) -> str:
+        return f"{self.token} [{self.line}:{self.column}]"
+
 
 Value_literal = int | float | bool | str
 Value = None | NumLiteral | StringLiteral | BoolLiteral | FloatLiteral

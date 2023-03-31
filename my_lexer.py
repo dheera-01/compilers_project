@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from declaration import *
 
-# comments are not tokens they are removed by the lexer
-Token = NumLiteral | FloatLiteral | BoolLiteral | Keyword | Identifier | Operator | StringLiteral | Bracket | EndOfLine | EndOfFile
-
 
 class EndOfStream(Exception):
     pass
@@ -13,6 +10,9 @@ class EndOfStream(Exception):
 class Stream:
     source: str
     pos: int
+    code: List[str]
+    line_num: int = 1
+    column_num: int = 0
 
     def from_string(s):
         """Set the source to the string s and the position to 0 to start
@@ -23,10 +23,43 @@ class Stream:
         Returns:
             Stream: Stream object
         """
-        return Stream(s, 0)
+        code = [""] + s.splitlines() 
+        return Stream(s, 0, code)
+    def new_line(self):
+        """Increment the line number and reset the column number
+        """
+        self.line_num = self.line_num + 1
+        self.column_num = 1
+        # self.code.append("")
+    
+    def unget_line(self):
+        """Decrement the line number and reset the column number
+        """
+        self.line_num = self.line_num - 1
+        self.column_num = 1
+    
+    def next_column(self):
+        """Increment the column number
+        """
+        self.column_num = self.column_num + 1
+    
+    def unget_column(self):
+        """Decrement the column number
+        """
+        self.column_num = self.column_num - 1
+    
+    # def add_to_code(self, c):
+    #     """Add the character to the code list
 
+    #     Args:
+    #         c (str): character to be added
+    #     """
+    #     self.code[-1] += c
+     
+    
     def next_char(self):
-        """Return the current char in the stream and advance the position by 1 to go to the next char
+        """Return the current char in the stream and advance the position by 1 to go to the next char. It will also increment the column number and line number if the current char is a new line
+        column number is reset to 0 if the current char is a new line, else column number point the returned char
 
         Raises:
             EndOfStream: if the end of the stream is reached
@@ -37,13 +70,22 @@ class Stream:
         if self.pos >= len(self.source):
             raise EndOfStream(f"End of stream reached")
         self.pos = self.pos + 1
-        return self.source[self.pos - 1]
+        next_character = self.source[self.pos - 1]
+        if next_character == "\n":
+            self.new_line()
+            self.column_num = 0
+            return next_character
+        # self.add_to_code(next_character)
+        self. next_column()
+        return next_character
 
     def unget(self):
-        """Decrement the position by 1 to go back one character
+        """Decrement the position by 1 to go back one character. it will also decrement the column number.
         """
         assert self.pos > 0
         self.pos = self.pos - 1
+        # self.code[-1] = self.code[-1][:-1]
+        self.unget_column()
 
 
 keywords = """
@@ -70,16 +112,21 @@ closing_brackets = ") ] }".split()
 whitespace = " \t\n"
 
 
-def word_to_token(word):
+def word_to_token(word, line_num, column_num):
     """Convert a word to a tokens. Tokens are keywords, word operators, bool literals, identifiers"""
     if word in keywords:
+        return Token(Keyword(word), line_num, column_num)
         return Keyword(word)
     if word in word_operators:
+        return Token(Operator(word), line_num, column_num)
         return Operator(word)
     if word == "True":
+        return Token(BoolLiteral(True), line_num, column_num)
         return BoolLiteral(True)
     if word == "False":
+        return Token(BoolLiteral(False), line_num, column_num)
         return BoolLiteral(False)
+    return Token(Identifier(word), line_num, column_num)
     return Identifier(word)
 
 
@@ -98,7 +145,7 @@ comments = []
 class Lexer:
     stream: Stream
     save: Token = None
-
+    
     def from_stream(s):
         """Set the stream to the string s
 
@@ -108,7 +155,9 @@ class Lexer:
         Returns:
             Lexer: Lexer object
         """
+
         return Lexer(s)
+
 
     def next_token(self) -> Token:
         """Return the next token in the stream
@@ -117,10 +166,11 @@ class Lexer:
             Token: next token
         """
         try:
-            match self.stream.next_char():
+            
+            match self.stream.next_char():  
                 # reading the end of line
                 case c if c == ";":
-                    return EndOfLine(c)
+                    return Token(EndOfLine(c), self.stream.line_num, self.stream.column_num)
                     pass
                 # reading the comments:
                 case c if c == "#":
@@ -132,18 +182,21 @@ class Lexer:
                             # lexer removes the comments and moves on
                             return self.next_token()
                         cmt = cmt + c
-                    pass
+                    
 
                 # reading the operators
                 # special case !=
                 case c if c == "!":
+                    start_column = self.stream.column_num
                     s = self.stream.next_char()
                     if c + s in symbolic_operators:
-                        return Operator(c + s)
-                    raise TokenError(f"{c + s} is an Invalid operator")
+                        return Token(Operator(c + s), self.stream.line_num, start_column)
+                    print(f"In Line {self.stream.line_num}\n{self.stream.code[self.stream.line_num]}\n{' ' * (start_column - 1)}^\n{c + s} is an Invalid operator")
+                    raise TokenError(f"In Line {self.stream.line_num}\n{self.stream.code[self.stream.line_num]}\n{' ' * (start_column - 1)}^\n{c + s} is an Invalid operator")
 
                 case c if c in symbolic_operators:
                     start = self.stream.pos - 1
+                    start_column = self.stream.column_num
                     while True:
                         s = self.stream.next_char()
                         # +- for unary operator ++--6
@@ -152,31 +205,38 @@ class Lexer:
                         else:
                             self.stream.unget()
                             if c in symbolic_operators:
-                                return Operator(c)
+                                return Token(Operator(c), self.stream.line_num, start_column)
                             else:
                                 for i in c:
                                     if i not in "+-":
                                         # =! is not a valid operator
-                                        raise TokenError(f"{c} is an Invalid operator")
+                                        raise TokenError(f"In Line {self.stream.line_num}\n{self.stream.code[self.stream.line_num ]}\n{' ' * (start_column - 1)}^\n{c} is an Invalid operator")
+                                        # raise TokenError(f"{c} is an Invalid operator")
                                 # here getting unary operator
                                 self.stream.pos = start + 1
-                                return Operator(c[0])
+                                # return Operator(c[0])
+                                return Token(Operator(c[0]), self.stream.line_num, start_column)
 
                 # reading the string literal, "" or ''
                 case c if c == '"' or c == "'":
+                    start_column = self.stream.column_num
                     current_quote = c
                     st = ''
                     while True:
                         try:
                             c = self.stream.next_char()
                             if c == current_quote:
-                                return StringLiteral(st)
+                                return Token(StringLiteral(st), self.stream.line_num, start_column)
+                                # return StringLiteral(st)
                             else:
                                 st = st + c
                         except EndOfStream:
-                            raise TokenError(f"{st}: Unterminated string literal")
+                            raise TokenError(f'In Line {self.stream.line_num}\n{self.stream.code[self.stream.line_num]}\n{" " * (self.stream.column_num)}^\n{st}: Unterminated string literal')
+                            # raise TokenError(f"{st}: Unterminated string literal")
 
+                # handling .25
                 case c if c == ".":
+                    start_column = self.stream.column_num
                     n = str(0)
                     n = n + c
                     while True:
@@ -184,14 +244,17 @@ class Lexer:
                         if c.isdigit():
                             n += c
                         elif c == ".":
-                            raise TokenError(f"{n + c} Invalid number")
+                            raise TokenError(f"In line {self.stream.line_num}\n{self.stream.code[self.stream.line_num]}\n{' ' * (self.stream.column_num - 1)}^\n{n + c} Invalid number")
+                            # raise TokenError(f"{n + c} Invalid number")
                         else:
                             self.stream.unget()
-                            return FloatLiteral(float(n))
+                            return Token(FloatLiteral(float(n)), self.stream.line_num, start_column)
+                            # return FloatLiteral(float(n))
                     pass
 
                 # reading the numbers
                 case c if c.isdigit():
+                    start_column = self.stream.column_num
                     n = int(c)
                     while True:
                         try:
@@ -206,33 +269,37 @@ class Lexer:
                                     if c.isdigit():
                                         n += c
                                     elif c == ".":
+                                        raise TokenError(f"In line {self.stream.line_num}\n{self.stream.code[self.stream.line_num]}\n{' ' * (self.stream.column_num - 1)}^\n{n + c} Invalid number")
                                         raise TokenError(
                                             f"{n + c} Invalid number")
                                     else:
                                         self.stream.unget()
+                                        return Token(FloatLiteral(float(n)), self.stream.line_num, start_column)
                                         return FloatLiteral(float(n))
                             else:
                                 self.stream.unget()
+                                return Token(NumLiteral(n), self.stream.line_num, start_column)
                                 return NumLiteral(n)
                         except EndOfStream:
+                            return Token(NumLiteral(n), self.stream.line_num, start_column)
                             return NumLiteral(n)
 
                 # bracket and bracket matching
                 case c if c in opening_brackets:
                     bracket_track_list.append(c)
+                    return Token(Bracket(c), self.stream.line_num, self.stream.column_num)
                     return Bracket(c)
                 case c if c in closing_brackets:
-                    temp = c
                     if len(bracket_track_list) == 0 or bracket_map[c] != bracket_track_list.pop():
                         print(Bracket(c))
+                        raise TokenError(f"In Line {self.stream.line_num}\n{self.stream.code[self.stream.line_num]}\n{' ' * (self.stream.column_num - 1)}^\n{c} Unmatched closing bracket")
                         raise TokenError(f"{c} Unmatched closing bracket")
                     return Bracket(c)
 
                 # reading the identifiers
-                # _, a are valid identifiers
-                
-                
+                # _, a are valid identifiers        
                 case c if c.isalpha() or c == "_":
+                    start_column = self.stream.column_num
                     s = c
                     while True:
                         try:
@@ -242,15 +309,16 @@ class Lexer:
                                 s = s + c
                             else:
                                 self.stream.unget()
-                                return word_to_token(s)
+                                return word_to_token(s, self.stream.line_num, start_column)
                         except EndOfStream:
-                            return word_to_token(s)
+                            return word_to_token(s, self.stream.line_num, start_column)
 
                 # reading the white space
                 case c if c in whitespace:
                     return self.next_token()
         except EndOfStream:
             # you can put the end of the file
+            return Token(EndOfFile("EOF"), self.stream.line_num, self.stream.column_num)
             return EndOfFile("EOF")
 
     # see the current token without consuming it
@@ -314,7 +382,7 @@ class Lexer:
             Token: the next token
         """
         nxt_t = self.next_token()
-        if isinstance(nxt_t, EndOfFile):
+        if isinstance(nxt_t, Token) and isinstance(nxt_t.token, EndOfFile):
             if len(bracket_track_list) != 0:
                 raise TokenError(
                     f"{' '.join(bracket_track_list)} : Unmatched opening bracket")
