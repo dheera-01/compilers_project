@@ -23,8 +23,9 @@ def eval_literals(literal: Value) -> Value_literal:
         # This is a case for list literal
         case _ :
             ans = []
-            print(f"literal: {literal}")
+            # print(f"literal: {literal}")
             for x in literal:
+                # ans.append(x)
                 ans.append(eval_literals(x))
             return ans
         
@@ -76,15 +77,13 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             return e2_val
         
         case Assign(identifier, right):
-            # print(f"identifier: {identifier}")
-            # print(f"right: {right}")
             for i, ident in enumerate(identifier):
                 if type(right[i]).__name__ == 'list':
                     program_env.add(ident, right[i])
                 else:
-                    # print(right[i])
+                    # print("Right value", right[i])
                     value = eval(right[i], program_env)
-                    # print(value)
+                    # print("Value is", value)
                     program_env.add(ident, value)
             return None
         
@@ -392,7 +391,11 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                     f"TypeError: ** not supported between instances of {left} and {right}")
 
         case Indexer(identifier, indexVal):
-            i = eval_literals(indexVal)
+
+            if(type(indexVal) == Identifier):
+                i = eval_literals(eval(program_env.get(indexVal.name)))
+            else:
+                i = eval_literals(indexVal)
             objectToBeIndexed = eval_literals(program_env.get(identifier.name))
             if(len(objectToBeIndexed) <= i):
                 print("Index out of range")

@@ -115,8 +115,10 @@ class Parser:
             case Keyword("let"):
                 return self.parse_let()
             case Bracket("(") | Bracket("[") | Bracket("{"):
+                # print("Here")
                 self.lexer.advance()  # consume the opening bracket
                 ans = self.parse_simple()  # calculating the expression inside the brackets
+                # print("The answer is", ans)
                 self.lexer.advance()  # consume the closing bracket
                 return ans
 
@@ -323,6 +325,7 @@ class Parser:
                             case Operator(","):
                                 self.lexer.advance()
                             case _:
+                                # print(self.parse_simple())
                                 right_part.append(self.parse_simple())
                     assignments_r.append(right_part)
                 case _:
@@ -550,7 +553,7 @@ def parse_code_file(file_location:str):
 
 if __name__ == '__main__':
 
-    file = open("tests_parser/multiple_assign.txt", "r")
+    file = open("program.txt", "r")
 
     program = file.read()
     obj_parser = Parser.from_lexer(
@@ -558,5 +561,5 @@ if __name__ == '__main__':
     # print(f"object parser {obj_parser}")
     a = obj_parser.parse_program()
     eval(a)
-    print(f"Parsed program: {a}")
+    # print(f"Parsed program: {a}")
 

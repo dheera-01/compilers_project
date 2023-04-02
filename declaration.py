@@ -190,7 +190,7 @@ class While():
 @dataclass
 class Assign:
     v: "AST" or list['AST']
-    right:'AST' or list['AST']
+    right:'AST' or list['AST'] 
     
     def __repr__(self) -> str:
         v_ = self.v
