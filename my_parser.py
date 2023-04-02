@@ -81,7 +81,7 @@ class Parser:
         # print(self.lexer.peek_current_token())
         return For(initial, cond, termination, for_body)
 
-    def parse_atom(self):
+    def parse_atom(self,is_func=False):
         """parse the atomic expression"""
         match self.lexer.peek_current_token():  
             case Identifier(name):
@@ -92,6 +92,20 @@ class Parser:
                         right_part = self.parse_atom() # 
                         self.lexer.match(Bracket("]"))
                         return Indexer(Identifier(name), right_part)
+                    case Bracket("("):
+
+                        self.lexer.advance()
+                        args = []
+                        while self.lexer.peek_current_token() != Bracket(")"):
+                            args.append(self.parse_simple())
+                            if self.lexer.peek_current_token() == Operator(","):
+                                self.lexer.advance()
+                        self.lexer.match(Bracket(")"))
+                        if is_func:
+                            return (Identifier(name), args)
+
+                        return FunctionCall(Identifier(name), args)
+
                     case _:
                         # self.lexer.advance()
                         return Identifier(name)
@@ -403,7 +417,13 @@ class Parser:
         """
 
         left_part = self.parse_atom()
-        
+
+        if(isinstance(left_part, FunctionCall)):
+
+            self.lexer.match(EndOfLine(";"))
+            return left_part
+
+
         assignment_operator_list = "= -= += *= /= %= //= **=".split()
         op = self.lexer.peek_current_token()
         if not isinstance(op, Operator):
@@ -481,16 +501,17 @@ class Parser:
                             args.append(self.parse_atom())
                 return args
 
-        raise InvalidProgram("Syntax Error: Expected '(' but got {self.lexer.peek_current_token()}")
+        raise InvalidProgram(f"Syntax Error: Expected '(' but got {self.lexer.peek_current_token()}")
+
+
+
+
 
     def parse_func(self):
         """parse the function expression
         """
         self.lexer.match(Keyword("func"))
-        func_name = self.parse_atom()
-
-        args = self.parse_args()
-
+        func_name,args = self.parse_atom(is_func=True)
 
         body = self.parse_block()
 
@@ -508,6 +529,7 @@ class Parser:
         """parse the function call expression
         """
         func_name= self.parse_atom()
+
         args = self.parse_args()
         self.lexer.match(EndOfLine(";"))
         return FunctionCall(func_name, args)
@@ -542,10 +564,11 @@ class Parser:
             case Keyword("const"):
                 return self.parse_const()
             # update statements
-            case c if isinstance(c, Identifier):
+            case Keyword("func"):
+                return self.parse_func()
 
-                if self.lexer.peek_next_token() == Operator("="):
-                    return self.parse_update()
+            case c if isinstance(c, Identifier):
+                return self.parse_update()
 
 
             case Keyword("print"):
@@ -619,6 +642,7 @@ if __name__ == '__main__':
         Lexer.from_stream(Stream.from_string(program)))
     # print(f"object parser {obj_parser}")
     a = obj_parser.parse_program()
+    print(a)
     eval(a)
-    print(f"Parsed program: {a}")
+
 

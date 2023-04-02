@@ -1,0 +1,66 @@
+# simple print functions
+
+func hello() {
+    print("Hello, World!");
+}
+
+# add two numbers
+
+func add(a, b) {
+    return a + b;
+}
+
+# factorial
+
+func factorial(n) {
+    if(n == 0) {
+        return 1;
+    }
+    return n * factorial(n - 1);
+}
+
+# fibonacci
+
+func fibonacci(n) {
+    if(n<0)
+    {
+
+        return 0;
+
+    }
+    if (n == 0) {
+        return 0;
+    }
+    if (n == 1) {
+        return 1;
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+# functions with while loops
+
+func while_loop(n) {
+    assign i = 0;
+    while (i < n) {
+        print(i);
+        i = i + 1;
+    }
+}
+
+hello();
+
+assign addition=add(1,2);
+
+print(addition);
+
+assign fact=factorial(5);
+
+print(fact);
+
+assign fib=fibonacci(10);
+
+print(fib);
+
+while_loop(10);
+
+

@@ -1,6 +1,98 @@
-func test()
+
+
+func test2()
 {
-    print("test");
+    return 0;
 }
 
-test();
+func fact(n){
+    if(n==0){
+        return 1;
+    }
+    else{
+        return n*fact(n-1);
+    }
+}
+
+assign a=test2();
+
+assign b=fact(5);
+
+print(a);
+
+print(b);
+
+# functions inside function
+
+func test3()
+{
+    func test4()
+    {
+        return 0;
+    }
+    return test4();
+}
+
+assign c=test3();
+
+print(c);
+
+# function with arguments
+
+func test5(a,b)
+{
+    return a+b;
+}
+
+assign d=test5(1,2);
+
+print(d);
+
+# functions with while loop
+
+func test6()
+{
+    assign a=0;
+    while(a<10)
+    {
+        if(a==5)
+        {
+            return a;
+        }
+        print(a);
+        a=a+1;
+    }
+    return 0;
+}
+
+assign f=test6();
+
+# if else
+
+func is_odd(a)
+{
+
+    if(a%2==1)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+assign odd=is_odd(10);
+
+print(odd);
+
+func while_func()
+{
+   while(1>0){
+       print("hello");
+       return 0;
+   }
+}
+
+assign while_var= while_func();
+

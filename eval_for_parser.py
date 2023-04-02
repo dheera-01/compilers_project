@@ -130,9 +130,7 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             c = eval(cond, program_env)
             while (eval_literals(c) == True) :
                 program_env.enter_scope()
-                if(eval(body, program_env )['return']==True):
-                    program_env.exit_scope()
-                    return eval(body, program_env )['value']
+                eval(body, program_env)
                 program_env.exit_scope()
                 c = eval(cond, program_env)
             return None
@@ -434,7 +432,9 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 rtr_value=None
             except Exception as e:
 
+
                 rtr_value=e.args[0]
+
 
 
             program_env.exit_scope()
@@ -443,6 +443,9 @@ def eval(program: AST, program_env:Environment = None) -> Value:
         case Return(val):
             raise Exception(eval(val, program_env))
 
+        case Function(name, args, body):
+            program_env.add(name, Function(name, args, body))
+            return None
         
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
 
