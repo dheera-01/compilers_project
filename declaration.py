@@ -331,7 +331,8 @@ class Token:
     column: int
 
     def __repr__(self) -> str:
-        return f"{self.token} [{self.line}:{self.column}]"
+        # return f"{self.token} [{self.line}:{self.column}]"
+        return f"{self.token}"
 
 
 Value_literal = int | float | bool | str

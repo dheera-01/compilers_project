@@ -215,6 +215,7 @@ class Lexer:
                                 # here getting unary operator
                                 self.stream.pos = start + 1
                                 # return Operator(c[0])
+                                self.stream.column_num = start_column
                                 return Token(Operator(c[0]), self.stream.line_num, start_column)
 
                 # reading the string literal, "" or ''
@@ -294,7 +295,7 @@ class Lexer:
                         print(Bracket(c))
                         raise TokenError(f"In Line {self.stream.line_num}\n{self.stream.code[self.stream.line_num]}\n{' ' * (self.stream.column_num - 1)}^\n{c} Unmatched closing bracket")
                         raise TokenError(f"{c} Unmatched closing bracket")
-                    return Bracket(c)
+                    return Token(Bracket(c), self.stream.line_num, self.stream.column_num)
 
                 # reading the identifiers
                 # _, a are valid identifiers        
@@ -341,10 +342,10 @@ class Lexer:
 
     # match the current token against the expected token and consume it
     def match(self, expected):
-        """Match the current token against the expected token and consume it if they match
+        """Match the current Token.token against the expected token and consume it if they match
 
         Args:
-            expected (Token): expected token
+            expected (token): expected token
 
         Raises:
             TokenError: if the current token is not the expected token
@@ -353,10 +354,10 @@ class Lexer:
             None: if the current token is the expected token it will consume it and return None
         """
 
-        if self.peek_current_token() == expected:
+        if self.peek_current_token().token == expected:
             return self.advance()
 
-        raise TokenError(f"Expected {expected} but got {self.peek_current_token()} ")
+        raise TokenError(f"Expected {expected} but got {self.peek_current_token().token} ")
 
     # __iter__ and __next__ are used to make the Lexer iterable
     # __iter__ returns the object itself

@@ -22,7 +22,9 @@ def test_case1():
     # right associativity
     2 ** 3 ** 3
     """
+    print("Parsing start..")
     obj_parser = Parser.from_lexer(Lexer.from_stream(Stream.from_string(text)))
+    # print(f"object {obj_parser.parse_program()}")
     for i in obj_parser.parse_program().statements:
         print(i)
         

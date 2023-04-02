@@ -16,7 +16,9 @@ def test_case1():
     << >> = ++ -- += -= *= /= %= //= **=
     and or
     """
+    
     object_lexer = Lexer.from_stream(Stream.from_string(text))
+    print(f"object_lexer {object_lexer}")
     for token in object_lexer:
         print(token)
     
