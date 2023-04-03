@@ -25,7 +25,6 @@ def eval_literals(literal: Value) -> Value_literal:
             ans = []
             # print(f"literal: {literal}")
             for x in literal:
-                # ans.append(x)
                 ans.append(eval_literals(x))
             return ans
         
@@ -103,7 +102,7 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             # The print function will print the evaluated value of val and return the AST val
             val = eval(value, program_env)
             # print(f"val: {val}")
-            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral)  or isinstance(val, Identifier) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral) or isinstance(val, list):
+            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral)  or isinstance(val, Identifier) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral) or isinstance(val, list) :
                 # print(f"----------------------------------------")
                 ans = eval_literals(val)
                 print(ans)
@@ -391,11 +390,11 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                     f"TypeError: ** not supported between instances of {left} and {right}")
 
         case Indexer(identifier, indexVal):
-
             if(type(indexVal) == Identifier):
                 i = eval_literals(eval(program_env.get(indexVal.name)))
             else:
                 i = eval_literals(indexVal)
+                
             objectToBeIndexed = eval_literals(program_env.get(identifier.name))
             if(len(objectToBeIndexed) <= i):
                 print("Index out of range")
@@ -409,7 +408,21 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                     else:
                         print(f"The Indentifier {identifier} is not iterable")
                         return None
-        
+        case ListOperations(identifier, val):
+            # print(val)
+            # print(len(program_env.get(identifier.name)))
+            if(val == "LEN"):
+                a = NumLiteral(len(program_env.get(identifier.name)))
+                return a
+            elif (val == "HEAD"):
+                a = NumLiteral(program_env.get(identifier.name)[0])
+                return eval_literals(a)
+            elif (val == "TAIL"):
+                a = NumLiteral(program_env.get(identifier.name)[len(program_env.get(identifier.name))-1])
+                return eval_literals(a)
+            return None
+
+
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
 
 if __name__ == "__main__":

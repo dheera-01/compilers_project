@@ -190,7 +190,7 @@ class While():
 @dataclass
 class Assign:
     v: "AST" or list['AST']
-    right:'AST' or list['AST'] 
+    right:'AST' or list['AST'] or list[list['AST']]
     
     def __repr__(self) -> str:
         v_ = self.v
@@ -236,6 +236,14 @@ class Indexer:
 
     def __repr__(self) -> str:
         return f"Indexer({self.val}[{self.index}])"
+    
+@dataclass
+class ListOperations:
+    val: Identifier
+    operation: str
+    itemTobeAdded: 'AST'
+    def __repr__(self) -> str:
+        return f"ListOperations({self.val})"
 
 
 # error classes

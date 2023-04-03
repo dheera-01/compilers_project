@@ -1,10 +1,26 @@
-assign arr = [1, 2, 11, 4, 9, 14];
+assign arr = [[1, 4], [4,6], [1, 77]];
 print(arr);
 
-assign i = 0;
+assign p = arr.LEN;
+print(p);
 
-for(i = 0; i < 6; i = i + 1;)
+assign q = arr.HEAD;
+print(q);
+
+assign m = arr.TAIL;
+print(m);
+
+
+assign arr1 = [1, 2, 11, 4, 9, 14];
+
+assign i = 0;
+assign size = arr1.LEN;
+print(size);
+
+for(i = 0; i < size; i = i + 1;)
 {
-    assign val = arr[i];
+    assign val = arr1[i];
     print(val);
 }
+
+
