@@ -1,2 +1,1 @@
-assign i = 5;
-print(i);
+assign a = 5 + 6;
