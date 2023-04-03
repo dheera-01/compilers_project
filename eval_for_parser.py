@@ -6,6 +6,8 @@ from my_parser import *
 
 
 
+code = []
+
 def eval_literals(literal: Value) -> Value_literal:
     match literal:
         case NumLiteral(value):
@@ -48,21 +50,21 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             #     ans.append(eval(statement, environment))
             # # print(f"ans: {ans}")
             # return ans
+        case Token(token, line, column):
+            match token:
+                case NumLiteral(value):
+                    # print(program)
+                    return token
 
-        case NumLiteral(value):
-            # print(program)
-            return program
+                case FloatLiteral(value):
+                    return token
 
-        case FloatLiteral(value):
-            return program
+                case StringLiteral(value):
+                    return token
 
-        case StringLiteral(value):
-            return program
-
-        case BoolLiteral(value):
-            return program
-        
-        
+                case BoolLiteral(value):
+                    return token
+                        
         case Identifier(name):
             return program_env.get(name)
 
@@ -298,35 +300,31 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                     f"TypeError: + not supported between instances of {x}")
 
         # binary operation
-        case BinOp(left, "+", right):
+        case BinOp(left, Token(Operator("+"), line, column), right):
             eval_left = eval(left, program_env)
             eval_right = eval(right, program_env)
 
-            try:
-                # if isinstance(eval_left, StringLiteral) or isinstance(eval_right, StringLiteral):
-                #     res = str(eval_literals(eval_left)) + str(eval_literals(eval_right))
-                #     return StringLiteral(res)
-                # else:
-                #     res = eval_literals(eval_left) + eval_literals(eval_right)
-                #     if isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
-                #         return FloatLiteral(res)
-                #     else:
-                #         return NumLiteral(res)
-                # addition is only supported for numbers and floats
-                if isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
-                    res = eval_literals(eval_left) + eval_literals(eval_right)
-                    return FloatLiteral(res)
-                elif isinstance(eval_left, NumLiteral) and isinstance(eval_right, NumLiteral):
-                    res = eval_literals(eval_left) + eval_literals(eval_right)
-                    return NumLiteral(res)
-                else: 
-                    raise InvalidProgram(
-                        f"+ not supported between instances of {eval_left} and {eval_right}")
+            # try:
+            if isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
+                res = eval_literals(eval_left) + eval_literals(eval_right)
+                return FloatLiteral(res)
+            elif isinstance(eval_left, NumLiteral) and isinstance(eval_right, NumLiteral):
+                res = eval_literals(eval_left) + eval_literals(eval_right)
+                return NumLiteral(res)
+            else: 
+                # raise InvalidProgram(
+                #     f"+ not supported between instances of {eval_left} and {eval_right}")
+                # global code
+                # print(code)
+                
+                raise InvalidProgram(f"In line {line}\n{program_code[line]}\n{' ' * (column - 1)}^\n+ not supported between instances of {eval_left} and {eval_right}")
+                    # raise InvalidProgram(f"In line {line}\n{code[line]}\n{' ' * (column - 1)}^\n+ not supported between instances of {eval_left} and {eval_right}")
                     
-            except Exception as e:
-                # raise TypeError(f"+ not supported between instances of {type(eval_left).__name__} and {type(eval_right).__name__}")
-                raise InvalidProgram(
-                    f"+ not supported between instances of {eval_left} and {eval_right}")
+            # except Exception as e:
+            #     # raise TypeError(f"+ not supported between instances of {type(eval_left).__name__} and {type(eval_right).__name__}")
+            #     raise InvalidProgram(
+            #         f"In line {line}\n{program_code[line]}\n{' ' * (column - 1)}^\n+ not supported between instances of {eval_left} and {eval_right}")
+                    # f"In line {line}\n{code[line]}\n{' ' * (column - 1)}^\n+ not supported between instances of {eval_left} and {eval_right}")
         
         # concatenation operation
         case BinOp(left, "~", right):
@@ -340,7 +338,7 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 raise InvalidProgram(
                     f"~ not supported between instances of {eval_left} and {eval_right}")
             except Exception as e:
-                # raise TypeError(f"+ not supported between instances of {type(eval_left).__name__} and {type(eval_right).__name__}")
+                raise TypeError(f"+ not supported between instances of {type(eval_left).__name__} and {type(eval_right).__name__}")
                 raise InvalidProgram(
                     f"~ not supported between instances of {eval_left} and {eval_right}")
 
@@ -438,7 +436,12 @@ def eval(program: AST, program_env:Environment = None) -> Value:
 if __name__ == "__main__":
     file = open("program.txt", "r")
     program = file.read()
-    parsed_output = Parser.from_lexer(Lexer.from_stream(Stream.from_string(program))).parse_program()
+    parsed_object = Parser.from_lexer(Lexer.from_stream(Stream.from_string(program)))
+    parsed_output = parsed_object.parse_program()
     print(f"Parsed Output\n{parsed_output}")
+    program_code = parsed_object.lexer.stream.code
     eval(parsed_output)
     file.close()
+
+
+#  error in eval will be produced at type checking stage

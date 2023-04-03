@@ -29,14 +29,14 @@ class Stream:
         """Increment the line number and reset the column number
         """
         self.line_num = self.line_num + 1
-        self.column_num = 1
+        self.column_num = 0
         # self.code.append("")
     
     def unget_line(self):
         """Decrement the line number and reset the column number
         """
         self.line_num = self.line_num - 1
-        self.column_num = 1
+        self.column_num = 0
     
     def next_column(self):
         """Increment the column number
@@ -46,6 +46,7 @@ class Stream:
     def unget_column(self):
         """Decrement the column number
         """
+        assert self.column_num > 0
         self.column_num = self.column_num - 1
     
     # def add_to_code(self, c):
@@ -73,7 +74,6 @@ class Stream:
         next_character = self.source[self.pos - 1]
         if next_character == "\n":
             self.new_line()
-            self.column_num = 0
             return next_character
         # self.add_to_code(next_character)
         self. next_column()
@@ -191,7 +191,7 @@ class Lexer:
                     s = self.stream.next_char()
                     if c + s in symbolic_operators:
                         return Token(Operator(c + s), self.stream.line_num, start_column)
-                    print(f"In Line {self.stream.line_num}\n{self.stream.code[self.stream.line_num]}\n{' ' * (start_column - 1)}^\n{c + s} is an Invalid operator")
+                    # print(f"In Line {self.stream.line_num}\n{self.stream.code[self.stream.line_num]}\n{' ' * (start_column - 1)}^\n{c + s} is an Invalid operator")
                     raise TokenError(f"In Line {self.stream.line_num}\n{self.stream.code[self.stream.line_num]}\n{' ' * (start_column - 1)}^\n{c + s} is an Invalid operator")
 
                 case c if c in symbolic_operators:

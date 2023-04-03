@@ -34,6 +34,7 @@ class Parser:
         self.lexer.match(Keyword("if"))
         c = self.parse_simple()  # parse the condition which is a simple expression
         if_branch = self.parse_block()
+        
 
         # single if statement
         if self.lexer.peek_current_token().token != Keyword("else") and self.lexer.peek_current_token().token != Keyword("elif"):
@@ -88,16 +89,17 @@ class Parser:
         """parse the atomic expression"""
         match self.lexer.peek_current_token().token:
             case Identifier(name):
+                ct = self.lexer.peek_current_token()
                 self.lexer.advance()
-                match self.lexer.peek_current_token():
+                match self.lexer.peek_current_token().token:
                     case Bracket("["):
                         self.lexer.advance()
                         right_part = self.parse_atom()
                         self.lexer.match(Bracket("]"))
-                        return Indexer(Identifier(name), right_part)
+                        return Indexer(ct, right_part)
                     case _:
                         # self.lexer.advance()
-                        return Identifier(name)
+                        return ct
 
             case Bracket("(") | Bracket("[") | Bracket("{"):
                 self.lexer.advance()  # consume the opening bracket

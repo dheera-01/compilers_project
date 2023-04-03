@@ -8,7 +8,8 @@ class Sequence:
     statements: list(["AST"])
     
     def __repr__(self) -> str:
-        return f"Sequence({self.statements})"
+        statement_str = "\n".join([str(statement) for statement in self.statements])
+        return f"Sequence begin\n{statement_str}\nend"
 
 @dataclass
 class NumLiteral:
@@ -168,7 +169,16 @@ class IfElse:
     else_body: Sequence
 
     def __repr__(self) -> str:
-        return f"\nIfElse\n{self.condition}\n{self.if_body}\n{self.elif_body}\n{self.else_body})"
+        if len(self.elif_body) == 0 and self.else_body == None:
+            return f"if({self.condition}) then\n{self.if_body}"
+        if len(self.elif_body) == 0 and self.else_body != None:
+            return f"if({self.condition}) then\n{self.if_body}\nelse\n{self.else_body}"
+        if len(self.elif_body) != 0 and self.else_body == None:
+            elif_string = '\nel'.join(str(e) for e in self.elif_body)
+            return f"if({self.condition}) then\n{self.if_body}\nel{elif_string})"
+        elif_string = '\nel'.join(str(e) for e in self.elif_body)
+        return f"if({self.condition}) then\n{self.if_body}\nel{elif_string}\nelse\n{self.else_body})"
+        # return f"if({self.condition}) then\n{self.if_body}\nelif\n{self.elif_body}\nelse\n{self.else_body})"
 
 @dataclass
 class While():
@@ -321,6 +331,10 @@ class Environment:
         raise KeyError(f"Variable {name} not defined")
 
 display_output = [] # list to store the output of print statements as strings
+program_code = [] # list to store the program codes line by line
+
+
+
 # comments are not tokens they are removed by the lexer
 tokens = NumLiteral | FloatLiteral | BoolLiteral | Keyword | Identifier | Operator | StringLiteral | Bracket | EndOfLine | EndOfFile
 
@@ -331,8 +345,8 @@ class Token:
     column: int
 
     def __repr__(self) -> str:
-        # return f"{self.token} [{self.line}:{self.column}]"
-        return f"{self.token}"
+        return f"{self.token} [{self.line}:{self.column}]"
+        # return f"{self.token}"
 
 
 Value_literal = int | float | bool | str
