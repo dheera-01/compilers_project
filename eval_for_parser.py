@@ -2,7 +2,8 @@ from dataclasses import dataclass
 from typing import Union, Mapping
 from declaration import *
 from my_parser import *
-
+from my_lexer import *
+from declaration import *
 
 
 
@@ -17,17 +18,25 @@ def eval_literals(literal: Value) -> Value_literal:
         case StringLiteral(value):
             return value
 
-        case BoolLiteral(Value):
-            return Value
+        case BoolLiteral(value):
+            return value
         
-        # This is a case for list literal
-        case _ :
+        case ListLiteral(value):
             ans = []
-            print(f"literal: {literal}")
-            for x in literal:
+            for x in value:
                 ans.append(eval_literals(x))
             return ans
+            
+        # # This is a case for list literal
+        # case _ :
+        #     ans = []
+        #     print(f"literal: {literal}")
+        #     for x in literal:
+        #         ans.append(eval_literals(x))
+        #     return ans
         
+
+
 
 def eval(program: AST, program_env:Environment = None) -> Value:
     
@@ -62,6 +71,10 @@ def eval(program: AST, program_env:Environment = None) -> Value:
         case BoolLiteral(value):
             return program
         
+        case ListLiteral(value):
+            for i, x in enumerate(value):
+                value[i] = eval(x, program_env)
+            return program
         
         case Identifier(name):
             return program_env.get(name)
@@ -79,19 +92,20 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             # print(f"identifier: {identifier}")
             # print(f"right: {right}")
             for i, ident in enumerate(identifier):
-                if type(right[i]).__name__ == 'list':
-                    program_env.add(ident, right[i])
-                else:
-                    # print(right[i])
-                    value = eval(right[i], program_env)
-                    # print(value)
-                    program_env.add(ident, value)
+                program_env.add(ident, eval(right[i], program_env))
+                # if type(right[i]).__name__ == 'list':
+                #     program_env.add(ident, right[i])
+                # else:
+                #     # print(right[i])
+                #     value = eval(right[i], program_env)
+                #     # print(value)
+                #     program_env.add(ident, value)
             return None
         
         case Update(identifier, op, right):
-            if type(right).__name__ == 'list':
-                program_env.update(identifier, right)
-                return None
+            # if type(right).__name__ == 'list':
+            #     program_env.update(identifier, right)
+            #     return None
 
             value = eval(right, program_env)
             if op._operator == "=":
@@ -100,14 +114,16 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 v = eval(BinOp(identifier, op._operator[: len(op._operator) -1], right), program_env)
                 program_env.update(identifier, v)
             return None 
+        
         case Print(value):
             # The print function will print the evaluated value of val and return the AST val
+            # print(f"program_env in print: {program_env}")
             val = eval(value, program_env)
             # print(f"val: {val}")
-            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral)  or isinstance(val, Identifier) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral) or isinstance(val, list):
+            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral) or isinstance(val, ListLiteral):
                 # print(f"----------------------------------------")
                 ans = eval_literals(val)
-                print(ans)
+                print(f"in print {ans}")
                 display_output.append(str(ans))
                 # print(eval_literals(eval(val, program_env)))
                 # print(f"----------------------------------------")
@@ -392,27 +408,41 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                     f"TypeError: ** not supported between instances of {left} and {right}")
 
         case Indexer(identifier, indexVal):
-            i = eval_literals(indexVal)
-            objectToBeIndexed = eval_literals(program_env.get(identifier.name))
-            if(len(objectToBeIndexed) <= i):
-                print("Index out of range")
-            for env in reversed(program_env.envs):
-                if identifier.name in env:
-                    if(type(program_env.get(identifier.name)) == list):
-                        return program_env.get(identifier.name)[i]
-                    elif(type(program_env.get(identifier.name)) == StringLiteral):
-                        res = eval_literals(program_env.get(identifier.name))[i]
-                        return StringLiteral(res)        
-                    else:
-                        print(f"The Indentifier {identifier} is not iterable")
-                        return None
+            i = eval_literals(eval(indexVal, program_env))
+            objectToBeIndexed = eval(program_env.get(identifier.name), program_env)
+            # print(f"i: {i}, objectToBeIndexed: {objectToBeIndexed}")
+            if(len(objectToBeIndexed.value) <= i):
+                raise InvalidProgram(f"Index out of range")
+            if isinstance(objectToBeIndexed, ListLiteral):
+                return objectToBeIndexed.value[i]
+            if isinstance(objectToBeIndexed, StringLiteral):
+                return StringLiteral(objectToBeIndexed.value[i])
+            raise InvalidProgram(f"TypeError: {identifier} is not iterable")
+            
+            # for env in reversed(program_env.envs):
+            #     if identifier.name in env:
+            #         if(type(program_env.get(identifier.name)) == list):
+            #             return program_env.get(identifier.name)[i]
+            #         elif(type(program_env.get(identifier.name)) == StringLiteral):
+            #             res = eval_literals(program_env.get(identifier.name))[i]
+            #             return StringLiteral(res)        
+            #         else:
+            #             print(f"The Identifier {identifier} is not iterable")
+            #             return None
         
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
+
+
+def eval_of_text(program: str):
+    display_output.clear()
+    parsed_object = Parser.from_lexer(Lexer.from_stream(Stream.from_string(program)))
+    parsed_output = parsed_object.parse_program()
+    # print(f"Parsed Output\n{parsed_output}")
+    eval(parsed_output)
+
 
 if __name__ == "__main__":
     file = open("program.txt", "r")
     program = file.read()
-    parsed_output = Parser.from_lexer(Lexer.from_stream(Stream.from_string(program))).parse_program()
-    print(f"Parsed Output\n{parsed_output}")
-    eval(parsed_output)
+    eval_of_text(program)
     file.close()

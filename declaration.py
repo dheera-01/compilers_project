@@ -8,7 +8,9 @@ class Sequence:
     statements: list(["AST"])
     
     def __repr__(self) -> str:
-        return f"Sequence({self.statements})"
+        statement_str = "\n".join([str(statement) for statement in self.statements])
+        return f"Sequence begin\n{statement_str}\nend"
+
 
 
 @dataclass
@@ -175,7 +177,16 @@ class IfElse:
     #     self.else_body = else_
 
     def __repr__(self) -> str:
-        return f"\nIfElse\n{self.condition}\n{self.if_body}\n{self.elif_body}\n{self.else_body})"
+        if len(self.elif_body) == 0 and self.else_body == None:
+            return f"if({self.condition}) then\n{self.if_body}"
+        if len(self.elif_body) == 0 and self.else_body != None:
+            return f"if({self.condition}) then\n{self.if_body}\nelse\n{self.else_body}"
+        if len(self.elif_body) != 0 and self.else_body == None:
+            elif_string = '\nel'.join(str(e) for e in self.elif_body)
+            return f"if({self.condition}) then\n{self.if_body}\nel{elif_string})"
+        elif_string = '\nel'.join(str(e) for e in self.elif_body)
+        return f"if({self.condition}) then\n{self.if_body}\nel{elif_string}\nelse\n{self.else_body})"
+        # return f"if({self.condition}) then\n{self.if_body}\nelif\n{self.elif_body}\nelse\n{self.else_body})"
 
 @dataclass
 class While():
@@ -248,6 +259,28 @@ class KeyError(Exception):
 class EndOfLineError(Exception):
     pass
 
+
+@dataclass
+class Struct:
+    name: str
+    fields: dict
+    
+    def get(self, key: Identifier):
+        """get the value of a field in the struct
+
+        Args:
+            key (Identifier): the name of the field
+
+        Returns:
+            Value: the value of the field
+        """     
+        return self.fields.get(key.name)
+
+    def __repr__(self) -> str:
+        field_string = ''
+        for key, value in self.fields.items():
+            field_string += f"{key} : {value},\n"
+        return f"Struct {self.name} begin\n{field_string}end"
 
 
 #defining environment class for storing variables and their values in a dictionary 
@@ -329,6 +362,9 @@ class Environment:
         raise KeyError(f"Variable {name} not defined")
 
 display_output = [] # list to store the output of print statements as strings
+inbuilt_data_types = [NumLiteral, StringLiteral, BoolLiteral, FloatLiteral, ListLiteral] # list of in build datatype data types
+user_defined_data_types = {} # dictionary to store user defined data types
+# data_type.name = Struct(name, fields)
 
 Value_literal = int | float | bool | str
 Value = None | NumLiteral | StringLiteral | BoolLiteral | FloatLiteral

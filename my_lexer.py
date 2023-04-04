@@ -53,6 +53,7 @@ keywords = """
     def
     print let 
     slice in 
+    struct
     """.split()
     
 symbolic_operators = """
@@ -62,6 +63,7 @@ symbolic_operators = """
     -= += *= /= %= //= **=
     : =
     ,
+    .
     """.split()
 
 word_operators = "and or not is in".split()

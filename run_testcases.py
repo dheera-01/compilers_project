@@ -1,5 +1,5 @@
 import os
-from my_parser import *
+from eval_for_parser import *
 
 tests = []
 test_dir_inputs = "testcases/inputs"
@@ -21,10 +21,8 @@ failed_tests_lst_output = []
 for test in tests:
     input_file = open(os.path.join("testcases/inputs/"+test), "r").read()
     output_file = open(os.path.join("testcases/outputs/"+test), "r").read()
-
-    parsed_output = Parser.from_lexer(Lexer.from_stream(Stream.from_string(input_file))).parse_program()
-    display_output.clear()
-    eval(parsed_output)
+    
+    eval_of_text(input_file)
 
     output_file_lst = []
     for line in output_file.split('\n'):
