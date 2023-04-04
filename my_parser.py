@@ -91,7 +91,13 @@ class Parser:
                         self.lexer.advance()
                         right_part = self.parse_atom() # 
                         self.lexer.match(Bracket("]"))
-                        # print(self.lexer.peek_current_token())
+                        # if (self.lexer.peek_current_token() == EndOfLine(";")):
+                        #     return Indexer(Identifier(name), right_part)
+                        # # print(self.lexer.peek_current_token())
+                        # elif(self.lexer.peek_current_token() == Operator("=")):
+                        #     self.lexer.advance()
+                        #     val = self.parse_atom()
+                        #     return ListOperations(Identifier(name), "ChangeOneElement", val, right_part)
                         return Indexer(Identifier(name), right_part)
                     case Operator("."):
                         # print("Here")
@@ -99,19 +105,22 @@ class Parser:
                         match self.lexer.peek_current_token():
                             case Keyword("LEN"):
                                 self.lexer.advance()
-                                return ListOperations(Identifier(name), "LEN", None)
+                                return ListOperations(Identifier(name), "LEN", None, None)
                             case Keyword("TAIL"):
                                 self.lexer.advance()
-                                return ListOperations(Identifier(name), "TAIL", None)
+                                return ListOperations(Identifier(name), "TAIL", None, None)
                             case Keyword("HEAD"):
                                 self.lexer.advance()
-                                return ListOperations(Identifier(name), "HEAD", None)
-                            # case Keyword("APPEND"):
-                            #     self.lexer.advance()
-                            #     self.lexer.match(Bracket("("))
-                            #     right_part = self.parse_atom()
-                            #     self.lexer.match(Bracket(")"))
-                            #     return ListOperations(Identifier(name), "APPEND", right_part)
+                                return ListOperations(Identifier(name), "HEAD", None, None)
+                            case Keyword("APPEND"):
+                                self.lexer.advance()
+                                self.lexer.match(Bracket("("))
+                                right_part = self.parse_atom()
+                                self.lexer.match(Bracket(")"))
+                                return ListOperations(Identifier(name), "APPEND", right_part, None)
+                            case Keyword("POP"):
+                                self.lexer.advance()
+                                return ListOperations(Identifier(name), "POP", None, None)
                         
                     case _:
                         # self.lexer.advance()

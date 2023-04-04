@@ -242,6 +242,8 @@ class ListOperations:
     val: Identifier
     operation: str
     itemTobeAdded: 'AST'
+    index: 'AST'
+    
     def __repr__(self) -> str:
         return f"ListOperations({self.val})"
 

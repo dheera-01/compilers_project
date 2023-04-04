@@ -408,8 +408,9 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                     else:
                         print(f"The Indentifier {identifier} is not iterable")
                         return None
-        case ListOperations(identifier, val):
+        case ListOperations(identifier, val, item, indVal):
             # print(val)
+            # print(item)
             # print(len(program_env.get(identifier.name)))
             if(val == "LEN"):
                 a = NumLiteral(len(program_env.get(identifier.name)))
@@ -420,6 +421,17 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             elif (val == "TAIL"):
                 a = NumLiteral(program_env.get(identifier.name)[len(program_env.get(identifier.name))-1])
                 return eval_literals(a)
+            elif (val == "APPEND"):
+                a = program_env.get(identifier.name)
+                a.append(item)
+                return a
+            elif (val == "POP"):
+                a = program_env.get(identifier.name)
+                a.pop()
+                return a
+            # elif (val == "ChangeOneElement"):
+            #     a = program_env.get(identifier.name)    
+            #     a[eval_literals(indVal)] = item
             return None
 
 
