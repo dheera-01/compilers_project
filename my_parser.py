@@ -2,6 +2,9 @@ from my_lexer import *
 from dataclasses import dataclass
 import sys
 
+# importing copy module
+import copy
+
 @dataclass
 class Parser:
     lexer: Lexer
@@ -91,6 +94,25 @@ class Parser:
                         right_part = self.parse_simple() # parse_simple
                         self.lexer.match(Bracket("]"))
                         return Indexer(Identifier(name), right_part)
+                    case Bracket("("):
+                        self.lexer.advance()
+                        if name in user_defined_data_types:
+                            
+                            f = copy.deepcopy( user_defined_data_types[name].fields)
+                            ind = 0
+                            while True:
+                                if ind >= len(f):
+                                    raise Exception("Too many arguments")
+                                f[ind][1] = self.parse_simple()
+                                ind = ind + 1
+                                if self.lexer.peek_current_token() == Bracket(")"):
+                                    self.lexer.advance()
+                                    break
+                                self.lexer.match(Operator(","))
+                        # print(f"user defined data type {user_defined_data_types}") 
+                        return Struct(name, f)
+                                
+                            
                     case Operator("."):
                         pass
                     case _:
@@ -326,6 +348,7 @@ class Parser:
             self.lexer.match(Operator("="))
             right_part = self.parse_simple()
             assignments_r.append(right_part)
+            
             # # 2 cases: 1. assign to a variable 2. assign to a list
             # match self.lexer.peek_current_token():
             #     case Bracket("["):
@@ -493,22 +516,27 @@ class Parser:
         assert isinstance(data_type, Identifier), f"Syntax Error: Expected an identifier but got {data_type}"
         self.lexer.advance() # consume the token of identifier
         self.lexer.match(Bracket("{"))
-        field = {}
-        while self.lexer.peek_current_token() != Bracket("}"):
+        field = []
+        while True:
+            temp = []
             pt = self.lexer.peek_current_token() # peek token
             assert isinstance(pt, Identifier), f"Syntax Error: Expected an identifier but got {pt}"
             self.lexer.advance() # consume the token of identifier
-            field[pt.name] = None
+            temp.append(pt)
+            temp.append(None)
             if self.lexer.peek_current_token() == Operator("="):
                 self.lexer.advance()
-                field[pt.name] = self.parse_simple()
+                temp[1] = self.parse_simple()
+            field.append(temp)
             if self.lexer.peek_current_token() == Bracket("}"):
                 break
             self.lexer.match(Operator(","))
+        
         self.lexer.match(Bracket("}"))
         self.lexer.match(EndOfLine(";"))
-        print(f"struct parsed: {Struct(data_type, field)}")
+        # print(f"struct parsed: {Struct(data_type, field)}")
         user_defined_data_types[data_type.name] = Struct(data_type, field)
+        # print("userdefiend: ",user_defined_data_types)
         return Struct(data_type, field)
         pass
     
@@ -605,10 +633,10 @@ if __name__ == '__main__':
 
     file = open("program.txt", "r")
     program = file.read()
+    # program = "struct Student {name, roll_number,std};"
     obj_parser = Parser.from_lexer(
         Lexer.from_stream(Stream.from_string(program)))
     # print(f"object parser {obj_parser}")
     a = obj_parser.parse_program()
-    # eval(a)
     print(f"Parsed program: {a}")
 

@@ -263,7 +263,7 @@ class EndOfLineError(Exception):
 @dataclass
 class Struct:
     name: str
-    fields: dict
+    fields: list
     
     def get(self, key: Identifier):
         """get the value of a field in the struct
@@ -278,8 +278,8 @@ class Struct:
 
     def __repr__(self) -> str:
         field_string = ''
-        for key, value in self.fields.items():
-            field_string += f"{key} : {value},\n"
+        for field in self.fields:
+            field_string += f"{field[0]} : {field[1]},\n"
         return f"Struct {self.name} begin\n{field_string}end"
 
 
