@@ -91,7 +91,7 @@ def typecheck(program: AST) -> Value:
             if not isinstance(step, NumLiteral):
                 return typeerror(f"Slice step index must be a number")
 
-            return string_var
+            return StringLiteral("") # return type is string
 
         case IfElse(condition_ast, if_ast, elif_list, else_ast):
             condition_res = typecheck(condition_ast)
@@ -119,20 +119,16 @@ def typecheck(program: AST) -> Value:
             if else_ast != None:
                 typecheck(else_ast)
 
-            return None
-
         # comparison operation
         case ComparisonOp(left, op, right) if op in ["<", ">", "==", "!=", "<=", ">=", "and", "or"]:
             left = typecheck(left)
             right = typecheck(right)
 
-            if isinstance(left, Identifier):
+            if isinstance(left, Identifier) or isinstance(right, Identifier):
                 left = NumLiteral(0)
-
-            if isinstance(right, Identifier):
                 right = NumLiteral(0)
 
-            if left == right:
+            if type(left).__name__ == type(right).__name__: # same type
                 return BoolLiteral(True)
             else:
                 return typeerror(f"TypeError: {op} not supported between instances of {left} and {right}")
@@ -147,7 +143,10 @@ def typecheck(program: AST) -> Value:
             if not isinstance(x, NumLiteral) and not isinstance(x, FloatLiteral):
                 return typeerror(f"TypeError: {op} not supported for instances of {x}")
 
-            return x
+            if isinstance(x, FloatLiteral):
+                return FloatLiteral(0.0)
+            else:
+                return NumLiteral(0)
 
         # binary operation
         case BinOp(left, "+", right):
@@ -231,7 +230,7 @@ def typecheck(program: AST) -> Value:
             if isinstance(typecheck_right, Identifier):
                 typecheck_right = NumLiteral(0)
 
-            if isinstance(typecheck_left, NumLiteral) or isinstance(typecheck_left, FloatLiteral)and isinstance(typecheck_right, NumLiteral) or isinstance(typecheck_right, FloatLiteral):
+            if (isinstance(typecheck_left, NumLiteral) or isinstance(typecheck_left, FloatLiteral)) and (isinstance(typecheck_right, NumLiteral) or isinstance(typecheck_right, FloatLiteral)):
                 if op == "/":
                     return FloatLiteral(0.0)
                 else:
@@ -247,7 +246,12 @@ def typecheck(program: AST) -> Value:
             #TODO: return according to coercion rules
 
         case Indexer(identifier, indexVal):
-            # TODO: what indexer returns?
+            ch = typecheck(indexVal)
+            if isinstance(ch, Identifier):
+                ch = NumLiteral(0)
+
+            if not isinstance(ch, NumLiteral):
+                return typeerror(f"TypeError: {indexVal} is not an integer")
             return typecheck(identifier)
 
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
