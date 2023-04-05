@@ -262,7 +262,7 @@ class EndOfLineError(Exception):
 
 @dataclass
 class Struct:
-    name: str
+    name: str # string of python
     fields: list
     
     def get(self, key: Identifier):
@@ -273,13 +273,16 @@ class Struct:
 
         Returns:
             Value: the value of the field
-        """     
-        return self.fields.get(key.name)
+        """ 
+        for field in self.fields:
+            if field[0] == key:
+                return field[1]
+        raise KeyError(f"Struct {self.name} does not have a attribute named {key}")
 
     def __repr__(self) -> str:
         field_string = ''
         for field in self.fields:
-            field_string += f"{field[0]} : {field[1]},\n"
+            field_string += f"{field}, "
         return f"Struct {self.name} begin\n{field_string}end"
 
 

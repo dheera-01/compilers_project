@@ -4,7 +4,7 @@ from declaration import *
 from my_parser import *
 from my_lexer import *
 from declaration import *
-
+import copy
 
 
 def eval_literals(literal: Value) -> Value_literal:
@@ -79,6 +79,17 @@ def eval(program: AST, program_env:Environment = None) -> Value:
         case Identifier(name):
             return program_env.get(name)
 
+        case Struct(name, fields):
+            # print(f"\nInside eval struct: {program}")
+            if name not in user_defined_data_types:
+                user_defined_data_types[name] = Struct(name, fields)
+                # print(f"user defined datatype: \n{user_defined_data_types}")
+                return None
+            struct_object = copy.deepcopy(user_defined_data_types[name])
+            for i in range(len(fields)):
+                struct_object.fields[i][1] = fields[i][1]
+            return struct_object
+        
         case Let(variable as v, value as val, e2):  
             program_env.enter_scope()
             eval(Assign((v,), (val,)), program_env)
@@ -89,17 +100,9 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             return e2_val
         
         case Assign(identifier, right):
-            # print(f"identifier: {identifier}")
-            # print(f"right: {right}")
             for i, ident in enumerate(identifier):
-                program_env.add(ident, eval(right[i], program_env))
-                # if type(right[i]).__name__ == 'list':
-                #     program_env.add(ident, right[i])
-                # else:
-                #     # print(right[i])
-                #     value = eval(right[i], program_env)
-                #     # print(value)
-                #     program_env.add(ident, value)
+                val = eval(right[i], program_env)
+                program_env.add(ident, val)
             return None
         
         case Update(identifier, op, right):
@@ -119,7 +122,7 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             # The print function will print the evaluated value of val and return the AST val
             # print(f"program_env in print: {program_env}")
             val = eval(value, program_env)
-            # print(f"val: {val}")
+            # print(f"val in print: {val}")
             if isinstance(val, NumLiteral) or isinstance(val, StringLiteral) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral) or isinstance(val, ListLiteral):
                 # print(f"----------------------------------------")
                 ans = eval_literals(val)
@@ -140,19 +143,6 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 c = eval(cond, program_env)
             return None
             
-            
-            # program_env.enter_scope()
-            # c = eval(cond, program_env, environment)
-            # # if(c==True):
-            # #     eval(body)
-            # #     eval(While(cond,body))
-            # body_iteration_lst = []
-            # while (eval_literals(c) == True):
-            #     body_iteration_lst.append(eval(body, program_env, environment))
-            #     c = eval(cond, program_env, environment)
-            # # while loop cannot be implemented recursively as max recursion depth of python restricts it
-            # program_env.exit_scope()
-            # return body_iteration_lst
 
         case For(exp1, condition, exp2, body):
             program_env.enter_scope()
@@ -408,27 +398,21 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                     f"TypeError: ** not supported between instances of {left} and {right}")
 
         case Indexer(identifier, indexVal):
-            i = eval_literals(eval(indexVal, program_env))
+            # print(f"identifier: {identifier}, indexVal: {indexVal}")
+            if not isinstance(indexVal, Identifier):
+                i = eval_literals(eval(indexVal, program_env))
+            else:
+                i = indexVal
             objectToBeIndexed = eval(program_env.get(identifier.name), program_env)
-            # print(f"i: {i}, objectToBeIndexed: {objectToBeIndexed}")
+            if isinstance( objectToBeIndexed, Struct):
+                return objectToBeIndexed.get(i)
             if(len(objectToBeIndexed.value) <= i):
                 raise InvalidProgram(f"Index out of range")
             if isinstance(objectToBeIndexed, ListLiteral):
                 return objectToBeIndexed.value[i]
             if isinstance(objectToBeIndexed, StringLiteral):
-                return StringLiteral(objectToBeIndexed.value[i])
+                return StringLiteral(objectToBeIndexed.value[i]) 
             raise InvalidProgram(f"TypeError: {identifier} is not iterable")
-            
-            # for env in reversed(program_env.envs):
-            #     if identifier.name in env:
-            #         if(type(program_env.get(identifier.name)) == list):
-            #             return program_env.get(identifier.name)[i]
-            #         elif(type(program_env.get(identifier.name)) == StringLiteral):
-            #             res = eval_literals(program_env.get(identifier.name))[i]
-            #             return StringLiteral(res)        
-            #         else:
-            #             print(f"The Identifier {identifier} is not iterable")
-            #             return None
         
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
 
@@ -437,7 +421,8 @@ def eval_of_text(program: str):
     display_output.clear()
     parsed_object = Parser.from_lexer(Lexer.from_stream(Stream.from_string(program)))
     parsed_output = parsed_object.parse_program()
-    # print(f"Parsed Output\n{parsed_output}")
+    print(f"Parsed Output\n{parsed_output}")
+    print()
     eval(parsed_output)
 
 

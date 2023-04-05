@@ -95,24 +95,22 @@ class Parser:
                         self.lexer.match(Bracket("]"))
                         return Indexer(Identifier(name), right_part)
                     case Bracket("("):
-                        self.lexer.advance()
-                        if name in user_defined_data_types:
-                            
-                            f = copy.deepcopy( user_defined_data_types[name].fields)
-                            ind = 0
-                            while True:
-                                if ind >= len(f):
-                                    raise Exception("Too many arguments")
-                                f[ind][1] = self.parse_simple()
-                                ind = ind + 1
-                                if self.lexer.peek_current_token() == Bracket(")"):
-                                    self.lexer.advance()
-                                    break
-                                self.lexer.match(Operator(","))
+                        self.lexer.advance()                            
+                        ind = 0
+                        f = []
+                        while True:
+                            # if ind >= len(f):
+                            #     raise Exception("Too many arguments")
+                            temp = [Identifier('NULL')]
+                            temp.append(self.parse_simple())
+                            f.append(temp)
+                            ind = ind + 1
+                            if self.lexer.peek_current_token() == Bracket(")"):
+                                self.lexer.advance()
+                                break
+                            self.lexer.match(Operator(","))
                         # print(f"user defined data type {user_defined_data_types}") 
-                        return Struct(name, f)
-                                
-                            
+                        return Struct(name, f)    
                     case Operator("."):
                         pass
                     case _:
@@ -514,6 +512,7 @@ class Parser:
         self.lexer.match(Keyword("struct"))
         data_type = self.lexer.peek_current_token()
         assert isinstance(data_type, Identifier), f"Syntax Error: Expected an identifier but got {data_type}"
+        data_type = data_type.name
         self.lexer.advance() # consume the token of identifier
         self.lexer.match(Bracket("{"))
         field = []
@@ -535,7 +534,7 @@ class Parser:
         self.lexer.match(Bracket("}"))
         self.lexer.match(EndOfLine(";"))
         # print(f"struct parsed: {Struct(data_type, field)}")
-        user_defined_data_types[data_type.name] = Struct(data_type, field)
+        # user_defined_data_types[data_type.name] = Struct(data_type, field)
         # print("userdefiend: ",user_defined_data_types)
         return Struct(data_type, field)
         pass

@@ -1,2 +1,3 @@
 struct Student {name, roll, std};
 assign s = Student("John", [1,2,3]);
+print(s[roll]);
