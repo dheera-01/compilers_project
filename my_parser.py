@@ -642,7 +642,7 @@ if __name__ == '__main__':
         Lexer.from_stream(Stream.from_string(program)))
     # print(f"object parser {obj_parser}")
     a = obj_parser.parse_program()
-    print(a)
+    # print(a)
     eval(a)
 
 

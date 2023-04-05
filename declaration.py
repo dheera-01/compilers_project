@@ -244,7 +244,7 @@ class Function:
     body: Sequence
 
     def __repr__(self) -> str:
-        return f"Function({self.name}({self.args}) {self.body})"
+        return f"Function({self.name}({self.args}) )"
 @dataclass
 class FunctionCall:
     name: Identifier
@@ -275,7 +275,18 @@ class EndOfLineError(Exception):
 @dataclass
 class Environment:
     envs : List[dict] # environments are stored in a list of dictionaries
-    
+
+
+    def __repr__(self):
+        return_str = "Start ====================\n"
+        for env in self.envs:
+            return_str+="Entering new scope \n"
+            for key in env:
+                return_str += f"{key} : {env[key][0]} "
+                return_str+="\n"
+            return_str+="Exiting scope \n"
+        return_str+="End ===================="
+        return return_str
     def __init__(self):
         self.envs=[{}]
 
@@ -287,7 +298,7 @@ class Environment:
     def exit_scope(self):
         """Exit the current scope
         """
-        
+
         assert self.envs
         self.envs.pop()
 
@@ -348,6 +359,12 @@ class Environment:
             if name in env:
                 return env[name][0]
         raise KeyError(f"Variable {name} not defined")
+
+    def restore(self,restore_env):
+        self.envs = restore_env.copy()
+
+
+
 
 display_output = [] # list to store the output of print statements as strings
 

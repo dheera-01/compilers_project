@@ -1,66 +1,97 @@
-# simple print functions
-
-func hello() {
-    print("Hello, World!");
-}
-
-# add two numbers
-
-func add(a, b) {
-    return a + b;
-}
-
-# factorial
-
-func factorial(n) {
-    if(n == 0) {
-        return 1;
-    }
-    return n * factorial(n - 1);
-}
-
-# fibonacci
-
-func fibonacci(n) {
-    if(n<0)
-    {
-
-        return 0;
-
-    }
-    if (n == 0) {
-        return 0;
-    }
-    if (n == 1) {
-        return 1;
-    }
-    return fibonacci(n - 1) + fibonacci(n - 2);
-}
-
-# functions with while loops
-
-func while_loop(n) {
-    assign i = 0;
-    while (i < n) {
-        print(i);
-        i = i + 1;
-    }
+# helllo world functions
+func hello()
+{
+    print("hello world");
 }
 
 hello();
 
-assign addition=add(1,2);
+# addition function
+func add(a, b)
+{
+    return a + b;
+}
 
-print(addition);
+print(add(1, 2));
 
-assign fact=factorial(5);
+# if else function
 
-print(fact);
+func is_even(a)
+{
+    if (a % 2 == 0)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
 
-assign fib=fibonacci(10);
 
-print(fib);
+print(is_even(2));
 
-while_loop(10);
+# factorial function
 
+func factorial(a)
+{
+    if (a == 0)
+    {
+        return 1;
+    }
+    else
+    {
+        return a * factorial(a - 1);
+    }
+}
+
+print(factorial(5));
+
+# fibonacci function
+
+func fibonacci(a)
+{
+    if (a == 0)
+    {
+        return 0;
+    }
+    elif (a == 1)
+    {
+        return 1;
+    }
+    else
+    {
+        return fibonacci(a - 1) + fibonacci(a - 2);
+    }
+}
+
+print(fibonacci(10));
+
+# while loop
+
+func while_loop(a)
+{
+    while (a > 0)
+    {
+        print(a);
+        a = a - 1;
+    }
+}
+
+while_loop(3);
+
+# while loop with return
+
+func while_loop_return(a)
+{
+    while (a > 0)
+    {
+        print(a);
+        a = a - 1;
+        return a;
+    }
+
+}
+
+print(while_loop_return(3));
 
