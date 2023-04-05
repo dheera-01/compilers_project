@@ -19,7 +19,7 @@ class I:
     class UPLUS:
         pass
   
-        pass
+        
     @dataclass
     class ADD:
         pass
@@ -36,9 +36,7 @@ class I:
     class DIV:
         pass
 
-    @dataclass
-    class QUOT:
-        pass
+
 
     @dataclass
     class REM:
