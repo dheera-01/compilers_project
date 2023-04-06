@@ -42,9 +42,7 @@ class I:
     class REM:
         pass
 
-    @dataclass
-    class EXP:
-        pass
+   
 
     @dataclass
     class EQ:
@@ -187,7 +185,7 @@ class I:
     | I.SUB
     | I.MUL
     | I.DIV
-    | I.QUOT
+    
     | I.REM
     
     | I.UMINUS
