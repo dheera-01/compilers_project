@@ -460,7 +460,7 @@ def cmptype(t):
 
 
 class ResolveState:
-    env: EnvironmentType[str, Variable]
+    env: EnvironmentType[str, Identifier]
     stk: List[List[int]]
     lastID: int
 
