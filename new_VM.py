@@ -459,43 +459,43 @@ def cmptype(t):
     return t in [NumLiteral(), StringLiteral()]
 
 
-class ResolveState:
-    env: EnvironmentType[str, Identifier]
-    stk: List[List[int]]
-    lastID: int
+# class ResolveState:
+#     env: EnvironmentType[str, Identifier]
+#     stk: List[List[int]]
+#     lastID: int
 
-    def __init__(self):
-        self.env = EnvironmentType()
-        self.stk = [[0, -1]]
-        self.lastID = -1
+#     def __init__(self):
+#         self.env = EnvironmentType()
+#         self.stk = [[0, -1]]
+#         self.lastID = -1
 
-    def begin_fun(self):
-        self.stk.append([0, -1])
+#     def begin_fun(self):
+#         self.stk.append([0, -1])
 
-    def end_fun(self):
-        self.stk.pop()
+#     def end_fun(self):
+#         self.stk.pop()
 
-    def handle_new(self, v):
-        v.fdepth = len(self.stk) - 1
-        v.id = self.lastID = self.lastID + 1
-        v.localID = self.stk[-1][1] = self.stk[-1][1] + 1
-        self.env[v.name] = v
+#     def handle_new(self, v):
+#         v.fdepth = len(self.stk) - 1
+#         v.id = self.lastID = self.lastID + 1
+#         v.localID = self.stk[-1][1] = self.stk[-1][1] + 1
+#         self.env[v.name] = v
 
-    def begin_scope(self):
-        self.env.begin_scope()
+#     def begin_scope(self):
+#         self.env.begin_scope()
 
-    def end_scope(self):
-        self.env.end_scope()
+#     def end_scope(self):
+#         self.env.end_scope()
 
-def resolve (
-        program: AST,
-        rstate: ResolveState = None
-) -> AST:
-    if rstate is None:
-        rstate = ResolveState()
+# def resolve (
+#         program: AST,
+#         rstate: ResolveState = None
+# ) -> AST:
+#     if rstate is None:
+#         rstate = ResolveState()
 
-    def resolve_(program):
-        return resolve(program, rstate)           
+#     def resolve_(program):
+#         return resolve(program, rstate)           
 
     
     
