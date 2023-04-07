@@ -170,6 +170,41 @@ def do_codegen (
             codegen_(left)
             codegen_(right)
             code.emit(simple_ops[op])
+        case BinOp("and", left, right):
+            E = code.label()
+            codegen_(left)
+            code.emit(I.DUP())
+            code.emit(I.JMP_IF_FALSE(E))
+            code.emit(I.POP())
+            codegen_(right)
+            code.emit_label(E)
+        case BinOp("or", left, right):
+            E = code.label()
+            codegen_(left)
+            code.emit(I.DUP())
+            code.emit(I.JMP_IF_TRUE(E))
+            code.emit(I.POP())
+            codegen_(right)
+            code.emit_label(E)    
+        case UnaryOp("+", operand):
+            codegen_(operand)
+            code.emit(I.UPLUS())
+        case UnaryOp("-", operand):
+            codegen_(operand)
+            code.emit(I.UMINUS())
+        
+        case Sequence(things):
+            if not things: raise BUG()
+            last, rest = things[-1], things[:-1]
+            for thing in rest:
+                codegen_(thing)
+                code.emit(I.POP())
+            codegen_(last)  
+
+        case TypeAssertion(expr, _):
+            codegen_(expr)
+
+      
 class Frame:
     def __init__(self, retaddr=0, dynamicLink=None, locals=None):
         self.retaddr = retaddr
@@ -380,7 +415,87 @@ def print_bytecode(code: ByteCode):
             value = insn.arg
             print(f"{i:=4} {'PUSH':<15} {value}")
             i += 1
-###Other instructions like PUSHFN I haven't added as they are related to functions            
+###Other instructions like PUSHFN I haven't added as they are related to functions 
+from typing import MutableMapping, TypeVar
+
+T = TypeVar('T')
+U = TypeVar('U')
+Env = MutableMapping[U, T]
+
+class EnvironmentType(MutableMapping[U, T]):
+    def __init__(self):
+        self.envs = [{}]
+
+    def begin_scope(self):
+        self.envs.append({})
+
+    def end_scope(self):
+        self.envs.pop()
+
+    def __getitem__(self, k):
+        for env in reversed(self.envs):
+            if k in env:
+                return env[k]
+
+    def __setitem__(self, k, v):
+        self.envs[-1][k] = v
+
+    def __delitem__(self, k):
+        for env in reversed(self.envs):
+            if k in env:
+                del env[k]
+
+    def __iter__(self):
+        return iter(dict.fromkeys(self))
+
+    def __len__(self):
+        return len(dict.fromkeys(self))
+arithmetic_ops = [ "+", "-", "*", "/", "//", "%","**" ]
+comp_ops        = [ "<", ">", "≤", "≥" ]
+eq_ops         = [ "=", "≠" ]
+lo_ops         = [ "and", "or" ]    
+
+def cmptype(t):
+    return t in [NumLiteral(), StringLiteral()]
+
+
+class ResolveState:
+    env: EnvironmentType[str, Variable]
+    stk: List[List[int]]
+    lastID: int
+
+    def __init__(self):
+        self.env = EnvironmentType()
+        self.stk = [[0, -1]]
+        self.lastID = -1
+
+    def begin_fun(self):
+        self.stk.append([0, -1])
+
+    def end_fun(self):
+        self.stk.pop()
+
+    def handle_new(self, v):
+        v.fdepth = len(self.stk) - 1
+        v.id = self.lastID = self.lastID + 1
+        v.localID = self.stk[-1][1] = self.stk[-1][1] + 1
+        self.env[v.name] = v
+
+    def begin_scope(self):
+        self.env.begin_scope()
+
+    def end_scope(self):
+        self.env.end_scope()
+
+def resolve (
+        program: AST,
+        rstate: ResolveState = None
+) -> AST:
+    if rstate is None:
+        rstate = ResolveState()
+
+    def resolve_(program):
+        return resolve(program, rstate)           
 
     
     
