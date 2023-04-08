@@ -2,6 +2,13 @@ from typing import List
 from dataclasses import dataclass
 from declaration import AST
 from my_parser import *
+from typing import Optional
+from dataclasses import dataclass
+class BUG(Exception):
+        pass
+class ResolveError(Exception):
+    pass
+
 @dataclass
 class Label:
     target: int
@@ -106,115 +113,7 @@ class I:
     @dataclass
     class FLOORDIV:
         pass
-class ByteCode:
-    insns: List[Instruction]
-
-    def __init__(self):
-        self.insns = []
-
-    def label(self):  #To mark position in bytecode
-        return Label(-1)
-
-    def emit(self, instruction):#to add an instruction to the bytecode sequence.
-        self.insns.append(instruction)
-
-    def emit_label(self, label):# to mark the current position in the bytecode with a given Label object.
-        label.target = len(self.insns)
-
-    def to_bytecode(self) -> bytes:# to convert the sequence of instructions into bytes that can be executed by our virtual machine
-        bytecode = b''
-        for instr in self.insns:
-            bytecode += instr.to_bytes()
-        return bytecode
-bytecode = ByteCode()
-# emit some instructions and labels into the bytecode object...
-vm = VirtualMachine() ###VirtualMachine class comes later in the code
-vm.load_bytecode(bytecode.to_bytecode())
-def codegen(program: AST) -> ByteCode:
-    code = ByteCode()
-    do_codegen(program, code)
-    code.emit(I.HALT())
-    return code
-
-def do_codegen (
-        program: AST,
-        code: ByteCode
-) -> None:
-    def codegen_(program):
-        do_codegen(program, code)
-
-    simple_ops = {
-        "+": I.ADD(),
-        "-": I.SUB(),
-        "*": I.MUL(),
-        "/": I.DIV(),
-        "quot": I.QUOT(),
-        "rem": I.REM(),
-        "<": I.LT(),
-        ">": I.GT(),
-        "≤": I.LE(),
-        "≥": I.GE(),
-        "=": I.EQ(),
-        "≠": I.NEQ(),
-        
-        "**":I.POW(),
-        "//":I.FLOORDIV()
-
-    }
-    match program:
-        case NumLiteral(what) | BoolLiteral(what) | StringLiteral(what):
-            code.emit(I.PUSH(what))
-        # case UnitLiteral():
-        #     code.emit(I.PUSH(None))
-        case BinOp(op, left, right) if op in simple_ops:
-            codegen_(left)
-            codegen_(right)
-            code.emit(simple_ops[op])
-        case BinOp("and", left, right):
-            E = code.label()
-            codegen_(left)
-            code.emit(I.DUP())
-            code.emit(I.JMP_IF_FALSE(E))
-            code.emit(I.POP())
-            codegen_(right)
-            code.emit_label(E)
-        case BinOp("or", left, right):
-            E = code.label()
-            codegen_(left)
-            code.emit(I.DUP())
-            code.emit(I.JMP_IF_TRUE(E))
-            code.emit(I.POP())
-            codegen_(right)
-            code.emit_label(E)    
-        case UnaryOp("+", operand):
-            codegen_(operand)
-            code.emit(I.UPLUS())
-        case UnaryOp("-", operand):
-            codegen_(operand)
-            code.emit(I.UMINUS())
-        
-        case Sequence(things):
-            if not things: raise BUG()
-            last, rest = things[-1], things[:-1]
-            for thing in rest:
-                codegen_(thing)
-                code.emit(I.POP())
-            codegen_(last)  
-
-        case TypeAssertion(expr, _):
-            codegen_(expr)
-
-      
-class Frame:
-    def __init__(self, retaddr=0, dynamicLink=None, locals=None):
-        self.retaddr = retaddr
-        self.dynamicLink = dynamicLink
-        self.locals = locals or {}
-
-    def __repr__(self):
-        return f"<Frame retaddr={self.retaddr} locals={self.locals}>"
-class I:    
- Instruction = (
+Instruction = (
       I.PUSH
     | I.ADD
     | I.SUB
@@ -241,9 +140,45 @@ class I:
     | I.STORE
     | I.POW
     | I.FLOORDIV
-)
+)    
 
+@dataclass
+class ByteCode:
+    insns: List[Instruction]
 
+    def __init__(self):
+        self.insns = []
+
+    def label(self):  #To mark position in bytecode
+        return Label(-1)
+
+    def emit(self, instruction):#to add an instruction to the bytecode sequence.
+        self.insns.append(instruction)
+
+    def emit_label(self, label):# to mark the current position in the bytecode with a given Label object.
+        label.target = len(self.insns)
+
+    def to_bytecode(self) -> bytes:# to convert the sequence of instructions into bytes that can be executed by our virtual machine
+        bytecode = b''
+        for instr in self.insns:
+            bytecode += instr.to_bytes()
+        return bytecode
+def print_bytecode(code: ByteCode):
+    i = 0
+    while i < len(code.insns):
+        insn = code.insns[i]
+        if isinstance(insn, (I.JMP, I.JMP_IF_TRUE, I.JMP_IF_FALSE)):
+            offset = insn.arg
+            print(f"{i:=4} {insn.__class__.__name__:<15} {offset}")
+            i += 1
+        elif isinstance(insn, (I.LOAD, I.STORE)):
+            localID = insn.arg
+            print(f"{i:=4} {insn.__class__.__name__:<15} {localID}")
+            i += 1
+        elif isinstance(insn, I.PUSH):
+            value = insn.arg
+            print(f"{i:=4} {'PUSH':<15} {value}")
+            i += 1        
 
 class VirtualMachine:
     def __init__(self):
@@ -397,24 +332,52 @@ class VirtualMachine:
             elif isinstance(insn, I.HALT):
                  return self.data.pop()
    
+  
+class Frame:
+    def __init__(self, retaddr=0, dynamicLink=None, locals=None):
+        self.retaddr = retaddr
+        self.dynamicLink = dynamicLink
+        self.locals = locals or {}
+
+    def __repr__(self):
+        return f"<Frame retaddr={self.retaddr} locals={self.locals}>"    
 
 
-def print_bytecode(code: ByteCode):
-    i = 0
-    while i < len(code.insns):
-        insn = code.insns[i]
-        if isinstance(insn, (I.JMP, I.JMP_IF_TRUE, I.JMP_IF_FALSE)):
-            offset = insn.arg
-            print(f"{i:=4} {insn.__class__.__name__:<15} {offset}")
-            i += 1
-        elif isinstance(insn, (I.LOAD, I.STORE)):
-            localID = insn.arg
-            print(f"{i:=4} {insn.__class__.__name__:<15} {localID}")
-            i += 1
-        elif isinstance(insn, I.PUSH):
-            value = insn.arg
-            print(f"{i:=4} {'PUSH':<15} {value}")
-            i += 1
+bytecode = ByteCode()
+# emit some instructions and labels into the bytecode object...
+vm = VirtualMachine() ###VirtualMachine class comes later in the code
+vm.load_bytecode(bytecode.to_bytecode())
+def codegen(program: AST) -> ByteCode:
+    code = ByteCode()
+    do_codegen(program, code)
+    code.emit(I.HALT())
+    return code
+
+def do_codegen (
+        program: AST,
+        code: ByteCode
+) -> None:
+    def codegen_(program):
+        do_codegen(program, code)
+
+    simple_ops = {
+        "+": I.ADD(),
+        "-": I.SUB(),
+        "*": I.MUL(),
+        "/": I.DIV(),
+       
+        "rem": I.REM(),
+        "<": I.LT(),
+        ">": I.GT(),
+        "≤": I.LE(),
+        "≥": I.GE(),
+        "=": I.EQ(),
+        "≠": I.NEQ(),
+        
+        "**":I.POW(),
+        "//":I.FLOORDIV()
+
+    }
 ###Other instructions like PUSHFN I haven't added as they are related to functions 
 from typing import MutableMapping, TypeVar
 
@@ -453,14 +416,104 @@ class EnvironmentType(MutableMapping[U, T]):
 arithmetic_ops = [ "+", "-", "*", "/", "//", "%","**" ]
 comp_ops        = [ "<", ">", "≤", "≥" ]
 eq_ops         = [ "=", "≠" ]
-lo_ops         = [ "and", "or" ]    
+lo_ops         = [ "and", "or" ] 
+SimType=NumLiteral|StringLiteral
 
-def cmptype(t):
+
+@dataclass
+class Variable:
+    name: str
+    id: int = None
+    fdepth: int = None
+    localID: int = None
+    type: Optional[SimType] = None
+
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        return self.id == other.id
+
+    def __repr__(self):
+        return f"{self.name}::{self.id}::{self.localID}"   
+
+def cmptype(t:SimType):
     return t in [NumLiteral(), StringLiteral()]
 
 
+class ResolveState:
+    env: EnvironmentType[str, Variable]
+    stk: List[List[int]]
+    lastID: int
+
+    def __init__(self):
+        self.env = EnvironmentType()
+        self.stk = [[0, -1]]
+        self.lastID = -1
+
+    def begin_fun(self):
+        self.stk.append([0, -1])
+
+    def end_fun(self):
+        self.stk.pop()
+
+    def handle_new(self, v):
+        v.fdepth = len(self.stk) - 1
+        v.id = self.lastID = self.lastID + 1
+        v.localID = self.stk[-1][1] = self.stk[-1][1] + 1
+        self.env[v.name] = v
+
+    def begin_scope(self):
+        self.env.begin_scope()
+
+    def end_scope(self):
+        self.env.end_scope()
+
+def resolve (
+        program: AST,
+        rstate: ResolveState = None
+) -> AST:
+    if rstate is None:
+        rstate = ResolveState()
+
+    def resolve_(program):
+        return resolve(program, rstate)
+
+    match program:
+        case NumLiteral() | BoolLiteral() | StringLiteral():
+            return program
+        case UnaryOp(op, e):
+            re = resolve_(e)
+            return UnaryOp(op, re)
+        case BinOp(op, left, right):
+            rleft = resolve_(left)
+            rright = resolve_(right)
+            return BinOp(op, rleft, rright)
+        case Variable(name):
+            if name not in rstate.env:
+                raise ResolveError()
+            declared = rstate.env[name]
+            return declared
+     
+        case Sequence(things):
+            rthings = []
+            for e in things:
+                rthings.append(resolve_(e))
+            return Sequence(rthings)
+  
+           # return TypeAssertion(rexpr, type)
+        case _:
+             raise BUG()
+        
+   
+
+         
+
+
+
+
 # class ResolveState:
-#     env: EnvironmentType[str, Identifier]
+#     env: EnvironmentType[str, Variable]
 #     stk: List[List[int]]
 #     lastID: int
 
@@ -513,6 +566,18 @@ def cmptype(t):
   
 
            
+
+
+
+
+
+
+    
+
+
+  
+       
+    
 
 
 
