@@ -83,7 +83,9 @@ def test_lexer_slice():
     for token in object_lexer:
         assert str(token) == expected_token.pop(0)
 
+#--------------------------------------------
 # Parser Testcases
+
 # Dummy lexer class and its methods
 class DummyLexer:
     def __init__(self, tokens):
@@ -191,112 +193,123 @@ def test_parser_if_else():
     for i in obj_parser.parse_program().statements:
         assert i == expected_paresed.pop(0)
 
-# # elif test case
-# def test_case3_1():
-#     print("\nTest case 3.1")
-#     text = """
-#     assign i = 4;
-#     if(i>5)
-#     {
-#         print("i<2 and i < 5");
-#     }
-#     elif(i == 0)
-#     {
-#         print(heello);
-#     }
-#     elif(k != 5)
-#     {
-#         assign k = k +5;
-#     }
-#     else
-#     {
-#         print("not");
-#     }
-#     """
-#     obj_parser = Parser.from_lexer(Lexer.from_stream(Stream.from_string(text)))
-#     for i in obj_parser.parse_program().statements:
-#         print(i)
-#
-#
-# # for test
-# def test_case4():
-#     print("\nTest case 4")
-#     text = """
-#     assign  i = 7
-#     ;
-#     assign n = 10;
-#     for(i = i + 1 ; i< n; i+=1;)
-#     {
-#         print(i>1);
-#     }
-#     """
-#     obj_parser = Parser.from_lexer(Lexer.from_stream(Stream.from_string(text)))
-#     for i in obj_parser.parse_program().statements:
-#         print(i)
-#
-#
-# # while test
-# def test_case5():
-#     print(f"\nTest Case 5")
-#     text = """
-#     assign j = 0;
-#     while(j<5)
-#     {
-#         print(j);
-#         assign k = 0;
-#         while(k<2)
-#         {
-#             print(k);
-#             k = k + 1;
-#         }
-#         j = j +1;
-#     }
-#     """
-#     obj_parser = Parser.from_lexer(Lexer.from_stream(Stream.from_string(text)))
-#     a = obj_parser.parse_program()
-#     for i in a.statements:
-#         print(i)
-#
-#
-# # string test
-# def test_case6():
-#     print(f"\nTest Case 6")
-#     text = """
-#         #1
-#         assign a = "Hello World!";
-#         print(a);
-#
-#         #2
-#         a = "Hello World!";
-#         a = slice(a: 0: 5: 1);
-#         print(a);
-#
-#         #3
-#         #slice("Hello World!": 0: 5: 1)
-#     """
-#     obj_parser = Parser.from_lexer(Lexer.from_stream(Stream.from_string(text)))
-#     a = obj_parser.parse_program()
-#     for i in a.statements:
-#         print(i)
-#
-#
-# # let test
-# def test_case7():
-#     print(f"\nTest Case 7")
-#     text = """
-#     let x=1+2*3 (x+1)
-#     let y=2 (let x=2 (x+y));
-#     print(x);
-#     print("hello");
-#     let x=2 (let y=3 (let z=4 (x+y+z)));
-#     assign v=let u=2
-#     (
-#         let t=2
-#             (let a=2(u+ a*t))
-#     );
-#     print(v);
-#     """
-#     obj_parser = Parser.from_lexer(Lexer.from_stream(Stream.from_string(text)))
-#     a = obj_parser.parse_program()
-#     for i in a.statements:
-#         print(i)
+# elif test case
+def test_parser_elif():
+    # text = """
+    # if(i>5)
+    # {
+    #     print("hello");
+    # }
+    # elif(i == 0)
+    # {
+    #     print("world");
+    # }
+    # """
+    token_list = [Keyword("if"), Bracket("("), Identifier("i"), Operator(">"), NumLiteral(5), Bracket(")"), Bracket("{"), Keyword("print"), Bracket("("), StringLiteral("hello"), Bracket(")"), EndOfLine(";"), Bracket("}"), Keyword("elif"), Bracket("("), Identifier("i"), Operator("=="), NumLiteral(0), Bracket(")"), Bracket("{"), Keyword("print"), Bracket("("), StringLiteral("world"), Bracket(")"), EndOfLine(";"), Bracket("}"), EndOfFile("EOF")]
+
+    object_lexer = DummyLexer(token_list)
+    obj_parser = Parser.from_lexer(object_lexer)
+
+    ast_1 = IfElse(ComparisonOp(Identifier("i"), ">", NumLiteral(5)), Sequence([Print(StringLiteral("hello"))]), [IfElse(ComparisonOp(Identifier("i"), "==", NumLiteral(0)), Sequence([Print(StringLiteral("world"))]),[], None)], None)
+
+    expected_paresed = [ast_1]
+
+    for i in obj_parser.parse_program().statements:
+        assert i == expected_paresed.pop(0)
+
+# for test
+def test_parser_for():
+    # text = """
+    # for(i = i + 1 ; i< n; i+=1;)
+    # {
+    #     print(i>1);
+    # }
+    # """
+
+    token_list = [Keyword("for"), Bracket("("), Identifier("i"), Operator("="), Identifier("i"), Operator("+"), NumLiteral(1), EndOfLine(";"), Identifier("i"), Operator("<"), Identifier("n"), EndOfLine(";"), Identifier("i"), Operator("+="), NumLiteral(1), EndOfLine(";"), Bracket(")"), Bracket("{"), Keyword("print"), Bracket("("), Identifier("i"), Operator(">"), NumLiteral(1), Bracket(")"), EndOfLine(";"), Bracket("}"), EndOfFile("EOF")]
+
+    object_lexer = DummyLexer(token_list)
+    obj_parser = Parser.from_lexer(object_lexer)
+
+    ast_1 = For(Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1))), ComparisonOp(Identifier("i"), "<", Identifier("n")), Update(Identifier("i"), Operator("+="), NumLiteral(1)), Sequence([Print(ComparisonOp(Identifier("i"), ">", NumLiteral(1)))]))
+
+    expected_paresed = [ast_1]
+
+    for i in obj_parser.parse_program().statements:
+        assert i == expected_paresed.pop(0)
+
+# while test
+def test_parser_while():
+    # text = """
+    # while(j<5)
+    # {
+    #     print(j);
+    #     while(k<2)
+    #     {
+    #         print(k);
+    #         k = k + 1;
+    #     }
+    #     j = j +1;
+    # }
+    # """
+
+    token_list = [Keyword("while"), Bracket("("), Identifier("j"), Operator("<"), NumLiteral(5), Bracket(")"), Bracket("{"), Keyword("print"), Bracket("("), Identifier("j"), Bracket(")"), EndOfLine(";"), Keyword("while"), Bracket("("), Identifier("k"), Operator("<"), NumLiteral(2), Bracket(")"), Bracket("{"), Keyword("print"), Bracket("("), Identifier("k"), Bracket(")"), EndOfLine(";"), Identifier("k"), Operator("="), Identifier("k"), Operator("+"), NumLiteral(1), EndOfLine(";"), Bracket("}"), Identifier("j"), Operator("="), Identifier("j"), Operator("+"), NumLiteral(1), EndOfLine(";"), Bracket("}"), EndOfFile("EOF")]
+
+    object_lexer = DummyLexer(token_list)
+    obj_parser = Parser.from_lexer(object_lexer)
+
+    ast_1 = While(ComparisonOp(Identifier("j"), "<", NumLiteral(5)), Sequence([Print(Identifier("j")), While(ComparisonOp(Identifier("k"), "<", NumLiteral(2)), Sequence([Print(Identifier("k")), Update(Identifier("k"), Operator("="), BinOp(Identifier("k"), "+", NumLiteral(1)))])), Update(Identifier("j"), Operator("="), BinOp(Identifier("j"), "+", NumLiteral(1)))]))
+
+    expected_paresed = [ast_1]
+
+    for i in obj_parser.parse_program().statements:
+        assert i == expected_paresed.pop(0)
+
+# string test
+def test_parser_slice():
+    # text = """
+    #     print(slice("Hello World!": 0: 5: 1));
+    # """
+
+    token_list = [Keyword("print"), Bracket("("), Keyword("slice"), Bracket("("), StringLiteral("Hello World!"), Operator(":"), NumLiteral(0), Operator(":"), NumLiteral(5), Operator(":"), NumLiteral(1), Bracket(")"), Bracket(")"), EndOfLine(";"), EndOfFile("EOF")]
+
+    object_lexer = DummyLexer(token_list)
+    obj_parser = Parser.from_lexer(object_lexer)
+
+    ast_1 = Print(Slice(StringLiteral("Hello World!"), NumLiteral(0), NumLiteral(5), NumLiteral(1)))
+
+    expected_paresed = [ast_1]
+
+    for i in obj_parser.parse_program().statements:
+        print(i)
+        assert i == expected_paresed.pop(0)
+
+# let test
+def test_parser_let():
+    # text = """
+    # let x=1+2*3 (x+1)
+    # let y=2 (let x=2 (x+y));
+    # print(x);
+    # print("hello");
+    # let x=2 (let y=3 (let z=4 (x+y+z)));
+    # assign v=let u=2
+    # (
+    #     let t=2
+    #         (let a=2(u+ a*t))
+    # );
+    # print(v);
+    # """
+
+    token_list = [Keyword("let"), Identifier("x"), Operator("="), NumLiteral(1), Operator("+"), NumLiteral(2), Operator("*"), NumLiteral(3), Bracket("("), Identifier("x"), Operator("+"), NumLiteral(1), Bracket(")"), Keyword("let"), Identifier("y"), Operator("="), NumLiteral(2), Bracket("("), Keyword("let"), Identifier("x"), Operator("="), NumLiteral(2), Bracket("("), Identifier("x"), Operator("+"), Identifier("y"), Bracket(")"), Bracket(")"), EndOfLine(";"), Keyword("print"), Bracket("("), Identifier("x"), Bracket(")"), EndOfLine(";"), Keyword("print"), Bracket("("), StringLiteral("hello"), Bracket(")"), EndOfLine(";"), Keyword("let"), Identifier("x"), Operator("="), NumLiteral(2), Bracket("("), Keyword("let"), Identifier("y"), Operator("="), NumLiteral(3), Bracket("("), Keyword("let"), Identifier("z"), Operator("="), NumLiteral(4), Bracket("("), Identifier("x"), Operator("+"), Identifier("y"), Operator("+"), Identifier("z"), Bracket(")"), Bracket(")"), Bracket(")"), EndOfLine(";"), Keyword("assign"), Identifier("v"), Operator("="), Keyword("let"), Identifier("u"), Operator("="), NumLiteral(2), Bracket("("), Keyword("let"), Identifier("t"), Operator("="), NumLiteral(2), Bracket("("), Keyword("let"), Identifier("a"), Operator("="), NumLiteral(2), Bracket("("), Identifier("u"), Operator("+"), Identifier("a"), Operator("*"), Identifier("t"), Bracket(")"), Bracket(")"), Bracket(")"), EndOfLine(";"), Keyword("print"), Bracket("("), Identifier("v"), Bracket(")"), EndOfLine(";"), EndOfFile("EOF")]
+
+    object_lexer = DummyLexer(token_list)
+    obj_parser = Parser.from_lexer(object_lexer)
+
+    expected_paresed = ["""Let Identifier(x) = BinOp(NumLiteral(1) + BinOp(NumLiteral(2) * NumLiteral(3))) in BinOp(Identifier(x) + NumLiteral(1)))""", """Let Identifier(y) = NumLiteral(2) in Let Identifier(x) = NumLiteral(2) in BinOp(Identifier(x) + Identifier(y))))""", """EndOfLine(;)""", """Print(Identifier(x))""", """Print(StringLiteral("hello"))""", """Let Identifier(x) = NumLiteral(2) in Let Identifier(y) = NumLiteral(3) in Let Identifier(z) = NumLiteral(4) in BinOp(BinOp(Identifier(x) + Identifier(y)) + Identifier(z)))))""", """EndOfLine(;)""", """Assign((Identifier(v),) = (Let Identifier(u) = NumLiteral(2) in Let Identifier(t) = NumLiteral(2) in Let Identifier(a) = NumLiteral(2) in BinOp(Identifier(u) + BinOp(Identifier(a) * Identifier(t)))))),))""", """Print(Identifier(v))"""]
+
+    for i in obj_parser.parse_program().statements:
+        assert str(i) == expected_paresed.pop(0)
+
+#--------------------------------------------
+# Eval testcases
+
