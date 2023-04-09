@@ -513,9 +513,9 @@ def generate_bytecode(program: AST) -> List[I]:
             instructions.append(I.LT())
         elif op == ">":
             instructions.append(I.GT())
-        elif op == "≤":
+        elif op == "<=":
             instructions.append(I.LE())
-        elif op == "≥":
+        elif op == ">=":
             instructions.append(I.GE())
         else:
             raise ValueError(f"Invalid comparison operator: {op}")
