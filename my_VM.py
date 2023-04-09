@@ -4,6 +4,8 @@ from declaration import AST
 from my_parser import *
 from typing import Optional,TypeVar,MutableMapping
 from dataclasses import dataclass
+from my_parser import *
+from my_lexer import *
 class BUG(Exception):
         pass
 class ResolveError(Exception):
@@ -471,13 +473,9 @@ class Frame:
         self.locals = locals or {}
 
     def __repr__(self):
-        return f"<Frame retaddr={self.retaddr} locals={self.locals}>"    
+        return f"<Frame retaddr={self.retaddr} locals={self.locals}>"   
 
 
-# bytecode = ByteCode()
-# # emit some instructions and labels into the bytecode object...
-# vm = VirtualMachine() ###VirtualMachine class comes later in the code
-# vm.load_bytecode(bytecode.to_bytecode())
 def codegen_(program: AST) -> ByteCode:
     code = ByteCode()
     do_codegen(program, code)
@@ -500,10 +498,10 @@ def do_codegen (
         "rem": I.REM(),
         "<": I.LT(),
         ">": I.GT(),
-        "≤": I.LE(),
-        "≥": I.GE(),
+        "<=": I.LE(),
+        ">=": I.GE(),
         "=": I.EQ(),
-        "≠": I.NEQ(),
+        "!=": I.NEQ(),
         
         "**":I.POW(),
         "//":I.FLOORDIV()
@@ -511,34 +509,11 @@ def do_codegen (
     
     }
 
+
+
+
+
     match program:
-        case NumLiteral(what) | BoolLiteral(what) | StringLiteral(what):
-            code.emit(I.PUSH(what))
-        # case UnitLiteral():
-        #     code.emit(I.PUSH(None))
-        case BinOp(op, left, right) if op in simple_ops:
-            codegen_(left)
-            codegen_(right)
-            code.emit(simple_ops[op])
-        case BinOp("and", left, right):
-            E = code.label()
-            codegen_(left)
-            code.emit(I.DUP())
-            code.emit(I.JMP_IF_FALSE(E))
-            code.emit(I.POP())
-            codegen_(right)
-            code.emit_label(E)
-        case BinOp("or", left, right):
-            E = code.label()
-            codegen_(left)
-            code.emit(I.DUP())
-            code.emit(I.JMP_IF_TRUE(E))
-            code.emit(I.POP())
-            codegen_(right)
-            code.emit_label(E)
-        case UnaryOp("-", operand):
-            codegen_(operand)
-            code.emit(I.UMINUS())
         case Sequence(things):
             if not things: raise BUG()
             last, rest = things[-1], things[:-1]
@@ -546,36 +521,51 @@ def do_codegen (
                 codegen_(thing)
                 code.emit(I.POP())
             codegen_(last)
-        case IfElse(cond, iftrue, iffalse):
-            E = code.label()
-            F = code.label()
-            codegen_(cond)
-            code.emit(I.JMP_IF_FALSE(F))
-            codegen_(iftrue)
-            code.emit(I.JMP(E))
-            code.emit_label(F)
-            codegen_(iffalse)
-            code.emit_label(E)
-        case While(cond, body):
-            B = code.label()
-            E = code.label()
-            code.emit_label(B)
-            codegen_(cond)
-            code.emit(I.JMP_IF_FALSE(E))
-            codegen_(body)
-            code.emit(I.POP())
-            code.emit(I.JMP(B))
-            code.emit_label(E)
-            code.emit(I.PUSH(None))
-        case (Variable() as v) | UnaryOp("!", Variable() as v):
-            code.emit(I.LOAD(v.localID))
+            # print(f"ans: {ans}")
+            # ans = []
+            # for statement in statements:
+            #     # print(f"statement: {statement}")
+            #     ans.append(eval(statement, environment))
+            # # print(f"ans: {ans}")
+            # return ans
+
+        case NumLiteral(what):
+            # print(program)
+            code.emit(I.PUSH(what))
+
+        case FloatLiteral(what):
+             code.emit(I.PUSH(what))
+
+
+        case StringLiteral(what):
+             code.emit(I.PUSH(what))
+
+
+        case BoolLiteral(what):
+             code.emit(I.PUSH(what))
+
+        
+        case BinOp(op, left, right) if op in simple_ops:
+            codegen_(left)
+            codegen_(right)
+            code.emit(simple_ops[op])
+        # unary operation
+        case UnaryOp("-", x):
+            codegen_(x)
+            code.emit(I.UMINUS())
+
+        case UnaryOp("+", x):
+            codegen_(x)
+            code.emit(I.UPLUS())
+
+        # binary operation
         
 
 def parse_string(s):
     return Parser.from_lexer(Lexer.from_stream(Stream.from_string(s))).parse_expr()  
 
 def compile(program):
-    return codegen((resolve(program)))
+    return codegen_((resolve(program)))
 def test_codegen():
     programs = {
         "5*2"
@@ -587,59 +577,7 @@ def test_codegen():
 
 def print_codegen():
     print_bytecode(compile(parse_string("5*2")))    
-print_codegen()         
-###Other instructions like PUSHFN I haven't added as they are related to functions 
-from typing import MutableMapping, TypeVar
-
-
-         
-
-
-
-
-# class ResolveState:
-#     env: EnvironmentType[str, Variable]
-#     stk: List[List[int]]
-#     lastID: int
-
-#     def __init__(self):
-#         self.env = EnvironmentType()
-#         self.stk = [[0, -1]]
-#         self.lastID = -1
-
-#     def begin_fun(self):
-#         self.stk.append([0, -1])
-
-#     def end_fun(self):
-#         self.stk.pop()
-
-#     def handle_new(self, v):
-#         v.fdepth = len(self.stk) - 1
-#         v.id = self.lastID = self.lastID + 1
-#         v.localID = self.stk[-1][1] = self.stk[-1][1] + 1
-#         self.env[v.name] = v
-
-#     def begin_scope(self):
-#         self.env.begin_scope()
-
-#     def end_scope(self):
-#         self.env.end_scope()
-
-# def resolve (
-#         program: AST,
-#         rstate: ResolveState = None
-# ) -> AST:
-#     if rstate is None:
-#         rstate = ResolveState()
-
-#     def resolve_(program):
-#         return resolve(program, rstate)           
-
-    
-    
-
-
-
+print_codegen() 
 
 
 
@@ -648,21 +586,11 @@ from typing import MutableMapping, TypeVar
 
         
 
-  
 
-           
-
-
-
-
-
-
-    
-
-
-  
        
-    
+
+        
+
 
 
 
