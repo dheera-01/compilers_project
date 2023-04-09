@@ -163,6 +163,8 @@ class ByteCode:
         for instr in self.insns:
             bytecode += instr.to_bytes()
         return bytecode
+    
+   
 def print_bytecode(code: ByteCode):
     i = 0
     while i < len(code.insns):
@@ -181,6 +183,7 @@ def print_bytecode(code: ByteCode):
             i += 1        
 
 class VirtualMachine:
+    insns: List[Instruction]
     def __init__(self):
         self.bytecode = None
         self.ip = 0
@@ -195,6 +198,9 @@ class VirtualMachine:
         self.ip = 0
         self.data = []
         self.currentFrame = Frame()
+    # def load_bytecode(self, byte_code):
+    #  for instruction in byte_code.insns:
+    #     self.code.emit(instruction)
 
     def execute(self) -> Value:
         while True:
@@ -343,10 +349,10 @@ class Frame:
         return f"<Frame retaddr={self.retaddr} locals={self.locals}>"    
 
 
-bytecode = ByteCode()
-# emit some instructions and labels into the bytecode object...
-vm = VirtualMachine() ###VirtualMachine class comes later in the code
-vm.load_bytecode(bytecode.to_bytecode())
+# bytecode = ByteCode()
+# # emit some instructions and labels into the bytecode object...
+# vm = VirtualMachine() ###VirtualMachine class comes later in the code
+# vm.load_bytecode(bytecode.to_bytecode())
 def codegen(program: AST) -> ByteCode:
     code = ByteCode()
     do_codegen(program, code)
