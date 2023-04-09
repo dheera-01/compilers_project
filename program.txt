@@ -44,3 +44,21 @@ assign b = [4, 5, 6];
 
 assign result = a + b;
 print(result);
+
+# Check for Element Assignment
+assign c = [1, 5, 6];
+print(c);
+
+# Indexing 
+assign l = arr[1];
+print(l);
+
+# Element Assign at index 1
+assign c[1] = 9;
+print(c);
+
+# Do this for a 2D list
+assign d = [[2, 4, 5], [1, 8]];
+print(d);
+assign d[1] = [1, 19];
+print(d);

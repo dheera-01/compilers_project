@@ -429,9 +429,9 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 a = program_env.get(identifier.name)
                 a.pop()
                 return a
-            # elif (val == "ChangeOneElement"):
-            #     a = program_env.get(identifier.name)    
-            #     a[eval_literals(indVal)] = item
+            elif (val == "ChangeOneElement"):
+                a = program_env.get(identifier.name)    
+                a[eval_literals(indVal)] = item
             return None
 
 
