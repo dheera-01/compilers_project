@@ -472,201 +472,115 @@ class Frame:
 
     def __repr__(self):
         return f"<Frame retaddr={self.retaddr} locals={self.locals}>"    
+def generate_bytecode(program: AST) -> List[I]:
+    rstate = ResolveState()
+    resolved = resolve(program, rstate)
 
+    instructions = []
 
-# bytecode = ByteCode()
-# # emit some instructions and labels into the bytecode object...
-# vm = VirtualMachine() ###VirtualMachine class comes later in the code
-# vm.load_bytecode(bytecode.to_bytecode())
-def codegen(program: AST) -> ByteCode:
-    code = ByteCode()
-    do_codegen(program, code)
-    code.emit(I.HALT())
-    return code
+    def push_constant(val: Value):
+        if isinstance(val, bool):
+            instructions.append(I.PUSH(1 if val else 0))
+        elif isinstance(val, int):
+            instructions.append(I.PUSH(val))
+        elif isinstance(val, float):
+            instructions.append(I.PUSH(val))
+        elif isinstance(val, str):
+            instructions.append(I.PUSH(val))
+        else:
+            raise ValueError(f"Invalid constant value: {val}")
 
-def do_codegen (
-        program: AST,
-        code: ByteCode
-) -> None:
-    def codegen_(program):
-        do_codegen(program, code)
+    def handle_binop(op: str):
+        if op == "+":
+            instructions.append(I.ADD())
+        elif op == "-":
+            instructions.append(I.SUB())
+        elif op == "*":
+            instructions.append(I.MUL())
+        elif op == "/":
+            instructions.append(I.DIV())
+        elif op == "//":
+            instructions.append(I.FLOORDIV())
+        elif op == "%":
+            instructions.append(I.REM())
+        elif op == "**":
+            instructions.append(I.POW())
+        else:
+            raise ValueError(f"Invalid binary operator: {op}")
 
-    simple_ops = {
-        "+": I.ADD(),
-        "-": I.SUB(),
-        "*": I.MUL(),
-        "/": I.DIV(),
-       
-        "rem": I.REM(),
-        "<": I.LT(),
-        ">": I.GT(),
-        "≤": I.LE(),
-        "≥": I.GE(),
-        "=": I.EQ(),
-        "≠": I.NEQ(),
-        
-        "**":I.POW(),
-        "//":I.FLOORDIV()
+    def handle_cmpop(op: str):
+        if op == "<":
+            instructions.append(I.LT())
+        elif op == ">":
+            instructions.append(I.GT())
+        elif op == "≤":
+            instructions.append(I.LE())
+        elif op == "≥":
+            instructions.append(I.GE())
+        else:
+            raise ValueError(f"Invalid comparison operator: {op}")
 
-    
-    }
+    # def handle_eqop(op: str):
+    #     if op == "=":
+    #         instructions.append(I.EQ())
+    #     elif op == "≠":
+    #         instructions.append(I.NEQ())
+    #     else:
+    #         raise ValueError(f"Invalid equality operator: {op}")
 
-    match program:
-        case NumLiteral(what) | BoolLiteral(what) | StringLiteral(what):
-            code.emit(I.PUSH(what))
-        # case UnitLiteral():
-        #     code.emit(I.PUSH(None))
-        case BinOp(op, left, right) if op in simple_ops:
-            codegen_(left)
-            codegen_(right)
-            code.emit(simple_ops[op])
-        case BinOp("and", left, right):
-            E = code.label()
-            codegen_(left)
-            code.emit(I.DUP())
-            code.emit(I.JMP_IF_FALSE(E))
-            code.emit(I.POP())
-            codegen_(right)
-            code.emit_label(E)
-        case BinOp("or", left, right):
-            E = code.label()
-            codegen_(left)
-            code.emit(I.DUP())
-            code.emit(I.JMP_IF_TRUE(E))
-            code.emit(I.POP())
-            codegen_(right)
-            code.emit_label(E)
-        case UnaryOp("-", operand):
-            codegen_(operand)
-            code.emit(I.UMINUS())
-        case Sequence(things):
-            if not things: raise BUG()
-            last, rest = things[-1], things[:-1]
-            for thing in rest:
-                codegen_(thing)
-                code.emit(I.POP())
-            codegen_(last)
-        case IfElse(cond, iftrue, iffalse):
-            E = code.label()
-            F = code.label()
-            codegen_(cond)
-            code.emit(I.JMP_IF_FALSE(F))
-            codegen_(iftrue)
-            code.emit(I.JMP(E))
-            code.emit_label(F)
-            codegen_(iffalse)
-            code.emit_label(E)
-        case While(cond, body):
-            B = code.label()
-            E = code.label()
-            code.emit_label(B)
-            codegen_(cond)
-            code.emit(I.JMP_IF_FALSE(E))
-            codegen_(body)
-            code.emit(I.POP())
-            code.emit(I.JMP(B))
-            code.emit_label(E)
-            code.emit(I.PUSH(None))
-        case (Variable() as v) | UnaryOp("!", Variable() as v):
-            code.emit(I.LOAD(v.localID))
-        
+    # def handle_lop(op: str):
+    #     if op == "and":
+    #         instructions.append(I.AND())
+    #     elif op == "or":
+    #         instructions.append(I.OR())
+    #     else:
+    #         raise ValueError(f"Invalid logical operator: {op}")
 
-def parse_string(s):
-    return Parser.from_lexer(Lexer.from_stream(Stream.from_string(s))).parse_expr()  
+    def generate_instructions(program):
+        match program:
+            case NumLiteral(val):
+                push_constant(val)
+            case BoolLiteral(val):
+                push_constant(val)
+            case StringLiteral(val):
+                push_constant(val)
+            case UnaryOp("-", expr):
+                generate_instructions(expr)
+                instructions.append(I.UMINUS())
+            case UnaryOp("+", expr):
+                generate_instructions(expr)
+                instructions.append(I.UPLUS())
+            case BinOp(op, left, right):
+                generate_instructions(left)
+                generate_instructions(right)
+                handle_binop(op)
+            case ComparisonOp(op, left, right):
+                generate_instructions(left)
+                generate_instructions(right)
+                handle_cmpop(op)
+            # case EqualityOp(op, left, right):
+            #     generate_instructions(left)
+            #     generate_instructions(right)
+            #     handle_eqop(op)
+            # case LogicalOp(op, left, right):
+            #     generate_instructions(left)
+            #     generate_instructions(right)
+            #     handle_lop(op)
+            case Variable(name):
+                if name not in rstate.env:
+                    raise ResolveError(f"Unresolved reference: {name}")
+                var = rstate.env[name]
+                instructions.append(I.LOAD(var.localID))
+            case Sequence(items):
+                for item in items:
+                    generate_instructions(item)
+            case _:
+                raise ValueError(f"Invalid program: {program}")
 
-def compile(program):
-    return codegen((resolve(program)))
-def test_codegen():
-    programs = {
-        "(2+3)*5+6/2": 28
-    }   
-    v = VirtualMachine()
-    for p, e in programs.items():
-        v.load(compile(parse_string(p)))
-        assert e == v.execute()
-
-def print_codegen():
-    print_bytecode(compile(parse_string()))    
-print_codegen()         
-###Other instructions like PUSHFN I haven't added as they are related to functions 
-from typing import MutableMapping, TypeVar
-
-
-         
-
-
-
-
-# class ResolveState:
-#     env: EnvironmentType[str, Variable]
-#     stk: List[List[int]]
-#     lastID: int
-
-#     def __init__(self):
-#         self.env = EnvironmentType()
-#         self.stk = [[0, -1]]
-#         self.lastID = -1
-
-#     def begin_fun(self):
-#         self.stk.append([0, -1])
-
-#     def end_fun(self):
-#         self.stk.pop()
-
-#     def handle_new(self, v):
-#         v.fdepth = len(self.stk) - 1
-#         v.id = self.lastID = self.lastID + 1
-#         v.localID = self.stk[-1][1] = self.stk[-1][1] + 1
-#         self.env[v.name] = v
-
-#     def begin_scope(self):
-#         self.env.begin_scope()
-
-#     def end_scope(self):
-#         self.env.end_scope()
-
-# def resolve (
-#         program: AST,
-#         rstate: ResolveState = None
-# ) -> AST:
-#     if rstate is None:
-#         rstate = ResolveState()
-
-#     def resolve_(program):
-#         return resolve(program, rstate)           
-
-    
-    
-
-
-
-
-
-
-
-
-
-        
-
-  
-
-           
-
-
-
-
-
-
-    
-
-
-  
-       
-    
-
-
-
-
-
-
-
+    generate_instructions(resolved)
+    instructions.append(I.HALT())
+    return instructions
+ast = 5*2  # an instance of the AST data class
+bytecode = generate_bytecode(ast)
+for i, instr in enumerate(bytecode):
+    print(f"{i}: {instr}")
