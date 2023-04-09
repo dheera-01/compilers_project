@@ -2,12 +2,137 @@ from typing import List
 from dataclasses import dataclass
 from declaration import AST
 from my_parser import *
-from typing import Optional
+from typing import Optional,TypeVar,MutableMapping
 from dataclasses import dataclass
 class BUG(Exception):
         pass
 class ResolveError(Exception):
     pass
+T = TypeVar('T')
+U = TypeVar('U')
+Env = MutableMapping[U, T]
+
+class EnvironmentType(MutableMapping[U, T]):
+    def __init__(self):
+        self.envs = [{}]
+
+    def begin_scope(self):
+        self.envs.append({})
+
+    def end_scope(self):
+        self.envs.pop()
+
+    def __getitem__(self, k):
+        for env in reversed(self.envs):
+            if k in env:
+                return env[k]
+
+    def __setitem__(self, k, v):
+        self.envs[-1][k] = v
+
+    def __delitem__(self, k):
+        for env in reversed(self.envs):
+            if k in env:
+                del env[k]
+
+    def __iter__(self):
+        return iter(dict.fromkeys(self))
+
+    def __len__(self):
+        return len(dict.fromkeys(self))
+arithmetic_ops = [ "+", "-", "*", "/", "//", "%","**" ]
+comp_ops        = [ "<", ">", "≤", "≥" ]
+eq_ops         = [ "=", "≠" ]
+lo_ops         = [ "and", "or" ] 
+SimType=NumLiteral|StringLiteral
+
+
+@dataclass
+class Variable:
+    name: str
+    id: int = None
+    fdepth: int = None
+    localID: int = None
+    type: Optional[SimType] = None
+
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        return self.id == other.id
+
+    def __repr__(self):
+        return f"{self.name}::{self.id}::{self.localID}"   
+
+def cmptype(t:SimType):
+    return t in [NumLiteral(), StringLiteral()]
+
+
+class ResolveState:
+    env: EnvironmentType[str, Variable]
+    stk: List[List[int]]
+    lastID: int
+
+    def __init__(self):
+        self.env = EnvironmentType()
+        self.stk = [[0, -1]]
+        self.lastID = -1
+
+    def begin_fun(self):
+        self.stk.append([0, -1])
+
+    def end_fun(self):
+        self.stk.pop()
+
+    def handle_new(self, v):
+        v.fdepth = len(self.stk) - 1
+        v.id = self.lastID = self.lastID + 1
+        v.localID = self.stk[-1][1] = self.stk[-1][1] + 1
+        self.env[v.name] = v
+
+    def begin_scope(self):
+        self.env.begin_scope()
+
+    def end_scope(self):
+        self.env.end_scope()
+
+def resolve (
+        program: AST,
+        rstate: ResolveState = None
+) -> AST:
+    if rstate is None:
+        rstate = ResolveState()
+
+    def resolve_(program):
+        return resolve(program, rstate)
+
+    match program:
+        case NumLiteral() | BoolLiteral() | StringLiteral():
+            return program
+        case UnaryOp(op, e):
+            re = resolve_(e)
+            return UnaryOp(op, re)
+        case BinOp(op, left, right):
+            rleft = resolve_(left)
+            rright = resolve_(right)
+            return BinOp(op, rleft, rright)
+        case Variable(name):
+            if name not in rstate.env:
+                raise ResolveError()
+            declared = rstate.env[name]
+            return declared
+     
+        case Sequence(things):
+            rthings = []
+            for e in things:
+                rthings.append(resolve_(e))
+            return Sequence(rthings)
+  
+           # return TypeAssertion(rexpr, type)
+        case _:
+             raise BUG()
+
+ 
 
 @dataclass
 class Label:
@@ -383,135 +508,89 @@ def do_codegen (
         "**":I.POW(),
         "//":I.FLOORDIV()
 
+    
     }
+
+    match program:
+        case NumLiteral(what) | BoolLiteral(what) | StringLiteral(what):
+            code.emit(I.PUSH(what))
+        # case UnitLiteral():
+        #     code.emit(I.PUSH(None))
+        case BinOp(op, left, right) if op in simple_ops:
+            codegen_(left)
+            codegen_(right)
+            code.emit(simple_ops[op])
+        case BinOp("and", left, right):
+            E = code.label()
+            codegen_(left)
+            code.emit(I.DUP())
+            code.emit(I.JMP_IF_FALSE(E))
+            code.emit(I.POP())
+            codegen_(right)
+            code.emit_label(E)
+        case BinOp("or", left, right):
+            E = code.label()
+            codegen_(left)
+            code.emit(I.DUP())
+            code.emit(I.JMP_IF_TRUE(E))
+            code.emit(I.POP())
+            codegen_(right)
+            code.emit_label(E)
+        case UnaryOp("-", operand):
+            codegen_(operand)
+            code.emit(I.UMINUS())
+        case Sequence(things):
+            if not things: raise BUG()
+            last, rest = things[-1], things[:-1]
+            for thing in rest:
+                codegen_(thing)
+                code.emit(I.POP())
+            codegen_(last)
+        case IfElse(cond, iftrue, iffalse):
+            E = code.label()
+            F = code.label()
+            codegen_(cond)
+            code.emit(I.JMP_IF_FALSE(F))
+            codegen_(iftrue)
+            code.emit(I.JMP(E))
+            code.emit_label(F)
+            codegen_(iffalse)
+            code.emit_label(E)
+        case While(cond, body):
+            B = code.label()
+            E = code.label()
+            code.emit_label(B)
+            codegen_(cond)
+            code.emit(I.JMP_IF_FALSE(E))
+            codegen_(body)
+            code.emit(I.POP())
+            code.emit(I.JMP(B))
+            code.emit_label(E)
+            code.emit(I.PUSH(None))
+        case (Variable() as v) | UnaryOp("!", Variable() as v):
+            code.emit(I.LOAD(v.localID))
+        
+
+def parse_string(s):
+    return Parser.from_lexer(Lexer.from_stream(Stream.from_string(s))).parse_expr()  
+
+def compile(program):
+    return codegen((resolve(program)))
+def test_codegen():
+    programs = {
+        "(2+3)*5+6/2": 28
+    }   
+    v = VirtualMachine()
+    for p, e in programs.items():
+        v.load(compile(parse_string(p)))
+        assert e == v.execute()
+
+def print_codegen():
+    print_bytecode(compile(parse_string("(2+3)*5+6/2:28")))    
+print_codegen()         
 ###Other instructions like PUSHFN I haven't added as they are related to functions 
 from typing import MutableMapping, TypeVar
 
-T = TypeVar('T')
-U = TypeVar('U')
-Env = MutableMapping[U, T]
-
-class EnvironmentType(MutableMapping[U, T]):
-    def __init__(self):
-        self.envs = [{}]
-
-    def begin_scope(self):
-        self.envs.append({})
-
-    def end_scope(self):
-        self.envs.pop()
-
-    def __getitem__(self, k):
-        for env in reversed(self.envs):
-            if k in env:
-                return env[k]
-
-    def __setitem__(self, k, v):
-        self.envs[-1][k] = v
-
-    def __delitem__(self, k):
-        for env in reversed(self.envs):
-            if k in env:
-                del env[k]
-
-    def __iter__(self):
-        return iter(dict.fromkeys(self))
-
-    def __len__(self):
-        return len(dict.fromkeys(self))
-arithmetic_ops = [ "+", "-", "*", "/", "//", "%","**" ]
-comp_ops        = [ "<", ">", "≤", "≥" ]
-eq_ops         = [ "=", "≠" ]
-lo_ops         = [ "and", "or" ] 
-SimType=NumLiteral|StringLiteral
-
-
-@dataclass
-class Variable:
-    name: str
-    id: int = None
-    fdepth: int = None
-    localID: int = None
-    type: Optional[SimType] = None
-
-    def __hash__(self):
-        return hash(self.id)
-
-    def __eq__(self, other):
-        return self.id == other.id
-
-    def __repr__(self):
-        return f"{self.name}::{self.id}::{self.localID}"   
-
-def cmptype(t:SimType):
-    return t in [NumLiteral(), StringLiteral()]
-
-
-class ResolveState:
-    env: EnvironmentType[str, Variable]
-    stk: List[List[int]]
-    lastID: int
-
-    def __init__(self):
-        self.env = EnvironmentType()
-        self.stk = [[0, -1]]
-        self.lastID = -1
-
-    def begin_fun(self):
-        self.stk.append([0, -1])
-
-    def end_fun(self):
-        self.stk.pop()
-
-    def handle_new(self, v):
-        v.fdepth = len(self.stk) - 1
-        v.id = self.lastID = self.lastID + 1
-        v.localID = self.stk[-1][1] = self.stk[-1][1] + 1
-        self.env[v.name] = v
-
-    def begin_scope(self):
-        self.env.begin_scope()
-
-    def end_scope(self):
-        self.env.end_scope()
-
-def resolve (
-        program: AST,
-        rstate: ResolveState = None
-) -> AST:
-    if rstate is None:
-        rstate = ResolveState()
-
-    def resolve_(program):
-        return resolve(program, rstate)
-
-    match program:
-        case NumLiteral() | BoolLiteral() | StringLiteral():
-            return program
-        case UnaryOp(op, e):
-            re = resolve_(e)
-            return UnaryOp(op, re)
-        case BinOp(op, left, right):
-            rleft = resolve_(left)
-            rright = resolve_(right)
-            return BinOp(op, rleft, rright)
-        case Variable(name):
-            if name not in rstate.env:
-                raise ResolveError()
-            declared = rstate.env[name]
-            return declared
-     
-        case Sequence(things):
-            rthings = []
-            for e in things:
-                rthings.append(resolve_(e))
-            return Sequence(rthings)
-  
-           # return TypeAssertion(rexpr, type)
-        case _:
-             raise BUG()
-        
-   
 
          
 
