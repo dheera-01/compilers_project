@@ -1,7 +1,7 @@
 from typing import List
 from dataclasses import dataclass
 from declaration import AST
-from my_parser import *
+
 from typing import Optional,TypeVar,MutableMapping
 from dataclasses import dataclass
 from my_parser import *
@@ -568,7 +568,9 @@ def compile(program):
     return codegen_((resolve(program)))
 def test_codegen():
     programs = {
-        "5*2"
+        "5*2",
+        "8/2"
+
     }   
     v = VirtualMachine()
     for p, e in programs.items():
