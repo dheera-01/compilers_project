@@ -26,6 +26,18 @@ def eval_literals(literal: Value) -> Value_literal:
             for x in value:
                 ans.append(eval_literals(x))
             return ans
+        case Struct(name, fields) as s:
+            ans = Struct(name, fields)
+            ans.name = name
+            ans.fields = []
+            for i, filed in enumerate(fields):
+                temp = []
+                temp.append(s.fields[i][0].name)
+                temp.append(eval_literals(s.fields[i][1]))
+                ans.fields.append(temp)
+            return ans
+
+            
             
         # # This is a case for list literal
         # case _ :
@@ -42,6 +54,7 @@ def eval(program: AST, program_env:Environment = None) -> Value:
     
     if program_env is None:
         display_output.clear()
+        user_defined_data_types.clear()
         program_env = Environment()
 
     match program:
@@ -120,13 +133,12 @@ def eval(program: AST, program_env:Environment = None) -> Value:
         
         case Print(value):
             # The print function will print the evaluated value of val and return the AST val
-            # print(f"program_env in print: {program_env}")
             val = eval(value, program_env)
             # print(f"val in print: {val}")
-            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral) or isinstance(val, ListLiteral):
+            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral) or isinstance(val, ListLiteral) or isinstance(val, Struct):
                 # print(f"----------------------------------------")
                 ans = eval_literals(val)
-                print(f"in print {ans}")
+                print(f"{ans}")
                 display_output.append(str(ans))
                 # print(eval_literals(eval(val, program_env)))
                 # print(f"----------------------------------------")
@@ -422,7 +434,8 @@ def eval_of_text(program: str):
     parsed_object = Parser.from_lexer(Lexer.from_stream(Stream.from_string(program)))
     parsed_output = parsed_object.parse_program()
     print(f"Parsed Output\n{parsed_output}")
-    print()
+    
+    print("Evaluated Output")
     eval(parsed_output)
 
 

@@ -65,7 +65,7 @@ class Identifier:
     is_mutable: bool = True
 
     def __repr__(self) -> str:
-        return f"Identifier({self.name})"
+        return f"Identifier({self.name}, {self.is_mutable})"
 
 
 @dataclass
@@ -278,12 +278,25 @@ class Struct:
             if field[0] == key:
                 return field[1]
         raise KeyError(f"Struct {self.name} does not have a attribute named {key}")
+    
+    def set(self, key: Identifier, value: "Value"):
+        """set the value of a field in the struct
 
+        Args:
+            key (Identifier): the name of the field
+            value (Value): the value to set the field to
+        """ 
+        for field in self.fields:
+            if field[0] == key:
+                field[1] = value
+                return
+        raise KeyError(f"Struct {self.name} does not have a attribute named {key}")
+    
     def __repr__(self) -> str:
         field_string = ''
         for field in self.fields:
             field_string += f"{field}, "
-        return f"Struct {self.name} begin\n{field_string}end"
+        return f"Struct {self.name} begin\n{field_string}\nend"
 
 
 #defining environment class for storing variables and their values in a dictionary 
@@ -323,7 +336,7 @@ class Environment:
             return
         self.envs[-1][identifier.name] = [value, identifier]
 
-    def update(self, identifier: Identifier, value):
+    def update(self, identifier: Identifier | Indexer, value):
         """Update the value of a variable in the current scope
 
         Args:
@@ -335,13 +348,22 @@ class Environment:
             KeyError: if the variable is not defined in any scope
         """
         for env in reversed(self.envs):
-            if identifier.name in env:
-                if env[identifier.name][-1].is_mutable:
-                    if str(type(env[identifier.name][0]).__name__) != str(type(value).__name__):
-                        raise InvalidProgram(
-                            f"TypeError: Cannot assign {str(type(value).__name__)} to a Identifier of type {str(type(env[identifier.name][0]).__name__)}")
+            if isinstance(identifier, Identifier):
+                search = identifier.name
+            elif isinstance(identifier, Indexer):
+                search = identifier.val.name
+                pass
+            if search in env:
+                if env[search][-1].is_mutable:
+                    # if str(type(env[identifier.name][0]).__name__) != str(type(value).__name__):
+                    #     raise InvalidProgram(
+                    #         f"TypeError: Cannot assign {str(type(value).__name__)} to a Identifier of type {str(type(env[identifier.name][0]).__name__)}")
 
-                    env[identifier.name] = [value, identifier]
+                    # env[identifier.name] = [value, identifier]
+                    if isinstance(identifier, Identifier):
+                        env[search] = [value, identifier]
+                    elif isinstance(identifier, Indexer):
+                        env[search][0].set(identifier.index, value)
                 else:
                     raise InvalidProgram(f"Variable {identifier.name} is immutable")
                 return
@@ -370,5 +392,5 @@ user_defined_data_types = {} # dictionary to store user defined data types
 # data_type.name = Struct(name, fields)
 
 Value_literal = int | float | bool | str
-Value = None | NumLiteral | StringLiteral | BoolLiteral | FloatLiteral
+Value = None | NumLiteral | StringLiteral | BoolLiteral | FloatLiteral | ListLiteral | Struct 
 AST = Value | Identifier | Sequence | BinOp | ComparisonOp | UnaryOp | Let | Assign | Update | Indexer| IfElse | While | For | Print | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile
