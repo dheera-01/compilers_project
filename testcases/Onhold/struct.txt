@@ -1,0 +1,8 @@
+struct Student {name, roll, std};
+assign s = Student("John", 20110048);
+s[std] = "13";
+assign t = Student("chirag", 20110047, "12");
+t[std] = "10";
+print(s);
+print(t);
+print(t[roll]);

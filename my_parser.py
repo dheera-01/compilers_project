@@ -630,12 +630,22 @@ def parse_code_file(file_location:str):
 
 if __name__ == '__main__':
 
-    file = open("program.txt", "r")
-    program = file.read()
+    # file = open("program.txt", "r")
+    # program = file.read()
+    program = """
+    struct Student {name, roll, std};
+    assign s = Student("John", 20110048);
+    s[std] = "13";
+    assign t = Student("chirag", 20110047, "12");
+    t[std] = "10";
+    print(s);
+    print(t);
+    print(t[roll]);
+    """
     # program = "struct Student {name, roll_number,std};"
     obj_parser = Parser.from_lexer(
         Lexer.from_stream(Stream.from_string(program)))
     # print(f"object parser {obj_parser}")
-    a = obj_parser.parse_program()
-    print(f"Parsed program: {a}")
+    # print(f"Parsed program: {a}")
+    eval(obj_parser)
 

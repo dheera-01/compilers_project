@@ -433,9 +433,6 @@ def eval_of_text(program: str):
     display_output.clear()
     parsed_object = Parser.from_lexer(Lexer.from_stream(Stream.from_string(program)))
     parsed_output = parsed_object.parse_program()
-    print(f"Parsed Output\n{parsed_output}")
-    
-    print("Evaluated Output")
     eval(parsed_output)
 
 
