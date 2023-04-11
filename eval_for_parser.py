@@ -6,6 +6,9 @@ from my_parser import *
 
 
 
+def ReturnException(value: Value):
+    return value
+
 def eval_literals(literal: Value) -> Value_literal:
     match literal:
         case NumLiteral(value):
@@ -30,7 +33,7 @@ def eval_literals(literal: Value) -> Value_literal:
         
 
 def eval(program: AST, program_env:Environment = None) -> Value:
-    
+
     if program_env is None:
         display_output.clear()
         program_env = Environment()
@@ -39,7 +42,15 @@ def eval(program: AST, program_env:Environment = None) -> Value:
         case Sequence(statements):
             for statement in statements:
                 # print(f"statement: {statement}")
-                eval(statement, program_env)
+                if(isinstance(statement,Return)):
+
+                    e=eval(statement, program_env)
+
+                    return e
+                else:
+
+                    eval(statement, program_env)
+
             return None
             # print(f"ans: {ans}")
             # ans = []
@@ -119,7 +130,7 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             c = eval(cond, program_env)
             while (eval_literals(c) == True) :
                 program_env.enter_scope()
-                eval(body, program_env )
+                eval(body, program_env)
                 program_env.exit_scope()
                 c = eval(cond, program_env)
             return None
@@ -188,15 +199,16 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             if eval_literals(condition_res) == True:
                 # print(f"Inside the if of IfElse")
                 program_env.enter_scope()
-                eval(if_ast, program_env)
+                rtr_value=eval(if_ast, program_env)
                 program_env.exit_scope()
-                return None
+                return rtr_value
             
             if len(elif_list) != 0:
                 for elif_ast in elif_list:
                     elif_condition = eval(elif_ast.condition, program_env )
                     if eval_literals(elif_condition) == True:
                         program_env.enter_scope()
+
                         eval(elif_ast.if_body, program_env)
                         program_env.exit_scope()
                         return None
@@ -204,9 +216,9 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             if else_ast != None:
                 # print('Inside else of IfElse')
                 program_env.enter_scope()
-                eval(else_ast, program_env)
+                rtr_value=eval(else_ast, program_env)
                 program_env.exit_scope()
-                return None
+                return rtr_value
             
             return None
 
@@ -406,6 +418,61 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                     else:
                         print(f"The Indentifier {identifier} is not iterable")
                         return None
+
+        case FunctionCall(function, args):
+            program_env_copy=Environment()
+            program_env_copy.envs=program_env.envs.copy()
+
+            func=program_env.get(function.name)
+            func_args=func.args
+            # print("function args are ",func_args[0])
+
+            evaled_args=[]
+            for i in range(len(args)):
+                evaled_args.append(eval(args[i],program_env))
+
+
+            program_env.enter_scope()
+
+            if(len(func_args)!=len(args)):
+                raise InvalidProgram(f"TypeError: {function.name}() takes {len(func_args)} positional arguments but {len(args)} were given")
+            for i in range(len(func_args)):
+
+                program_env.add(func_args[i],evaled_args[i])
+                print(program_env)
+            rtr_value = None
+
+            try:
+                eval(func.body,program_env)
+                rtr_value=None
+
+            except Exception as e:
+                rtr_value=None
+                if(isinstance(rtr_value,AST)):
+                    rtr_value = e.args[0]
+
+                else:
+                    print(e)
+
+
+            # fibo works when we exit scope twice why?
+            program_env.exit_scope()
+
+
+            program_env.restore(program_env_copy.envs)
+
+            return rtr_value
+
+        case Return(val):
+
+            raise Exception(eval(val,program_env))
+
+        case Function(name, args, body):
+            program_env.add(name, Function(name, args, body))
+            # add program evironment with function keep track of args
+            # initialize args with None
+            # replace them while function call
+            return None
         
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
 

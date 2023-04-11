@@ -53,6 +53,8 @@ keywords = """
     def
     print let 
     slice in 
+    func
+    return
     """.split()
     
 symbolic_operators = """

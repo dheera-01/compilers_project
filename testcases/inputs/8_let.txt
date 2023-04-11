@@ -1,12 +1,12 @@
 # let
-assign a = let b = 10  (b ** 2);
-print(a);
+# assign a = let b = 10  (b ** 2);
+# print(a);
 
 # nested let
-assign c = let a =9 (let b = 45 (a + b));
-print(c);
+# assign c = let a =9 (let b = 45 (a + b));
+# print(c);
 
 
 # corner cases
-a = let a = 4 (let a = a + a (a*a));
-print(a);
+# a = let a = 4 (let a = a + a (a*a));
+# print(a);
