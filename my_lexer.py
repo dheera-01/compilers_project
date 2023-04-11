@@ -54,6 +54,8 @@ keywords = """
     print let 
     slice in LEN TAIL HEAD APPEND POP 
     struct
+    func
+    return
     """.split()
     
 symbolic_operators = """

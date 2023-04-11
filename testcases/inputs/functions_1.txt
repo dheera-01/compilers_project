@@ -1,0 +1,97 @@
+# helllo world functions
+func hello()
+{
+    print("hello world");
+}
+
+hello();
+
+# addition function
+func add(a, b)
+{
+    return a + b;
+}
+
+print(add(1, 2));
+
+# if else function
+
+func is_even(a)
+{
+    if (a % 2 == 0)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+
+print(is_even(2));
+
+# factorial function
+
+func factorial(a)
+{
+    if (a == 0)
+    {
+        return 1;
+    }
+    else
+    {
+        return a * factorial(a - 1);
+    }
+}
+
+print(factorial(5));
+
+# fibonacci function
+
+func fibonacci(a)
+{
+    if (a == 0)
+    {
+        return 0;
+    }
+    elif (a == 1)
+    {
+        return 1;
+    }
+    else
+    {
+        return fibonacci(a - 1) + fibonacci(a - 2);
+    }
+}
+
+print(fibonacci(10));
+
+# while loop
+
+func while_loop(a)
+{
+    while (a > 0)
+    {
+        print(a);
+        a = a - 1;
+    }
+}
+
+while_loop(3);
+
+# while loop with return
+
+func while_loop_return(a)
+{
+    while (a > 0)
+    {
+        print(a);
+        a = a - 1;
+        return a;
+    }
+
+}
+
+print(while_loop_return(3));
+

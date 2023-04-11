@@ -258,7 +258,28 @@ class ListOperations:
     def __repr__(self) -> str:
         return f"ListOperations({self.val})"
 
+@dataclass
+class Function:
+    name: Identifier
+    args: list[Identifier]
+    body: Sequence
 
+    def __repr__(self) -> str:
+        return f"Function({self.name}({self.args}) )"
+@dataclass
+class FunctionCall:
+    name: Identifier
+    args: list['AST']
+
+    def __repr__(self) -> str:
+        return f"FunctionCall({self.name}({self.args}))"
+
+@dataclass
+class Return:
+    val: 'AST'
+
+    def __repr__(self) -> str:
+        return f"Return({self.val})"
 # error classes
 class InvalidProgram(Exception):
     pass
@@ -313,7 +334,18 @@ class Struct:
 @dataclass
 class Environment:
     envs : List[dict] # environments are stored in a list of dictionaries
-    
+
+
+    def __repr__(self):
+        return_str = "Start ====================\n"
+        for env in self.envs:
+            return_str+="Entering new scope \n"
+            for key in env:
+                return_str += f"{key} : {env[key][0]} "
+                return_str+="\n"
+            return_str+="Exiting scope \n"
+        return_str+="End ===================="
+        return return_str
     def __init__(self):
         self.envs=[{}]
 
@@ -325,7 +357,7 @@ class Environment:
     def exit_scope(self):
         """Exit the current scope
         """
-        
+
         assert self.envs
         self.envs.pop()
 
@@ -396,6 +428,12 @@ class Environment:
                 return env[name][0]
         raise KeyError(f"Variable {name} not defined")
 
+    def restore(self,restore_env):
+        self.envs = restore_env.copy()
+
+
+
+
 display_output = [] # list to store the output of print statements as strings
 inbuilt_data_types = [NumLiteral, StringLiteral, BoolLiteral, FloatLiteral, ListLiteral] # list of in build datatype data types
 user_defined_data_types = {} # dictionary to store user defined data types
@@ -403,4 +441,4 @@ user_defined_data_types = {} # dictionary to store user defined data types
 
 Value_literal = int | float | bool | str
 Value = None | NumLiteral | StringLiteral | BoolLiteral | FloatLiteral | ListLiteral | Struct 
-AST = Value | Identifier | Sequence | BinOp | ComparisonOp | UnaryOp | Let | Assign | Update | Indexer| IfElse | While | For | Print | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile
+AST = Value | Identifier | Sequence | BinOp | ComparisonOp | UnaryOp | Let | Assign | Update | Indexer| IfElse | While | For | Print | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | Function | FunctionCall | Return
