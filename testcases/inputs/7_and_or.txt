@@ -1,3 +1,4 @@
+print(7);
 assign i = 1;
 # and has high precedence 
 if(i == 0  and i == 1 or i > -1)

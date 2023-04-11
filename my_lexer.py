@@ -53,6 +53,7 @@ keywords = """
     def
     print let 
     slice in LEN TAIL HEAD APPEND POP 
+    struct
     """.split()
     
 symbolic_operators = """

@@ -1,8 +1,9 @@
 from my_lexer import *
 from dataclasses import dataclass
 import sys
-from declaration import *
-from eval_for_parser import *
+
+# importing copy module
+import copy
 
 @dataclass
 class Parser:
@@ -89,7 +90,8 @@ class Parser:
                 match self.lexer.peek_current_token():
                     case Bracket("["):
                         self.lexer.advance()
-                        right_part = self.parse_atom() # 
+                        # right_part = self.parse_atom() # parse_simple
+                        right_part = self.parse_simple() # parse_simple
                         self.lexer.match(Bracket("]"))
                         # if (self.lexer.peek_current_token() == EndOfLine(";")):
                         #     return Indexer(Identifier(name), right_part)
@@ -99,6 +101,23 @@ class Parser:
                         #     val = self.parse_atom()
                         #     return ListOperations(Identifier(name), "ChangeOneElement", val, right_part)
                         return Indexer(Identifier(name), right_part)
+                    case Bracket("("):
+                        self.lexer.advance()                            
+                        ind = 0
+                        f = []
+                        while True:
+                            # if ind >= len(f):
+                            #     raise Exception("Too many arguments")
+                            temp = [Identifier('NULL')]
+                            temp.append(self.parse_simple())
+                            f.append(temp)
+                            ind = ind + 1
+                            if self.lexer.peek_current_token() == Bracket(")"):
+                                self.lexer.advance()
+                                break
+                            self.lexer.match(Operator(","))
+                        # print(f"user defined data type {user_defined_data_types}") 
+                        return Struct(name, f)    
                     case Operator("."):
                         # print("Here")
                         self.lexer.advance()
@@ -121,10 +140,25 @@ class Parser:
                             case Keyword("POP"):
                                 self.lexer.advance()
                                 return ListOperations(Identifier(name), "POP", None, None)
-                        
                     case _:
                         # self.lexer.advance()
                         return Identifier(name)
+            
+            case Bracket('['):
+                # Till you dont encounter a closing bracket, keep parsing the expression and store the literals
+                # in a list and skip the operator ","
+                self.lexer.advance()
+                list_body = []
+                while True:
+                    match self.lexer.peek_current_token():
+                        case Bracket("]"):
+                            self.lexer.advance()
+                            break
+                        case Operator(","):
+                            self.lexer.advance()
+                        case _:
+                            list_body.append(self.parse_simple())
+                return ListLiteral(list_body)
             
             case StringLiteral(value):
                 self.lexer.advance()
@@ -350,7 +384,7 @@ class Parser:
         self.lexer.match(Keyword("assign"))
         flag = 0;
         assignments_l = []
-        assignments_r = []
+        assignments_r = []        
         while True:
             left_part = self.parse_atom()
             assignments_l.append(left_part)
@@ -394,7 +428,6 @@ class Parser:
             left_part.is_mutable = False
             assignments_l.append(left_part)
             self.lexer.match(Operator("="))
-
             right_part = self.parse_simple()
             assignments_r.append(right_part)
 
@@ -482,6 +515,40 @@ class Parser:
     
         
         
+    def parse_struct(self):
+        """parse the struct expression
+        """
+        
+        self.lexer.match(Keyword("struct"))
+        data_type = self.lexer.peek_current_token()
+        assert isinstance(data_type, Identifier), f"Syntax Error: Expected an identifier but got {data_type}"
+        data_type = data_type.name
+        self.lexer.advance() # consume the token of identifier
+        self.lexer.match(Bracket("{"))
+        field = []
+        while True:
+            temp = []
+            pt = self.lexer.peek_current_token() # peek token
+            assert isinstance(pt, Identifier), f"Syntax Error: Expected an identifier but got {pt}"
+            self.lexer.advance() # consume the token of identifier
+            temp.append(pt)
+            temp.append(None)
+            if self.lexer.peek_current_token() == Operator("="):
+                self.lexer.advance()
+                temp[1] = self.parse_simple()
+            field.append(temp)
+            if self.lexer.peek_current_token() == Bracket("}"):
+                break
+            self.lexer.match(Operator(","))
+        
+        self.lexer.match(Bracket("}"))
+        self.lexer.match(EndOfLine(";"))
+        # print(f"struct parsed: {Struct(data_type, field)}")
+        # user_defined_data_types[data_type.name] = Struct(data_type, field)
+        # print("userdefiend: ",user_defined_data_types)
+        return Struct(data_type, field)
+        pass
+    
     def parse_expr(self):
         """parse the expression
 
@@ -516,6 +583,8 @@ class Parser:
                 return self.parse_update()          
             case Keyword("print"):
                 return self.parse_print()
+            case Keyword("struct"):
+                return self.parse_struct()
             case _:
                 return self.parse_simple()
 

@@ -8,7 +8,9 @@ class Sequence:
     statements: list(["AST"])
     
     def __repr__(self) -> str:
-        return f"Sequence({self.statements})"
+        statement_str = "\n".join([str(statement) for statement in self.statements])
+        return f"Sequence begin\n{statement_str}\nend"
+
 
 
 @dataclass
@@ -63,7 +65,7 @@ class Identifier:
     is_mutable: bool = True
 
     def __repr__(self) -> str:
-        return f"Identifier({self.name})"
+        return f"Identifier({self.name}, {self.is_mutable})"
 
 
 @dataclass
@@ -175,7 +177,16 @@ class IfElse:
     #     self.else_body = else_
 
     def __repr__(self) -> str:
-        return f"\nIfElse\n{self.condition}\n{self.if_body}\n{self.elif_body}\n{self.else_body})"
+        if len(self.elif_body) == 0 and self.else_body == None:
+            return f"if({self.condition}) then\n{self.if_body}"
+        if len(self.elif_body) == 0 and self.else_body != None:
+            return f"if({self.condition}) then\n{self.if_body}\nelse\n{self.else_body}"
+        if len(self.elif_body) != 0 and self.else_body == None:
+            elif_string = '\nel'.join(str(e) for e in self.elif_body)
+            return f"if({self.condition}) then\n{self.if_body}\nel{elif_string})"
+        elif_string = '\nel'.join(str(e) for e in self.elif_body)
+        return f"if({self.condition}) then\n{self.if_body}\nel{elif_string}\nelse\n{self.else_body})"
+        # return f"if({self.condition}) then\n{self.if_body}\nelif\n{self.elif_body}\nelse\n{self.else_body})"
 
 @dataclass
 class While():
@@ -259,6 +270,44 @@ class EndOfLineError(Exception):
     pass
 
 
+@dataclass
+class Struct:
+    name: str # string of python
+    fields: list
+    
+    def get(self, key: Identifier):
+        """get the value of a field in the struct
+
+        Args:
+            key (Identifier): the name of the field
+
+        Returns:
+            Value: the value of the field
+        """ 
+        for field in self.fields:
+            if field[0] == key:
+                return field[1]
+        raise KeyError(f"Struct {self.name} does not have a attribute named {key}")
+    
+    def set(self, key: Identifier, value: "Value"):
+        """set the value of a field in the struct
+
+        Args:
+            key (Identifier): the name of the field
+            value (Value): the value to set the field to
+        """ 
+        for field in self.fields:
+            if field[0] == key:
+                field[1] = value
+                return
+        raise KeyError(f"Struct {self.name} does not have a attribute named {key}")
+    
+    def __repr__(self) -> str:
+        field_string = ''
+        for field in self.fields:
+            field_string += f"{field}, "
+        return f"Struct {self.name} begin\n{field_string}\nend"
+
 
 #defining environment class for storing variables and their values in a dictionary 
 @dataclass
@@ -297,7 +346,7 @@ class Environment:
             return
         self.envs[-1][identifier.name] = [value, identifier]
 
-    def update(self, identifier: Identifier, value):
+    def update(self, identifier: Identifier | Indexer, value):
         """Update the value of a variable in the current scope
 
         Args:
@@ -309,13 +358,22 @@ class Environment:
             KeyError: if the variable is not defined in any scope
         """
         for env in reversed(self.envs):
-            if identifier.name in env:
-                if env[identifier.name][-1].is_mutable:
-                    if str(type(env[identifier.name][0]).__name__) != str(type(value).__name__):
-                        raise InvalidProgram(
-                            f"TypeError: Cannot assign {str(type(value).__name__)} to a Identifier of type {str(type(env[identifier.name][0]).__name__)}")
+            if isinstance(identifier, Identifier):
+                search = identifier.name
+            elif isinstance(identifier, Indexer):
+                search = identifier.val.name
+                pass
+            if search in env:
+                if env[search][-1].is_mutable:
+                    # if str(type(env[identifier.name][0]).__name__) != str(type(value).__name__):
+                    #     raise InvalidProgram(
+                    #         f"TypeError: Cannot assign {str(type(value).__name__)} to a Identifier of type {str(type(env[identifier.name][0]).__name__)}")
 
-                    env[identifier.name] = [value, identifier]
+                    # env[identifier.name] = [value, identifier]
+                    if isinstance(identifier, Identifier):
+                        env[search] = [value, identifier]
+                    elif isinstance(identifier, Indexer):
+                        env[search][0].set(identifier.index, value)
                 else:
                     raise InvalidProgram(f"Variable {identifier.name} is immutable")
                 return
@@ -339,7 +397,10 @@ class Environment:
         raise KeyError(f"Variable {name} not defined")
 
 display_output = [] # list to store the output of print statements as strings
+inbuilt_data_types = [NumLiteral, StringLiteral, BoolLiteral, FloatLiteral, ListLiteral] # list of in build datatype data types
+user_defined_data_types = {} # dictionary to store user defined data types
+# data_type.name = Struct(name, fields)
 
 Value_literal = int | float | bool | str
-Value = None | NumLiteral | StringLiteral | BoolLiteral | FloatLiteral
+Value = None | NumLiteral | StringLiteral | BoolLiteral | FloatLiteral | ListLiteral | Struct 
 AST = Value | Identifier | Sequence | BinOp | ComparisonOp | UnaryOp | Let | Assign | Update | Indexer| IfElse | While | For | Print | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile

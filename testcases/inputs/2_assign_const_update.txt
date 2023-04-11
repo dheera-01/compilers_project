@@ -1,3 +1,5 @@
+print(2);
+
 # parallel assign 
 assign x = 4, y = 6*5, z = "HelloWorld!", w = [1,2,3,4];
 

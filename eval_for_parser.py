@@ -2,8 +2,9 @@ from dataclasses import dataclass
 from typing import Union, Mapping
 from declaration import *
 from my_parser import *
-
-
+from my_lexer import *
+from declaration import *
+import copy
 
 
 def eval_literals(literal: Value) -> Value_literal:
@@ -17,22 +18,43 @@ def eval_literals(literal: Value) -> Value_literal:
         case StringLiteral(value):
             return value
 
-        case BoolLiteral(Value):
-            return Value
+        case BoolLiteral(value):
+            return value
         
-        # This is a case for list literal
-        case _ :
+        case ListLiteral(value):
             ans = []
-            # print(f"literal: {literal}")
-            for x in literal:
+            for x in value:
                 ans.append(eval_literals(x))
             return ans
+        case Struct(name, fields) as s:
+            ans = Struct(name, fields)
+            ans.name = name
+            ans.fields = []
+            for i, filed in enumerate(fields):
+                temp = []
+                temp.append(s.fields[i][0].name)
+                temp.append(eval_literals(s.fields[i][1]))
+                ans.fields.append(temp)
+            return ans
+
+            
+            
+        # # This is a case for list literal
+        # case _ :
+        #     ans = []
+        #     print(f"literal: {literal}")
+        #     for x in literal:
+        #         ans.append(eval_literals(x))
+        #     return ans
         
+
+
 
 def eval(program: AST, program_env:Environment = None) -> Value:
     
     if program_env is None:
         display_output.clear()
+        user_defined_data_types.clear()
         program_env = Environment()
 
     match program:
@@ -62,10 +84,25 @@ def eval(program: AST, program_env:Environment = None) -> Value:
         case BoolLiteral(value):
             return program
         
+        case ListLiteral(value):
+            for i, x in enumerate(value):
+                value[i] = eval(x, program_env)
+            return program
         
         case Identifier(name):
             return program_env.get(name)
 
+        case Struct(name, fields):
+            # print(f"\nInside eval struct: {program}")
+            if name not in user_defined_data_types:
+                user_defined_data_types[name] = Struct(name, fields)
+                # print(f"user defined datatype: \n{user_defined_data_types}")
+                return None
+            struct_object = copy.deepcopy(user_defined_data_types[name])
+            for i in range(len(fields)):
+                struct_object.fields[i][1] = fields[i][1]
+            return struct_object
+        
         case Let(variable as v, value as val, e2):  
             program_env.enter_scope()
             eval(Assign((v,), (val,)), program_env)
@@ -87,9 +124,9 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             return None
         
         case Update(identifier, op, right):
-            if type(right).__name__ == 'list':
-                program_env.update(identifier, right)
-                return None
+            # if type(right).__name__ == 'list':
+            #     program_env.update(identifier, right)
+            #     return None
 
             value = eval(right, program_env)
             if op._operator == "=":
@@ -98,14 +135,15 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 v = eval(BinOp(identifier, op._operator[: len(op._operator) -1], right), program_env)
                 program_env.update(identifier, v)
             return None 
+        
         case Print(value):
             # The print function will print the evaluated value of val and return the AST val
             val = eval(value, program_env)
             # print(f"val: {val}")
-            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral)  or isinstance(val, Identifier) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral) or isinstance(val, list) :
+            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral)  or isinstance(val, Identifier) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral) or isinstance(val, ListLiteral) or isinstance(val, Struct):
                 # print(f"----------------------------------------")
                 ans = eval_literals(val)
-                print(ans)
+                print(f"{ans}")
                 display_output.append(str(ans))
                 # print(eval_literals(eval(val, program_env)))
                 # print(f"----------------------------------------")
@@ -122,19 +160,6 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 c = eval(cond, program_env)
             return None
             
-            
-            # program_env.enter_scope()
-            # c = eval(cond, program_env, environment)
-            # # if(c==True):
-            # #     eval(body)
-            # #     eval(While(cond,body))
-            # body_iteration_lst = []
-            # while (eval_literals(c) == True):
-            #     body_iteration_lst.append(eval(body, program_env, environment))
-            #     c = eval(cond, program_env, environment)
-            # # while loop cannot be implemented recursively as max recursion depth of python restricts it
-            # program_env.exit_scope()
-            # return body_iteration_lst
 
         case For(exp1, condition, exp2, body):
             program_env.enter_scope()
@@ -437,10 +462,16 @@ def eval(program: AST, program_env:Environment = None) -> Value:
 
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
 
+
+def eval_of_text(program: str):
+    display_output.clear()
+    parsed_object = Parser.from_lexer(Lexer.from_stream(Stream.from_string(program)))
+    parsed_output = parsed_object.parse_program()
+    eval(parsed_output)
+
+
 if __name__ == "__main__":
     file = open("program.txt", "r")
     program = file.read()
-    parsed_output = Parser.from_lexer(Lexer.from_stream(Stream.from_string(program))).parse_program()
-    print(f"Parsed Output\n{parsed_output}")
-    eval(parsed_output)
+    eval_of_text(program)
     file.close()
