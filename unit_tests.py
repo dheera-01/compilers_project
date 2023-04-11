@@ -1,6 +1,7 @@
 from my_parser import *
 from my_lexer import *
 from declaration import *
+import sys
 
 # operator test
 def test_lexer_operators():
@@ -313,3 +314,98 @@ def test_parser_let():
 #--------------------------------------------
 # Eval testcases
 
+def test_eval_let():
+    parsed_program = Let(Identifier("x"), NumLiteral(1), BinOp(Identifier("x"), "+", NumLiteral(1)))
+    assert eval(parsed_program) == NumLiteral(2)
+
+def test_eval_assing(capsys):
+    parsed_program = Assign((Identifier("x"),Identifier("y"),), (NumLiteral(1),NumLiteral(2),))
+    parsed_program = Sequence([parsed_program, Print(Identifier("x")), Print(Identifier("y"))])
+    eval(parsed_program)
+    assert capsys.readouterr().out == "1\n2\n"
+
+# def test_eval_update(capsys):
+#     parsed_program = Sequence([Assign((Identifier("x"),), (NumLiteral(1),)), Update(Identifier("x"), Operator("="), BinOp(Identifier("x"), "+", NumLiteral(1))), Print(Identifier("x"))])
+#     eval(parsed_program)
+#     assert capsys.readouterr().out == "2\n"
+#
+#     parsed_program = Sequence([Assign((Identifier("x"),), (NumLiteral(1),)), Update(Identifier("x"), Operator("+="), BinOp(Identifier("x"), "+", NumLiteral(1))), Print(Identifier("x"))])
+#     eval(parsed_program)
+#     assert capsys.readouterr().out == "3\n"
+#
+#     parsed_program = Sequence([Assign((Identifier("x"),), (NumLiteral(1),)), Update(Identifier("x"), Operator("-="), BinOp(Identifier("x"), "+", NumLiteral(1))), Print(Identifier("x"))])
+#     eval(parsed_program)
+#     assert capsys.readouterr().out == "-1\n"
+#
+#     parsed_program = Sequence([Assign((Identifier("x"),), (NumLiteral(1),)), Update(Identifier("x"), Operator("*="), BinOp(Identifier("x"), "+", NumLiteral(1))), Print(Identifier("x"))])
+#     eval(parsed_program)
+#     assert capsys.readouterr().out == "2\n"
+#
+#     parsed_program = Sequence([Assign((Identifier("x"),), (NumLiteral(1),)), Update(Identifier("x"), Operator("/="), BinOp(Identifier("x"), "+", NumLiteral(1))), Print(Identifier("x"))])
+#     eval(parsed_program)
+#     assert capsys.readouterr().out == "0.5\n"
+#
+#     parsed_program = Sequence([Assign((Identifier("x"),), (NumLiteral(1),)), Update(Identifier("x"), Operator("%="), BinOp(Identifier("x"), "+", NumLiteral(1))), Print(Identifier("x"))])
+#     eval(parsed_program)
+#     assert capsys.readouterr().out == "0\n"
+#
+#     parsed_program = Sequence([Assign((Identifier("x"),), (NumLiteral(1),)), Update(Identifier("x"), Operator("**="), BinOp(Identifier("x"), "+", NumLiteral(1))), Print(Identifier("x"))])
+#     eval(parsed_program)
+#     assert capsys.readouterr().out == "1\n"
+
+def test_eval_print(capsys):
+    parsed_program = Sequence([Print(NumLiteral(1)), Print(StringLiteral("hello"))])
+    eval(parsed_program)
+    assert capsys.readouterr().out == "1\nhello\n"
+
+    parsed_program = Sequence([Print(NumLiteral(1)), Print(StringLiteral("hello")), Print(NumLiteral(2))])
+    eval(parsed_program)
+    assert capsys.readouterr().out == "1\nhello\n2\n"
+
+def test_eval_while(capsys):
+    parsed_program = Sequence([Assign((Identifier("x"),), (NumLiteral(1),)), While(ComparisonOp(Identifier("x"), "<", NumLiteral(10)), Sequence([Print(Identifier("x")), Update(Identifier("x"), Operator("+="), NumLiteral(1))]))])
+    eval(parsed_program)
+    assert capsys.readouterr().out == "1\n2\n3\n4\n5\n6\n7\n8\n9\n"
+
+def test_eval_for(capsys):
+    parser_program = Sequence([Assign((Identifier("x"),), (NumLiteral(1),)), For(Assign((Identifier("x"),),(NumLiteral(1),)), ComparisonOp(Identifier("x"),"<",NumLiteral(10)), Update(Identifier("x"), Operator("+="), NumLiteral(1)),Sequence([Print(Identifier("x"))]))])
+    eval(parser_program)
+    assert capsys.readouterr().out == "1\n2\n3\n4\n5\n6\n7\n8\n9\n"
+
+def test_eval_slice(capsys):
+    parsed_program = Sequence([Print(Slice(StringLiteral("Hello"),NumLiteral(1), NumLiteral(3), NumLiteral(1)))])
+    eval(parsed_program)
+    assert capsys.readouterr().out == "el\n"
+
+def test_eval_ifelse(capsys):
+    parsed_program = Sequence([IfElse(ComparisonOp(NumLiteral(1), "==", NumLiteral(1)), Print(NumLiteral(1)), [], [Print(NumLiteral(2))])])
+    eval(parsed_program)
+    assert capsys.readouterr().out == "1\n"
+
+    parsed_program = Sequence([IfElse(ComparisonOp(NumLiteral(1), "==", NumLiteral(2)), Print(NumLiteral(1)), [], Sequence([Print(NumLiteral(2))]))])
+    eval(parsed_program)
+    assert capsys.readouterr().out == "2\n"
+
+def test_eval_comparisonOp():
+    assert eval(ComparisonOp(NumLiteral(1), "==", NumLiteral(1))) == BoolLiteral(True)
+    assert eval(ComparisonOp(NumLiteral(1), "!=", NumLiteral(1))) == BoolLiteral(False)
+    assert eval(ComparisonOp(NumLiteral(1), "<", NumLiteral(1))) == BoolLiteral(False)
+    assert eval(ComparisonOp(NumLiteral(1), ">", NumLiteral(1))) == BoolLiteral(False)
+    assert eval(ComparisonOp(NumLiteral(1), "<=", NumLiteral(1))) == BoolLiteral(True)
+    assert eval(ComparisonOp(NumLiteral(1), ">=", NumLiteral(1))) == BoolLiteral(True)
+
+def test_eval_binOp():
+    assert eval(BinOp(NumLiteral(1), "+", NumLiteral(1))) == NumLiteral(2)
+    assert eval(BinOp(NumLiteral(1), "-", NumLiteral(1))) == NumLiteral(0)
+    assert eval(BinOp(NumLiteral(1), "*", NumLiteral(1))) == NumLiteral(1)
+    assert eval(BinOp(NumLiteral(1), "/", NumLiteral(1))) == FloatLiteral(1.0)
+    assert eval(BinOp(NumLiteral(1), "%", NumLiteral(1))) == NumLiteral(0)
+    assert eval(BinOp(NumLiteral(1), "**", NumLiteral(1))) == NumLiteral(1)
+
+def test_eval_unaryOp():
+    assert eval(UnaryOp("-", NumLiteral(1))) == NumLiteral(-1)
+
+# def test_eval_indexer(capsys):
+#     parsed_program = Sequence([Assign((Identifier("x"),), (NumLiteral(1),)), Assign((Identifier("y"),), (NumLiteral(2),)), Assign((Identifier("z"),), (NumLiteral(3),)), Assign((Identifier("a"),), (ListLiteral((Identifier("x"), Identifier("y"), Identifier("z"))),)), Print(Indexer(Identifier("a"), NumLiteral(0)))])
+#     eval(parsed_program)
+#     assert capsys.readouterr().out == "1\n"

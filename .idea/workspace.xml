@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8c636333-d42b-4485-88c6-e1aa6ebc7a6f" name="Changes" comment="Updated.">
+    <list default="true" id="8c636333-d42b-4485-88c6-e1aa6ebc7a6f" name="Changes" comment="Added the const keyword for declaring immutable variables. Added evironment for a program.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/unit_tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_tests.py" afterDir="false" />
     </list>
@@ -60,7 +60,7 @@
     </key>
   </component>
   <component name="RunManager">
-    <configuration name="Python tests for unit_tests.test_parser_" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for unit_tests.test_eval_binOp" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="compilers_project" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -71,11 +71,11 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;unit_tests.test_parser_&quot;" />
+      <option name="_new_target" value="&quot;unit_tests.test_eval_binOp&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests for unit_tests.test_parser_elif" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for unit_tests.test_eval_comparisonOp" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="compilers_project" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -86,11 +86,11 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;unit_tests.test_parser_elif&quot;" />
+      <option name="_new_target" value="&quot;unit_tests.test_eval_comparisonOp&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests for unit_tests.test_parser_for" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for unit_tests.test_eval_ifelse" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="compilers_project" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -101,11 +101,11 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;unit_tests.test_parser_for&quot;" />
+      <option name="_new_target" value="&quot;unit_tests.test_eval_ifelse&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests for unit_tests.test_parser_let" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for unit_tests.test_eval_indexer" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="compilers_project" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -116,11 +116,11 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;unit_tests.test_parser_let&quot;" />
+      <option name="_new_target" value="&quot;unit_tests.test_eval_indexer&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests for unit_tests.test_parser_slice" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+    <configuration name="Python tests for unit_tests.test_eval_unaryOp" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="compilers_project" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -131,17 +131,17 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;unit_tests.test_parser_slice&quot;" />
+      <option name="_new_target" value="&quot;unit_tests.test_eval_unaryOp&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python tests.Python tests for unit_tests.test_parser_let" />
-        <item itemvalue="Python tests.Python tests for unit_tests.test_parser_slice" />
-        <item itemvalue="Python tests.Python tests for unit_tests.test_parser_" />
-        <item itemvalue="Python tests.Python tests for unit_tests.test_parser_for" />
-        <item itemvalue="Python tests.Python tests for unit_tests.test_parser_elif" />
+        <item itemvalue="Python tests.Python tests for unit_tests.test_eval_indexer" />
+        <item itemvalue="Python tests.Python tests for unit_tests.test_eval_unaryOp" />
+        <item itemvalue="Python tests.Python tests for unit_tests.test_eval_binOp" />
+        <item itemvalue="Python tests.Python tests for unit_tests.test_eval_comparisonOp" />
+        <item itemvalue="Python tests.Python tests for unit_tests.test_eval_ifelse" />
       </list>
     </recent_temporary>
   </component>
@@ -217,6 +217,6 @@
     <SUITE FILE_PATH="coverage/compilers_project$my_lexer.coverage" NAME="my_lexer Coverage Results" MODIFIED="1680543917821" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/compilers_project$run_testcases.coverage" NAME="run_testcases Coverage Results" MODIFIED="1680688949627" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/compilers_project$static_typecheck.coverage" NAME="static_typecheck Coverage Results" MODIFIED="1680492009856" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/compilers_project$.coverage" NAME=" Coverage Results" MODIFIED="1680947769239" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/testcase_lexer_parser_eval" />
+    <SUITE FILE_PATH="coverage/compilers_project$.coverage" NAME=" Coverage Results" MODIFIED="1681238423102" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
