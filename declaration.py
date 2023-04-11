@@ -228,7 +228,7 @@ class For:
     
     def __repr__(self) -> str:
         return f"For(({self.exp1} ;{self.condition};{self.exp2};) do {self.body})"
-    
+
 @dataclass
 class Indexer:
     val: Identifier

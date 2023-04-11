@@ -1,14 +1,13 @@
 assign arr = [[1, 4], [4,6], [1, 77]];
 print(arr);
 
-assign p = arr.LEN;
-print(p);
- 
-assign q = arr.HEAD;
-print(q);
+print(arr.LEN);
 
-assign m = arr.TAIL;
-print(m);
+ 
+print(arr.HEAD);
+
+
+print(arr.TAIL);
 
 arr = [99, 11];
 print(arr);
@@ -19,7 +18,7 @@ assign i = 0;
 assign size = arr1.LEN;
 print(size);
 
-for(i = 0; i < size; i = i + 1;)
+for(i = 0; i < arr1.LEN; i = i + 1;)
 {
     assign val = arr1[i];
     print(val);
@@ -27,14 +26,14 @@ for(i = 0; i < size; i = i + 1;)
 
 
 # APPEND Operations 
-arr1 = arr1.APPEND(['9, 90']);
+arr1.APPEND(['9, 90']);
 print(arr1);
 
-arr1 = arr1.APPEND('hello');
+arr1.APPEND('hello');
 print(arr1);
 
 # POP operations
-arr1 = arr1.POP;
+arr1.POP;
 print(arr1);
 
 
@@ -44,21 +43,3 @@ assign b = [4, 5, 6];
 
 assign result = a + b;
 print(result);
-
-# Check for Element Assignment
-assign c = [1, 5, 6];
-print(c);
-
-# Indexing 
-assign l = arr[1];
-print(l);
-
-# Element Assign at index 1
-assign c[1] = 9;
-print(c);
-
-# Do this for a 2D list
-assign d = [[2, 4, 5], [1, 8]];
-print(d);
-assign d[1] = [1, 19];
-print(d);

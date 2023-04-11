@@ -415,6 +415,14 @@ class Parser:
             Update: return AST of the update expression
         """
         left_part = self.parse_atom()
+        flag = 0
+        if(type(left_part) == Indexer):
+            flag = 1;
+            va = left_part.val
+            ind = left_part.index
+        elif (type(left_part) == ListOperations):
+            self.lexer.match(EndOfLine(";"))
+            return left_part
         
         assignment_operator_list = "= -= += *= /= %= //= **=".split()
         op = self.lexer.peek_current_token()
@@ -422,11 +430,12 @@ class Parser:
             raise InvalidProgram(f"Syntax Error: Expected an assignment operator but got {op}")
         if op._operator not in assignment_operator_list:
             raise InvalidProgram(f"Syntax Error: {op} not a valid assignment operator")
-        self.lexer.advance() # consuming the assignment operator
-
-
+        
+        self.lexer.advance()
         right_part = self.parse_simple()
         self.lexer.match(EndOfLine(";"))
+        if(flag == 1):
+            return ListOperations(va, "ChangeOneElement", right_part, ind)
         return Update(left_part, op, right_part)
     
     def parse_print(self):
@@ -479,6 +488,7 @@ class Parser:
         Returns:
             AST: return AST of the expression
         """
+
         match self.lexer.peek_current_token():
 
             case c if isinstance(c, EndOfLine):
