@@ -23,7 +23,7 @@ def eval_literals(literal: Value) -> Value_literal:
         # This is a case for list literal
         case _ :
             ans = []
-            print(f"literal: {literal}")
+            # print(f"literal: {literal}")
             for x in literal:
                 ans.append(eval_literals(x))
             return ans
@@ -76,15 +76,13 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             return e2_val
         
         case Assign(identifier, right):
-            # print(f"identifier: {identifier}")
-            # print(f"right: {right}")
             for i, ident in enumerate(identifier):
                 if type(right[i]).__name__ == 'list':
                     program_env.add(ident, right[i])
                 else:
-                    # print(right[i])
+                    # print("Right value", right[i])
                     value = eval(right[i], program_env)
-                    # print(value)
+                    # print("Value is", value)
                     program_env.add(ident, value)
             return None
         
@@ -104,7 +102,7 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             # The print function will print the evaluated value of val and return the AST val
             val = eval(value, program_env)
             # print(f"val: {val}")
-            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral)  or isinstance(val, Identifier) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral) or isinstance(val, list):
+            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral)  or isinstance(val, Identifier) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral) or isinstance(val, list) :
                 # print(f"----------------------------------------")
                 ans = eval_literals(val)
                 print(ans)
@@ -392,7 +390,11 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                     f"TypeError: ** not supported between instances of {left} and {right}")
 
         case Indexer(identifier, indexVal):
-            i = eval_literals(indexVal)
+            if(type(indexVal) == Identifier):
+                i = eval_literals(eval(program_env.get(indexVal.name)))
+            else:
+                i = eval_literals(indexVal)
+                
             objectToBeIndexed = eval_literals(program_env.get(identifier.name))
             if(len(objectToBeIndexed) <= i):
                 print("Index out of range")
@@ -406,7 +408,33 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                     else:
                         print(f"The Indentifier {identifier} is not iterable")
                         return None
-        
+        case ListOperations(identifier, val, item, indVal):
+            # print(val)
+            # print(item)
+            # print(len(program_env.get(identifier.name)))
+            if(val == "LEN"):
+                a = NumLiteral(len(program_env.get(identifier.name)))
+                return a
+            elif (val == "HEAD"):
+                a = NumLiteral(program_env.get(identifier.name)[0])
+                return eval_literals(a)
+            elif (val == "TAIL"):
+                a = NumLiteral(program_env.get(identifier.name)[len(program_env.get(identifier.name))-1])
+                return eval_literals(a)
+            elif (val == "APPEND"):
+                a = program_env.get(identifier.name)
+                a.append(item)
+                return a
+            elif (val == "POP"):
+                a = program_env.get(identifier.name)
+                a.pop()
+                return a
+            elif (val == "ChangeOneElement"):
+                a = program_env.get(identifier.name)    
+                a[eval_literals(indVal)] = item
+            return None
+
+
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
 
 if __name__ == "__main__":

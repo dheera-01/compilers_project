@@ -52,7 +52,7 @@ keywords = """
     for while break continue
     def
     print let 
-    slice in 
+    slice in LEN TAIL HEAD APPEND POP 
     """.split()
     
 symbolic_operators = """
@@ -61,7 +61,7 @@ symbolic_operators = """
     >> <<
     -= += *= /= %= //= **=
     : =
-    ,
+    , .
     """.split()
 
 word_operators = "and or not is in".split()
