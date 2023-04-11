@@ -114,13 +114,13 @@ def eval(program: AST, program_env:Environment = None) -> Value:
         
         case Assign(identifier, right):
             for i, ident in enumerate(identifier):
-                if type(right[i]).__name__ == 'list':
-                    program_env.add(ident, right[i])
-                else:
+                # if type(right[i]).__name__ == 'list':
+                #     program_env.add(ident, right[i])
+                # else:
                     # print("Right value", right[i])
-                    value = eval(right[i], program_env)
-                    # print("Value is", value)
-                    program_env.add(ident, value)
+                value = eval(right[i], program_env)
+                # print("Value is", value)
+                program_env.add(ident, value)
             return None
         
         case Update(identifier, op, right):
@@ -423,16 +423,18 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             objectToBeIndexed = eval_literals(program_env.get(identifier.name))
             if(len(objectToBeIndexed) <= i):
                 print("Index out of range")
+
             for env in reversed(program_env.envs):
                 if identifier.name in env:
-                    if(type(program_env.get(identifier.name)) == list):
-                        return program_env.get(identifier.name)[i]
+                    if(type(program_env.get(identifier.name).value) == list):
+                        return program_env.get(identifier.name).value[i]
                     elif(type(program_env.get(identifier.name)) == StringLiteral):
                         res = eval_literals(program_env.get(identifier.name))[i]
-                        return StringLiteral(res)        
+                        return StringLiteral(res)
                     else:
                         print(f"The Indentifier {identifier} is not iterable")
                         return None
+
         case ListOperations(identifier, val, item, indVal):
             # print(val)
             # print(item)
