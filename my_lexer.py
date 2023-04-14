@@ -64,7 +64,7 @@ symbolic_operators = """
     >> <<
     -= += *= /= %= //= **=
     : =
-    , .
+    ,
     """.split()
 
 word_operators = "and or not is in".split()
@@ -180,18 +180,49 @@ class Lexer:
                             raise TokenError(f"{st}: Unterminated string literal")
 
                 case c if c == ".":
-                    n = str(0)
-                    n = n + c
+                    temp_str = ""
+                    unget_count = 0
+                    list_operations = ["LEN", "TAIL", "HEAD", "APPEND", "POP"]
+                    list_operations_flag = False
+
                     while True:
-                        c = self.stream.next_char()
-                        if c.isdigit():
-                            n += c
-                        elif c == ".":
-                            raise TokenError(f"{n + c} Invalid number")
-                        else:
-                            self.stream.unget()
-                            return FloatLiteral(float(n))
-                    pass
+                        unget_count += 1
+                        char = self.stream.next_char()
+                        temp_str += c
+                        if temp_str in list_operations:
+                            list_operations_flag = True
+                            break
+
+                        if char not in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                            break
+
+                        if unget_count > 6:
+                            break
+
+                    for i in range(unget_count):
+                        self.stream.unget()
+
+                    if list_operations_flag:
+                        return Operator(".")
+
+                    char = self.stream.next_char()
+                    if char.isdigit():
+                        self.stream.unget()
+                        n = str(0)
+                        n = n + c
+
+                        while True:
+                            c = self.stream.next_char()
+                            if c.isdigit():
+                                n += c
+                            elif c == ".":
+                                raise TokenError(f"{n + c} Invalid number")
+                            else:
+                                self.stream.unget()
+                                return FloatLiteral(float(n))
+                    else:
+                        self.stream.unget()
+                        return Operator(".")
 
                 # reading the numbers
                 case c if c.isdigit():
@@ -202,6 +233,7 @@ class Lexer:
                             if c.isdigit():
                                 n = n * 10 + int(c)
                             elif c == ".":
+
                                 n = str(n)
                                 n = n + c
                                 while True:
@@ -328,8 +360,10 @@ class Lexer:
 if __name__ == "__main__":
     
     # testing on playground
-    file = open("program.txt", "r")
-    program = file.read()
+    # file = open("program.txt", "r")
+    # program = file.read()
+
+    program = """4 .LEN;"""
     lexer_object = Lexer.from_stream(Stream.from_string(program))
     print(lexer_object)
     for token in lexer_object:

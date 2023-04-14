@@ -3,6 +3,35 @@ from my_lexer import *
 from declaration import *
 import sys
 
+def test_lexer_dot():
+    text = """
+    4
+    4.5
+    4.
+     .5
+    4.a
+    4.5a
+    4.a5
+    4.LEN 
+    4.TAIL 
+    4.HEAD 
+    4.APPEND 
+    4.POP
+    a.5
+    a.a
+    a.a5
+    a.LEN
+    a.TAIL
+    a.HEAD
+    a.APPEND
+    a.POP
+    """
+    object_lexer = Lexer.from_stream(Stream.from_string(text))
+    expected_tokens = ['NumLiteral(4)', 'FloatLiteral(4.5)', 'FloatLiteral(4.0)', 'FloatLiteral(0.5)', 'FloatLiteral(4.0)', 'Identifier(a, True)', 'FloatLiteral(4.5)', 'Identifier(a, True)', 'FloatLiteral(4.0)', 'Identifier(a5, True)', 'FloatLiteral(4.0)', 'Keyword(LEN)', 'FloatLiteral(4.0)', 'Keyword(TAIL)', 'FloatLiteral(4.0)', 'Keyword(HEAD)', 'FloatLiteral(4.0)', 'Keyword(APPEND)', 'FloatLiteral(4.0)', 'Keyword(POP)', 'Identifier(a, True)', 'FloatLiteral(0.5)', 'Identifier(a, True)', 'Operator(.)', 'Identifier(a, True)', 'Identifier(a, True)', 'Operator(.)', 'Identifier(a5, True)', 'Identifier(a, True)', 'Operator(.)', 'Keyword(LEN)', 'Identifier(a, True)', 'Operator(.)', 'Keyword(TAIL)', 'Identifier(a, True)', 'Operator(.)', 'Keyword(HEAD)', 'Identifier(a, True)', 'Operator(.)', 'Keyword(APPEND)', 'Identifier(a, True)', 'Operator(.)', 'Keyword(POP)']
+    for token in object_lexer:
+        assert str(token) == expected_tokens.pop(0)
+
+
 # operator test
 def test_lexer_operators():
     text = """
@@ -30,7 +59,7 @@ def test_lexer_datatype():
     abc
     """
     object_lexer = Lexer.from_stream(Stream.from_string(text))
-    expected_tokens = ['NumLiteral(12)', 'NumLiteral(5)', 'NumLiteral(9630)', 'FloatLiteral(12.5)', 'FloatLiteral(0.5)', 'FloatLiteral(0.5)', 'StringLiteral("HelloWorld")', 'StringLiteral("HelloWorld")', 'BoolLiteral(True)', 'BoolLiteral(False)', 'Identifier(true)', 'Identifier(false)', 'Identifier(abc)']
+    expected_tokens = ['NumLiteral(12)', 'NumLiteral(5)', 'NumLiteral(9630)', 'FloatLiteral(12.5)', 'FloatLiteral(0.5)', 'FloatLiteral(0.5)', 'StringLiteral("HelloWorld")', 'StringLiteral("HelloWorld")', 'BoolLiteral(True)', 'BoolLiteral(False)', 'Identifier(true, True)', 'Identifier(false, True)', 'Identifier(abc, True)']
 
     for token in object_lexer:
         assert str(token) == expected_tokens.pop(0)
@@ -43,7 +72,7 @@ def test_lexer_keywordAndIdentifier():
     a1 =                       False   True 
     """
     object_lexer = Lexer.from_stream(Stream.from_string(text))
-    expected_token = ['Keyword(assign)', 'Keyword(const)', 'Identifier(None)', 'Keyword(if)', 'Keyword(elif)', 'Identifier(then)', 'Keyword(else)', 'Keyword(while)', 'Keyword(for)', 'Keyword(print)', 'Identifier(a1)', 'Operator(=)', 'BoolLiteral(False)', 'BoolLiteral(True)']
+    expected_token = ['Keyword(assign)', 'Keyword(const)', 'Identifier(None, True)', 'Keyword(if)', 'Keyword(elif)', 'Identifier(then, True)', 'Keyword(else)', 'Keyword(while)', 'Keyword(for)', 'Keyword(print)', 'Identifier(a1, True)', 'Operator(=)', 'BoolLiteral(False)', 'BoolLiteral(True)']
 
     for token in object_lexer:
         assert str(token) == expected_token.pop(0)
@@ -57,7 +86,7 @@ def test_lexer_comment_whitespace_eof():
     ;
     """
     object_lexer = Lexer.from_stream(Stream.from_string(text))
-    expected_token = ['Identifier(a5)', 'Operator(=)', 'NumLiteral(8)', 'EndOfLine(;)']
+    expected_token = ['Identifier(a5, True)', 'Operator(=)', 'NumLiteral(8)', 'EndOfLine(;)']
     for token in object_lexer:
         assert str(token) == expected_token.pop(0)
 
@@ -146,12 +175,17 @@ def test_parser_assign_udate():
     # j = j + 1 * i;
     # """
 
-    token_list = [Keyword("assign"), Identifier("i"), Operator("="), Identifier("i"), Operator("+"), NumLiteral(5), EndOfLine(";"), Keyword("const"), Keyword("assign"), Identifier("j"), Operator("="), Identifier("i"), Operator("+"), NumLiteral(5), EndOfLine(";"), Identifier("j"), Operator("="), Identifier("j"), Operator("+"), NumLiteral(1), Operator("*"), Identifier("i"), EndOfLine(";"), EndOfFile("EOF")]
+    token_list = [Keyword("assign"), Identifier("i"), Operator("="), Identifier("i"), Operator("+"), NumLiteral(5),
+                  EndOfLine(";"), Keyword("const"), Keyword("assign"), Identifier("j"), Operator("="), Identifier("i"),
+                  Operator("+"), NumLiteral(5), EndOfLine(";"), Identifier("j"), Operator("="), Identifier("j"),
+                  Operator("+"), NumLiteral(1), Operator("*"), Identifier("i"), EndOfLine(";"), EndOfFile("EOF")]
 
     object_lexer = DummyLexer(token_list)
     obj_parser = Parser.from_lexer(object_lexer)
 
-    expected_paresed = ["""Assign((Identifier(i),) = (BinOp(Identifier(i) + NumLiteral(5)),))""", """Assign((Identifier(j),) = (BinOp(Identifier(i) + NumLiteral(5)),))""", """Update(Identifier(j) Operator(=) BinOp(Identifier(j) + BinOp(NumLiteral(1) * Identifier(i))))"""]
+    expected_paresed = ["""Assign((Identifier(i, True),) = (BinOp(Identifier(i, True) + NumLiteral(5)),))""",
+                        """Assign((Identifier(j, False),) = (BinOp(Identifier(i, True) + NumLiteral(5)),))""",
+                        """Update(Identifier(j, True) Operator(=) BinOp(Identifier(j, True) + BinOp(NumLiteral(1) * Identifier(i, True))))"""]
 
     for i in obj_parser.parse_program().statements:
         assert str(i) == expected_paresed.pop(0)
