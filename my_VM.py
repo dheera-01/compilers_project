@@ -255,6 +255,7 @@ def do_codegen (program: AST, code: ByteCode) -> None:
         "/": I.DIV(),
         "**": I.POW(),
         "//": I.FLOORDIV(),
+        '%': I.MOD()
         # ">=": I.GE(),
         # "<=": I.LE(),
         # "==": I.E(),
