@@ -1,8 +1,50 @@
-struct Student {name, roll, std};
-assign s = Student("John", 20110048);
-s[std] = "13";
-assign t = Student("chirag", 20110047, "12");
-t[std] = "10";
-print(s);
-print(t);
-print(t[roll]);
+assign arr = [[1, 4], [4,6], [1, 77]];
+print(arr);
+
+assign p = arr.LEN;
+print(p);
+ 
+assign q = arr.HEAD;
+print(q);
+
+assign m = arr.TAIL;
+print(m);
+
+arr = [99, 11];
+print(arr);
+
+assign arr1 = [1, 2, 11, 4, 9, 14];
+
+assign i = 0;
+assign size = arr1.LEN;
+print(size);
+
+for(i = 0; i < size; i = i + 1;)
+{
+    assign val = arr1[i];
+    print(val);
+}
+
+
+# APPEND Operations 
+arr1.APPEND(['9, 90']);
+print(arr1);
+
+arr1.APPEND('hello');
+print(arr1);
+
+# POP operations
+arr1.POP;
+print(arr1);
+
+
+# Concatenation operation
+assign a = [1, 2, 3, 221, 24];
+assign b = [4, 5, 6];
+
+assign result = a + b;
+print(result);
+
+a[3] = 95;
+print(a);
+
