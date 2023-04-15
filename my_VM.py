@@ -120,6 +120,10 @@ class I:
     class LIST_OP:
         op: str # LEN, APPEND, HEAD, POP, UPDATE, TAIL
 
+    @dataclass
+    class INDEX:
+        pass
+
 Instruction = (
         I.PUSH
         | I.ADD
@@ -151,6 +155,7 @@ Instruction = (
         | I.PRINT
         | I.MAKE_LIST
         | I.LIST_OP
+        | I.INDEX
 )
 
 
@@ -228,6 +233,8 @@ def print_bytecode(code: ByteCode):
                 print(f"{i:=4} {'MAKE_LIST':<15}")
             case I.LIST_OP(op):
                 print(f"{i:=4} {'LIST_OP':<15} {op}")
+            case I.INDEX():
+                print(f"{i:=4} {'INDEX':<15}")
 
 
 class VM:
@@ -374,7 +381,13 @@ class VM:
                     elif op == 'TAIL':
                         self.data.append(lst[-1])
                     self.ip += 1
-                
+
+                case I.INDEX():
+                    obj = self.data.pop()
+                    index = self.data.pop()
+                    self.data.append(obj[index])
+                    self.ip += 1
+
                 # Jump cases    
                 case I.JMP(label):
                     self.ip = label.target
@@ -495,6 +508,11 @@ def do_codegen(program: AST, code: ByteCode) -> None:
                 codegen_(identifier)
                 code.emit(I.LIST_OP('UPDATE'))
 
+        case Indexer(identifier, indexVal):
+            codegen_(indexVal)
+            codegen_(identifier)
+            code.emit(I.INDEX())
+
         case IfElse(condition, if_body, elif_body, else_body):
             label1 = code.label()
             label2 = code.label()
@@ -592,18 +610,19 @@ def do_codegen(program: AST, code: ByteCode) -> None:
 # Program for listLiteral
 
 # program = Sequence(
-#         [
-#             Assign((Identifier("arr"),),
-#                    (ListLiteral([ListLiteral([NumLiteral(1), NumLiteral(4)]), NumLiteral(2), NumLiteral(3)]),))
-#             , Print(Identifier("arr"))
-#             , Print(ListOperations(Identifier("arr"), "LEN", None, None))
-#             , Print(ListOperations(Identifier("arr"), "HEAD", None, None))
-#             , Print(ListOperations(Identifier("arr"), "TAIL", None, None))
-#             , Print(ListOperations(Identifier("arr"), "APPEND", NumLiteral(5), None))
-#             , Print(ListOperations(Identifier("arr"), "POP", None, None))
-#             , Print(ListOperations(Identifier("arr"), "ChangeOneElement", NumLiteral(5), NumLiteral(1)))
-#         ]
-#     )
+#          [
+#              Assign((Identifier("arr"),),(ListLiteral([ListLiteral([NumLiteral(1), NumLiteral(4)]), NumLiteral(2), NumLiteral(3)]),))
+#              ,Print(Identifier("arr"))
+#              ,Assign((Identifier("i"),),(NumLiteral(0),))
+#              ,Print(Indexer(Identifier("arr"), Identifier("i")))
+#              ,Print(ListOperations(Identifier("arr"), "LEN", None, None))
+#              ,Print(ListOperations(Identifier("arr"), "HEAD", None, None))
+#                 ,Print(ListOperations(Identifier("arr"), "TAIL", None, None))
+#                 ,Print(ListOperations(Identifier("arr"), "APPEND", NumLiteral(5), None))
+#                 ,Print(ListOperations(Identifier("arr"), "POP", None, None))
+#                 ,Print(ListOperations(Identifier("arr"), "ChangeOneElement", NumLiteral(5), NumLiteral(1)))
+#          ]
+#      )
       
 
       
@@ -612,6 +631,8 @@ def test_codegen():
          [
              Assign((Identifier("arr"),),(ListLiteral([ListLiteral([NumLiteral(1), NumLiteral(4)]), NumLiteral(2), NumLiteral(3)]),))
              ,Print(Identifier("arr"))
+             ,Assign((Identifier("i"),),(NumLiteral(0),))
+             ,Print(Indexer(Identifier("arr"), Identifier("i")))
              ,Print(ListOperations(Identifier("arr"), "LEN", None, None))
              ,Print(ListOperations(Identifier("arr"), "HEAD", None, None))
                 ,Print(ListOperations(Identifier("arr"), "TAIL", None, None))
@@ -632,6 +653,8 @@ def test_vm():
             Assign((Identifier("arr"),),
                    (ListLiteral([ListLiteral([NumLiteral(1), NumLiteral(4)]), NumLiteral(2), NumLiteral(3)]),))
             , Print(Identifier("arr"))
+            , Assign((Identifier("i"),), (NumLiteral(0),))
+            , Print(Indexer(Identifier("arr"), Identifier("i")))
             , Print(ListOperations(Identifier("arr"), "LEN", None, None))
             , Print(ListOperations(Identifier("arr"), "HEAD", None, None))
             , Print(ListOperations(Identifier("arr"), "TAIL", None, None))
