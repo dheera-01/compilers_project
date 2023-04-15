@@ -112,6 +112,12 @@ class I:
     class JMP_IF_TRUE:
         label: Label
 
+    @dataclass
+    class MAKE_LIST:
+        pass
+
+
+
 Instruction = (
         I.PUSH
         | I.ADD
@@ -141,6 +147,7 @@ Instruction = (
         | I.STORE_FAST_UPDATE
 
         | I.PRINT
+        | I.MAKE_LIST
 )
 
 
@@ -213,6 +220,9 @@ def print_bytecode(code: ByteCode):
                 
             case I.JMP(Label(offset)) | I.JMP_IF_TRUE(Label(offset)) | I.JMP_IF_FALSE(Label(offset)):
                 print(f"{i:=4} {insn.__class__.__name__:<15} {offset}")
+
+            case I.MAKE_LIST():
+                print(f"{i:=4} {'MAKE_LIST':<15}")
 
 
 class VM:
@@ -327,6 +337,17 @@ class VM:
                 case I.PRINT():
                     print(self.data.pop())
                     self.ip += 1
+
+                case I.MAKE_LIST():
+                    lst = []
+                    while True:
+                        val = self.data.pop()
+                        if val == 'LIST_BEGIN':
+                            break
+                        lst.append(val)
+                    lst.reverse()
+                    self.data.append(lst)
+                    self.ip += 1
                 
                 # Jump cases    
                 case I.JMP(label):
@@ -388,12 +409,9 @@ def do_codegen(program: AST, code: ByteCode) -> None:
         case Sequence(statements):
             for statement in statements:
                 codegen_(statement)
-        # Do codegen for a list
-        # case ListLiteral(elements):
-        #     for element in elements:
-        #         codegen_(element)
         case NumLiteral(value) | StringLiteral(value):
             code.emit(I.PUSH(value))
+
         case BinOp(left, op, right) if op in simple_ops:
             codegen_(left)
             codegen_(right)
@@ -420,43 +438,13 @@ def do_codegen(program: AST, code: ByteCode) -> None:
         case Print(value):
             codegen_(value)
             code.emit(I.PRINT())
-        # case IfElse(condition, if_body, elif_body, else_body):
-        #     label1 = code.label()
-        #     label2 = code.label()
-        #     codegen_(condition)
-        #     code.emit(I.JMP_IF_FALSE(label1))
-            
-        #     codegen_(if_body)
-            
-        #     if(code.flag > 0):
-        #         # label = code.trackList.pop()
-        #         # code.emit(I.JMP(label))
-        #         # code.trackList.append(label)
-                
-        #         code.emit(I.JMP(code.trackList[-1]))
 
-        #     else:
-        #         # code.trackList.append(label2)
-        #         code.emit(I.JMP(label2))
-                
-        #     code.emit_label(label1)
-        #     if(len(elif_body) != 0):
-        #         code.trackList.append(label2)
-        #         code.flag += 1
+        case ListLiteral(value):
+            code.emit(I.PUSH('LIST_BEGIN'))
+            for element in value:
+                codegen_(element)
+            code.emit(I.MAKE_LIST())
 
-            
-        #     for elif_ in elif_body:
-        #         codegen_(elif_)
-                
-        #     if(len(elif_body) != 0):
-        #         code.trackList.pop()
-        #         code.flag -= 1
-            
-        #     codegen_(else_body) 
-        #     if code.flag == 0:
-        #         code.emit_label((label2))
-        #     else:
-        #         code.emit_label((code.trackList[-1]))
         case IfElse(condition, if_body, elif_body, else_body):
             label1 = code.label()
             label2 = code.label()
@@ -550,36 +538,36 @@ def do_codegen(program: AST, code: ByteCode) -> None:
     #                         ))
     #      ]
     #  )
+
+# Program for listLiteral
+
+# program = Sequence(
+#      [
+#          ListLiteral([ListLiteral(NumLiteral(1), NumLiteral(4)), NumLiteral(2), NumLiteral(3)])
+#      ]
+#  )
       
 
       
 def test_codegen():
-
     program = Sequence(
-        [
-            Assign((Identifier("i"), Identifier("j")), (NumLiteral(0), NumLiteral(0))),
-            While(ComparisonOp(Identifier("i"), '<',  NumLiteral(10)), 
-                  Sequence([Print(Identifier("i")), 
-                            While(ComparisonOp(Identifier("j"), '<',  NumLiteral(3)), Sequence([Print(StringLiteral("Hi")), Update(Identifier("j"), Operator("="), BinOp(Identifier("j"), "+", NumLiteral(1)))])),
-                            Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1)))]
-                           ))
-        ]
-    )
+         [
+             Assign((Identifier("arr"),),(ListLiteral([ListLiteral([NumLiteral(1), NumLiteral(4)]), NumLiteral(2), NumLiteral(3)]),))
+             ,Print(Identifier("arr"))
+         ]
+     )
+
     code = codegen(program)
     print_bytecode(code)
-
 
 test_codegen()
 
 def test_vm():
     program = Sequence(
         [
-            Assign((Identifier("i"), Identifier("j")), (NumLiteral(0), NumLiteral(0))),
-            While(ComparisonOp(Identifier("i"), '<',  NumLiteral(10)), 
-                  Sequence([Print(Identifier("i")), 
-                            While(ComparisonOp(Identifier("j"), '<=',  NumLiteral(3)), Sequence([Print(StringLiteral("Hi")), Update(Identifier("j"), Operator("="), BinOp(Identifier("j"), "+", NumLiteral(1)))])),
-                            Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1)))]
-                           ))
+            Assign((Identifier("arr"),),
+                   (ListLiteral([ListLiteral([NumLiteral(1), NumLiteral(4)]), NumLiteral(2), NumLiteral(3)]),))
+            , Print(Identifier("arr"))
         ]
     )
         
@@ -588,5 +576,3 @@ def test_vm():
     vm = VM()
     vm.load(code)
     vm.execute()
-test_vm()
-
