@@ -2,6 +2,7 @@ from my_parser import *
 from my_lexer import *
 from declaration import *
 import sys
+from my_VM import * 
 
 def test_lexer_dot():
     text = """
@@ -443,3 +444,23 @@ def test_eval_unaryOp():
 #     parsed_program = Sequence([Assign((Identifier("x"),), (NumLiteral(1),)), Assign((Identifier("y"),), (NumLiteral(2),)), Assign((Identifier("z"),), (NumLiteral(3),)), Assign((Identifier("a"),), (ListLiteral((Identifier("x"), Identifier("y"), Identifier("z"))),)), Print(Indexer(Identifier("a"), NumLiteral(0)))])
 #     eval(parsed_program)
 #     assert capsys.readouterr().out == "1\n"
+
+
+
+def test_vm():
+     program = Sequence(
+         [
+             Assign((Identifier("i"), Identifier("j")), (NumLiteral(0), NumLiteral(0))),
+             While(ComparisonOp(Identifier("i"), '<',  NumLiteral(10)), 
+                   Sequence([Print(Identifier("i")), 
+                             While(ComparisonOp(Identifier("j"), '<=',  NumLiteral(3)), Sequence([Print(StringLiteral("Hi")), Update(Identifier("j"), Operator("="), BinOp(Identifier("j"), "+", NumLiteral(1)))])),
+                             Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1)))]
+                            ))
+         ]
+     )
+
+
+     code = codegen(program)
+     vm = VM()
+     vm.load(code)
+     vm.execute()
