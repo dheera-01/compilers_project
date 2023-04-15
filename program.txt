@@ -1,50 +1,49 @@
 assign arr = [[1, 4], [4,6], [1, 77]];
-print(arr);
+ print(arr);
 
-assign p = arr.LEN;
-print(p);
- 
-assign q = arr.HEAD;
-print(q);
+ assign p = arr.LEN;
+ print(p);
 
-assign m = arr.TAIL;
-print(m);
+ assign q = arr.HEAD;
+ print(q);
 
-arr = [99, 11];
-print(arr);
+ assign m = arr.TAIL;
+ print(m);
 
-assign arr1 = [1, 2, 11, 4, 9, 14];
+ arr = [99, 11];
+ print(arr);
 
-assign i = 0;
-assign size = arr1.LEN;
-print(size);
+ assign arr1 = [1, 2, 11, 4, 9, 14];
 
-for(i = 0; i < size; i = i + 1;)
-{
-    assign val = arr1[i];
-    print(val);
-}
+ assign i = 0;
+ assign size = arr1.LEN;
+ print(size);
 
-
-# APPEND Operations 
-arr1.APPEND(['9, 90']);
-print(arr1);
-
-arr1.APPEND('hello');
-print(arr1);
-
-# POP operations
-arr1.POP;
-print(arr1);
+ for(i = 0; i < size; i = i + 1;)
+ {
+     assign val = arr1[i];
+     print(val);
+ }
 
 
-# Concatenation operation
-assign a = [1, 2, 3, 221, 24];
-assign b = [4, 5, 6];
+ # APPEND Operations 
+ arr1.APPEND(['9, 90']);
+ print(arr1);
 
-assign result = a + b;
-print(result);
+ arr1.APPEND('hello');
+ print(arr1);
 
-a[3] = 95;
-print(a);
+ # POP operations
+ arr1.POP;
+ print(arr1);
 
+
+ # Concatenation operation
+ assign a = [1, 2, 3, 221, 24];
+ assign b = [4, 5, 6];
+
+ assign result = a + b;
+ print(result);
+
+ a[3] = 95;
+ print(a);

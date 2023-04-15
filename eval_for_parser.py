@@ -459,25 +459,26 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             elif (val == "HEAD"):
                 listLit = program_env.get(identifier.name)
                 l = listLit.value
-                a = NumLiteral(l[0])
-                return eval_literals(a)
+                return l[0]
             elif (val == "TAIL"):
                 listLit = program_env.get(identifier.name)
                 lis = listLit.value
-                a = NumLiteral(lis[len(lis)-1])
-                return eval_literals(a)
+                return lis[len(lis)-1]
             elif (val == "APPEND"):
                 a = program_env.get(identifier.name)
                 if(isinstance(a, ListLiteral)):
                     a = a.value
                 a.append(item)
+                a = program_env.get(identifier.name)
                 return a
             elif (val == "POP"):
                 a = program_env.get(identifier.name)
                 if(isinstance(a, ListLiteral)):
                     a = a.value
-                a.pop()
-                return a
+                elem = a.pop()
+                
+                # a = program_env.get(identifier.name)
+                return elem
             elif (val == "ChangeOneElement"):
                 a = program_env.get(identifier.name)    
                 if(isinstance(a, ListLiteral)):
