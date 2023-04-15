@@ -116,7 +116,9 @@ class I:
     class MAKE_LIST:
         pass
 
-
+    @dataclass
+    class LIST_OP:
+        op: str # LEN, APPEND, HEAD, POP, UPDATE, TAIL
 
 Instruction = (
         I.PUSH
@@ -148,6 +150,7 @@ Instruction = (
 
         | I.PRINT
         | I.MAKE_LIST
+        | I.LIST_OP
 )
 
 
@@ -223,6 +226,8 @@ def print_bytecode(code: ByteCode):
 
             case I.MAKE_LIST():
                 print(f"{i:=4} {'MAKE_LIST':<15}")
+            case I.LIST_OP(op):
+                print(f"{i:=4} {'LIST_OP':<15} {op}")
 
 
 class VM:
@@ -253,7 +258,6 @@ class VM:
                     b = self.data.pop()
                     self.data.append(a + b)
                     self.ip += 1
-
 
                 case I.SUB():
                     right = self.data.pop()
@@ -347,6 +351,28 @@ class VM:
                         lst.append(val)
                     lst.reverse()
                     self.data.append(lst)
+                    self.ip += 1
+
+                case I.LIST_OP(op):
+                    lst = self.data.pop()
+                    # LEN, APPEND, HEAD, POP, UPDATE, TAIL
+                    if op == 'LEN':
+                        self.data.append(len(lst))
+                    elif op == 'APPEND':
+                        lst.append(self.data.pop())
+                        self.data.append(lst)
+                    elif op == 'HEAD':
+                        self.data.append(lst[0])
+                    elif op == 'POP':
+                        self.data.append(lst.pop())
+                        self.data.append(lst)
+                    elif op == 'UPDATE':
+                        value = self.data.pop()
+                        index = self.data.pop()
+                        lst[index] = value
+                        self.data.append(lst)
+                    elif op == 'TAIL':
+                        self.data.append(lst[-1])
                     self.ip += 1
                 
                 # Jump cases    
@@ -445,6 +471,30 @@ def do_codegen(program: AST, code: ByteCode) -> None:
                 codegen_(element)
             code.emit(I.MAKE_LIST())
 
+        case ListOperations(identifier, val, item, indVal):
+            if val == "LEN":
+                codegen_(identifier)
+                code.emit(I.LIST_OP('LEN'))
+            elif val == "HEAD":
+                codegen_(identifier)
+                code.emit(I.LIST_OP('HEAD'))
+            elif val == "TAIL":
+                codegen_(identifier)
+                code.emit(I.LIST_OP('TAIL'))
+            elif val == "APPEND":
+                codegen_(item)
+                codegen_(identifier)
+                code.emit(I.LIST_OP('APPEND'))
+            elif val == "POP":
+                codegen_(identifier)
+                code.emit(I.LIST_OP('POP'))
+                code.emit(I.STORE_FAST_UPDATE(identifier.name))
+            elif val == "ChangeOneElement":
+                codegen_(indVal)
+                codegen_(item)
+                codegen_(identifier)
+                code.emit(I.LIST_OP('UPDATE'))
+
         case IfElse(condition, if_body, elif_body, else_body):
             label1 = code.label()
             label2 = code.label()
@@ -542,10 +592,18 @@ def do_codegen(program: AST, code: ByteCode) -> None:
 # Program for listLiteral
 
 # program = Sequence(
-#      [
-#          ListLiteral([ListLiteral(NumLiteral(1), NumLiteral(4)), NumLiteral(2), NumLiteral(3)])
-#      ]
-#  )
+#         [
+#             Assign((Identifier("arr"),),
+#                    (ListLiteral([ListLiteral([NumLiteral(1), NumLiteral(4)]), NumLiteral(2), NumLiteral(3)]),))
+#             , Print(Identifier("arr"))
+#             , Print(ListOperations(Identifier("arr"), "LEN", None, None))
+#             , Print(ListOperations(Identifier("arr"), "HEAD", None, None))
+#             , Print(ListOperations(Identifier("arr"), "TAIL", None, None))
+#             , Print(ListOperations(Identifier("arr"), "APPEND", NumLiteral(5), None))
+#             , Print(ListOperations(Identifier("arr"), "POP", None, None))
+#             , Print(ListOperations(Identifier("arr"), "ChangeOneElement", NumLiteral(5), NumLiteral(1)))
+#         ]
+#     )
       
 
       
@@ -554,13 +612,19 @@ def test_codegen():
          [
              Assign((Identifier("arr"),),(ListLiteral([ListLiteral([NumLiteral(1), NumLiteral(4)]), NumLiteral(2), NumLiteral(3)]),))
              ,Print(Identifier("arr"))
+             ,Print(ListOperations(Identifier("arr"), "LEN", None, None))
+             ,Print(ListOperations(Identifier("arr"), "HEAD", None, None))
+                ,Print(ListOperations(Identifier("arr"), "TAIL", None, None))
+                ,Print(ListOperations(Identifier("arr"), "APPEND", NumLiteral(5), None))
+                ,Print(ListOperations(Identifier("arr"), "POP", None, None))
+                ,Print(ListOperations(Identifier("arr"), "ChangeOneElement", NumLiteral(5), NumLiteral(1)))
          ]
      )
 
     code = codegen(program)
     print_bytecode(code)
 
-test_codegen()
+# test_codegen()
 
 def test_vm():
     program = Sequence(
@@ -568,11 +632,20 @@ def test_vm():
             Assign((Identifier("arr"),),
                    (ListLiteral([ListLiteral([NumLiteral(1), NumLiteral(4)]), NumLiteral(2), NumLiteral(3)]),))
             , Print(Identifier("arr"))
+            , Print(ListOperations(Identifier("arr"), "LEN", None, None))
+            , Print(ListOperations(Identifier("arr"), "HEAD", None, None))
+            , Print(ListOperations(Identifier("arr"), "TAIL", None, None))
+            , Print(ListOperations(Identifier("arr"), "APPEND", NumLiteral(5), None))
+            , Print(ListOperations(Identifier("arr"), "POP", None, None))
+            , Print(ListOperations(Identifier("arr"), "ChangeOneElement", NumLiteral(5), NumLiteral(1)))
         ]
     )
         
 
     code = codegen(program)
+    print_bytecode(code)
     vm = VM()
     vm.load(code)
     vm.execute()
+
+test_vm()
