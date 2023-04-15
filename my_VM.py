@@ -538,7 +538,20 @@ def do_codegen(program: AST, code: ByteCode) -> None:
     #     ]
     # )
 
+# Program for assign, update, const
+
+    # program = Sequence(
+    #      [
+    #          Assign((Identifier("i"), Identifier("j")), (NumLiteral(0), NumLiteral(0))),
+    #          While(ComparisonOp(Identifier("i"), '<',  NumLiteral(10)), 
+    #                Sequence([Print(Identifier("i")), 
+    #                          While(ComparisonOp(Identifier("j"), '<=',  NumLiteral(3)), Sequence([Print(StringLiteral("Hi")), Update(Identifier("j"), Operator("="), BinOp(Identifier("j"), "+", NumLiteral(1)))])),
+    #                          Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1)))]
+    #                         ))
+    #      ]
+    #  )
       
+
       
 def test_codegen():
 
