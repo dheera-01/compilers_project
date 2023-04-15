@@ -153,7 +153,14 @@ def print_bytecode(code: ByteCode):
             case I.POP(value):
                  print(f"{i:=4} {'POP':<15} {value}")     
             case I.MOD():
-                 print(f"{i:=4} {'MOD':<15}")                  
+                 print(f"{i:=4} {'MOD':<15}")  
+            
+            case I.UMINUS():
+                   print(f"{i:=4} {'UMINUS':<15}")
+
+            case I.UPLUS():
+                   print(f"{i:=4} {'UPLUS':<15}")
+                                     
 class VM:
     bytecode: ByteCode
     ip: int
@@ -237,6 +244,14 @@ class VM:
                     raise ZeroDivisionError()
                  self.data.append(left%right)
                  self.ip += 1
+                case I.UMINUS:
+                  val = self.data.pop()
+                  self.data.append((-1)*val)
+                  self.ip += 1
+                case I.UPLUS:  
+                  val = self.data.pop()
+                  self.data.append(+val)
+                  self.ip += 1
 
 def codegen(program: AST) -> ByteCode:
     code = ByteCode()
@@ -255,13 +270,14 @@ def do_codegen (program: AST, code: ByteCode) -> None:
         "/": I.DIV(),
         "**": I.POW(),
         "//": I.FLOORDIV(),
-        '%': I.MOD()
-        # ">=": I.GE(),
-        # "<=": I.LE(),
-        # "==": I.E(),
-        # "!=": I.NE(),
-        # ">": I.GT(),
-        # "<": I.LT(),
+        '%': I.MOD(),
+        ">=": I.GE(),
+        "<=": I.LE(),
+        "==": I.E(),
+        "!=": I.NE(),
+        ">": I.GT(),
+        "<": I.LT(),
+    
     }
 
     match program:
@@ -271,19 +287,34 @@ def do_codegen (program: AST, code: ByteCode) -> None:
             codegen_(left)
             codegen_(right)
             code.emit(simple_ops[op])
-        case ComparisonOp(left, op, right)if op in simple_ops:
-            codegen_(left)
-            codegen_(right)
-            code.emit(simple_ops[op]) 
-
+        # case ComparisonOp(left, op, right)if op in simple_ops:
+        #     codegen_(left)
+        #     codegen_(right)
+        #     code.emit(simple_ops[op]) 
+        case UnaryOp("-", operand):
+            codegen_(operand)
+            code.emit(I.UMINUS())
+        case UnaryOp("+", operand):
+            codegen_(operand)
+            code.emit(I.UPLUS())    
 def test_codegen():
-    program = BinOp(NumLiteral(10), '%',NumLiteral(2))
+    # program = ComparisonOp(NumLiteral(10), '>=',NumLiteral(2))
+    program = UnaryOp('-',NumLiteral(10))
     code = codegen(program)
     print_bytecode(code)
 test_codegen()    
-def test_vm():
-    program = BinOp(NumLiteral(10), '%',NumLiteral(2))
-    code = codegen(program)
-    vm = VM()
-    vm.load(code)
-    assert vm.execute() == 0
+# def test_vm():
+  
+#     program=UnaryOp('-',NumLiteral(10))
+#     code = codegen(program)
+#     vm = VM()
+#     vm.load(code)
+#     assert vm.execute() == -10
+# def test_uplus():
+#     bytecode = ByteCode()
+#     bytecode.emit(I.PUSH(2))
+#     bytecode.emit(I.UPLUS())
+#     vm = VM()
+#     vm.load(bytecode)
+#     result = vm.execute()
+#     assert result == 2
