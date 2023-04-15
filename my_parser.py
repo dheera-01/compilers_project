@@ -522,21 +522,6 @@ class Parser:
         body = self.parse_simple()
         self.lexer.match(Bracket(")"))
         return Let(left_part, right_part, body)
-    
-    def parse_len(self):
-        """
-        parse the len expression
-
-        Returns:
-            Len: return AST of the len expression
-        """
-        self.lexer.match(Keyword("LEN"))
-        self.lexer.match(Bracket("("))
-        len_statement = self.parse_simple()
-        self.lexer.match(Bracket(")"))
-        self.lexer.match(EndOfLine(';'))
-        return LEN(len_statement)
-    
         
         
     def parse_struct(self):
@@ -738,7 +723,7 @@ if __name__ == '__main__':
         Lexer.from_stream(Stream.from_string(program)))
     # print(f"object parser {obj_parser}")
     a = obj_parser.parse_program()
-    print(a)
-    # eval(a)
+    # print(a)
+    eval(a)
     # print(f"Parsed program: {a}")
 
