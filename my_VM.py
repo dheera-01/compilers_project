@@ -87,6 +87,7 @@ class I:
     @dataclass
     class MOD:
         pass
+
 Instruction = (
          I.PUSH
         |I.ADD
@@ -199,6 +200,16 @@ class VM:
                  left = self.data.pop()
                  self.data.append(left>=right)
                  self.ip += 1
+                case I.GT():
+                 right = self.data.pop()
+                 left = self.data.pop()
+                 self.data.append(left>right)
+                 self.ip += 1 
+                case I.LT():
+                 right = self.data.pop()
+                 left = self.data.pop()
+                 self.data.append(left<right)
+                 self.ip += 1  
                 case I.FLOORDIV():
                  right = self.data.pop()
                  left = self.data.pop()
@@ -252,7 +263,9 @@ class VM:
                   val = self.data.pop()
                   self.data.append(+val)
                   self.ip += 1
+                # case I.GE:
 
+                    
 def codegen(program: AST) -> ByteCode:
     code = ByteCode()
     do_codegen(program, code)
@@ -277,7 +290,10 @@ def do_codegen (program: AST, code: ByteCode) -> None:
         "!=": I.NE(),
         ">": I.GT(),
         "<": I.LT(),
-    
+        "++":I.UPLUS(),
+        "--":I.UMINUS(),
+        "<" : I.LT(),
+        ">" : I.GT()
     }
 
     match program:
@@ -296,10 +312,14 @@ def do_codegen (program: AST, code: ByteCode) -> None:
             code.emit(I.UMINUS())
         case UnaryOp("+", operand):
             codegen_(operand)
-            code.emit(I.UPLUS())    
+            code.emit(I.UPLUS())   
+        case ComparisonOp(left, op, right) if op in simple_ops :
+            codegen_(left)
+            codegen_(right)
+            code.emit(simple_ops[op])     
 def test_codegen():
-    # program = ComparisonOp(NumLiteral(10), '>=',NumLiteral(2))
-    program = UnaryOp('-',NumLiteral(10))
+    program = ComparisonOp(NumLiteral(10), '>=',NumLiteral(2))
+    #program = UnaryOp('-',NumLiteral(10))
     code = codegen(program)
     print_bytecode(code)
 test_codegen()    
@@ -318,3 +338,14 @@ test_codegen()
 #     vm.load(bytecode)
 #     result = vm.execute()
 #     assert result == 2
+def test_comparison_operators():
+    vm = VM()
+
+    # test <
+    bytecode = ByteCode()
+    bytecode.emit(I.PUSH(5))
+    bytecode.emit(I.PUSH(10))
+    bytecode.emit(I.LT())
+    bytecode.emit(I.HALT())
+    vm.load(bytecode)
+    assert vm.execute() == True
