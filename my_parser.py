@@ -215,6 +215,8 @@ class Parser:
                 # print("The answer is", ans)
                 self.lexer.advance()  # consume the closing bracket
                 return ans
+            case Keyword(a):
+                raise Exception(f"Unexpected keyword {a}")
 
     def parse_exponent(self):
         """parse the exponent operator, this is right associative
@@ -736,7 +738,7 @@ if __name__ == '__main__':
         Lexer.from_stream(Stream.from_string(program)))
     # print(f"object parser {obj_parser}")
     a = obj_parser.parse_program()
-    # print(a)
-    eval(a)
+    print(a)
+    # eval(a)
     # print(f"Parsed program: {a}")
 

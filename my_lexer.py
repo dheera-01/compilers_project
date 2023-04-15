@@ -360,10 +360,10 @@ class Lexer:
 if __name__ == "__main__":
     
     # testing on playground
-    # file = open("program.txt", "r")
-    # program = file.read()
+    file = open("program.txt", "r")
+    program = file.read()
 
-    program = """4 .LEN;"""
+    # program = """4 .LEN;"""
     lexer_object = Lexer.from_stream(Stream.from_string(program))
     print(lexer_object)
     for token in lexer_object:

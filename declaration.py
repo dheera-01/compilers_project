@@ -256,7 +256,7 @@ class ListOperations:
     index: 'AST'
     
     def __repr__(self) -> str:
-        return f"ListOperations({self.val})"
+        return f"ListOperations({self.val}.{self.operation}({self.itemTobeAdded},{self.index}))"
 
 @dataclass
 class Function:
