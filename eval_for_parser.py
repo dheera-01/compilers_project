@@ -452,24 +452,37 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             # print(item)
             # print(len(program_env.get(identifier.name)))
             if(val == "LEN"):
-                a = NumLiteral(len(program_env.get(identifier.name)))
+                listLit = program_env.get(identifier.name)
+                lis = listLit.value
+                a = NumLiteral(len(lis))
                 return a
             elif (val == "HEAD"):
-                a = NumLiteral(program_env.get(identifier.name)[0])
-                return eval_literals(a)
+                listLit = program_env.get(identifier.name)
+                l = listLit.value
+                return l[0]
             elif (val == "TAIL"):
-                a = NumLiteral(program_env.get(identifier.name)[len(program_env.get(identifier.name))-1])
-                return eval_literals(a)
+                listLit = program_env.get(identifier.name)
+                lis = listLit.value
+                return lis[len(lis)-1]
             elif (val == "APPEND"):
                 a = program_env.get(identifier.name)
+                if(isinstance(a, ListLiteral)):
+                    a = a.value
                 a.append(item)
+                a = program_env.get(identifier.name)
                 return a
             elif (val == "POP"):
                 a = program_env.get(identifier.name)
-                a.pop()
-                return a
+                if(isinstance(a, ListLiteral)):
+                    a = a.value
+                elem = a.pop()
+                
+                # a = program_env.get(identifier.name)
+                return elem
             elif (val == "ChangeOneElement"):
                 a = program_env.get(identifier.name)    
+                if(isinstance(a, ListLiteral)):
+                    a = a.value
                 a[eval_literals(indVal)] = item
             return None
 
