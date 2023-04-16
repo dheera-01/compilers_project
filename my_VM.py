@@ -460,7 +460,7 @@ def do_codegen(program: AST, code: ByteCode) -> None:
         case IfElse(condition, if_body, elif_body, else_body):
             label1 = code.label()
             label2 = code.label()
-            label3 = code.label()
+            # label3 = code.label()
             codegen_(condition)
             code.emit(I.JMP_IF_FALSE(label1))
             
@@ -500,6 +500,21 @@ def do_codegen(program: AST, code: ByteCode) -> None:
             code.emit(I.JMP(label1))
             code.emit_label(label2)
             
+        case For(exp1, condition, exp2, body):
+            label1 = code.label()
+            label2 = code.label()
+            codegen_(exp1)
+            code.emit_label(label1)
+            codegen_(condition)
+            code.emit(I.JMP_IF_FALSE(label2))
+            codegen_(body)
+            codegen_(exp2)
+            code.emit(I.JMP(label1))
+            code.emit_label(label2)
+            
+
+
+            
             
 
 # Program for while nested loop
@@ -525,6 +540,17 @@ def do_codegen(program: AST, code: ByteCode) -> None:
     #     ]
     # )    
 
+# Program for Single For loop
+
+    # program = Sequence(
+    #     [
+    #         For(Assign((Identifier("i"),) , (NumLiteral(0), )), 
+    #             ComparisonOp(Identifier("i"), '<',  NumLiteral(10)), 
+    #             Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1))), 
+    #             Sequence([Print(Identifier("i"))])
+    #             )
+    #     ]
+    # )
 
 # Program for if-else
 
@@ -555,14 +581,23 @@ def do_codegen(program: AST, code: ByteCode) -> None:
       
 def test_codegen():
 
+    # Make case for FOR loop
     program = Sequence(
         [
-            Assign((Identifier("i"), Identifier("j")), (NumLiteral(0), NumLiteral(0))),
-            While(ComparisonOp(Identifier("i"), '<',  NumLiteral(10)), 
-                  Sequence([Print(Identifier("i")), 
-                            While(ComparisonOp(Identifier("j"), '<',  NumLiteral(3)), Sequence([Print(StringLiteral("Hi")), Update(Identifier("j"), Operator("="), BinOp(Identifier("j"), "+", NumLiteral(1)))])),
-                            Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1)))]
-                           ))
+            Assign((Identifier("j", is_mutable=True),), (NumLiteral(0),)),
+            For(Assign((Identifier("i", is_mutable=True), ) , (NumLiteral(0), )), 
+                ComparisonOp(Identifier("i"), '<',  NumLiteral(5)), 
+                Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1))), 
+                Sequence([Print(Identifier("i")), 
+                          
+                          For(Update(Identifier("j", is_mutable=True), Operator("="), NumLiteral(0)),
+                                ComparisonOp(Identifier("j", is_mutable= True), '<',  NumLiteral(3)),
+                                Update(Identifier("j", is_mutable=True), Operator("="), BinOp(Identifier("j", is_mutable=True), "+", NumLiteral(1))),
+                                Sequence([Print(StringLiteral("Hi"))])
+                              )
+                              
+                          ])
+                )
         ]
     )
     code = codegen(program)
@@ -574,12 +609,20 @@ test_codegen()
 def test_vm():
     program = Sequence(
         [
-            Assign((Identifier("i"), Identifier("j")), (NumLiteral(0), NumLiteral(0))),
-            While(ComparisonOp(Identifier("i"), '<',  NumLiteral(10)), 
-                  Sequence([Print(Identifier("i")), 
-                            While(ComparisonOp(Identifier("j"), '<=',  NumLiteral(3)), Sequence([Print(StringLiteral("Hi")), Update(Identifier("j"), Operator("="), BinOp(Identifier("j"), "+", NumLiteral(1)))])),
-                            Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1)))]
-                           ))
+            Assign((Identifier("j", is_mutable=True),), (NumLiteral(0),)),
+            For(Assign((Identifier("i", is_mutable=True), ) , (NumLiteral(0), )), 
+                ComparisonOp(Identifier("i"), '<',  NumLiteral(5)), 
+                Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1))), 
+                Sequence([Print(Identifier("i")), 
+                          
+                          For(Update(Identifier("j", is_mutable=True), Operator("="), NumLiteral(0)),
+                                ComparisonOp(Identifier("j", is_mutable= True), '<',  NumLiteral(3)),
+                                Update(Identifier("j", is_mutable=True), Operator("="), BinOp(Identifier("j", is_mutable=True), "+", NumLiteral(1))),
+                                Sequence([Print(StringLiteral("Hi"))])
+                              )
+                              
+                          ])
+                )
         ]
     )
         
@@ -590,3 +633,40 @@ def test_vm():
     vm.execute()
 test_vm()
 
+
+
+    # program = Sequence(
+    #     [
+    #         Assign((Identifier("j", is_mutable=True),), (NumLiteral(0),)),
+    #         For(Assign((Identifier("i", is_mutable=True), ) , (NumLiteral(0), )), 
+    #             ComparisonOp(Identifier("i"), '<',  NumLiteral(5)), 
+    #             Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1))), 
+    #             Sequence([Print(Identifier("i")), 
+                          
+    #                       For(Update(Identifier("j", is_mutable=True), Operator("="), NumLiteral(0)),
+    #                             ComparisonOp(Identifier("j", is_mutable= True), '<',  NumLiteral(3)),
+    #                             Update(Identifier("j", is_mutable=True), Operator("="), BinOp(Identifier("j", is_mutable=True), "+", NumLiteral(1))),
+    #                             Sequence([Print(StringLiteral("Hi"))])
+    #                           )
+                              
+    #                       ])
+    #             )
+    #     ]
+    # )
+    
+    
+    # program = Sequence(
+    #     [
+    #         For(Assign((Identifier("i", is_mutable=True), ) , (NumLiteral(0), )), 
+    #             ComparisonOp(Identifier("i"), '<',  NumLiteral(5)), 
+    #             Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1))), 
+    #             Sequence([Print(Identifier("i")), 
+    #                       For(Assign((Identifier("j", is_mutable=True),) , (NumLiteral(0), )),
+    #                             ComparisonOp(Identifier("j", is_mutable= True), '<',  NumLiteral(3)),
+    #                             Update(Identifier("j", is_mutable=True), Operator("="), BinOp(Identifier("j", is_mutable=True), "+", NumLiteral(1))),
+    #                             Sequence([Print(StringLiteral("Hi"))])
+    #                           )
+    #                       ])
+    #             )
+    #     ]
+    # )

@@ -363,6 +363,8 @@ if __name__ == "__main__":
     file = open("program.txt", "r")
     program = file.read()
 
+
+
     # program = """4 .LEN;"""
     lexer_object = Lexer.from_stream(Stream.from_string(program))
     print(lexer_object)
