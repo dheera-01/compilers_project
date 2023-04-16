@@ -111,6 +111,15 @@ class I:
     @dataclass
     class JMP_IF_TRUE:
         label: Label
+        
+    @dataclass
+    class ENTER_SCOPE:
+        pass
+    
+    @dataclass
+    class EXIT_SCOPE:
+        pass
+        
 
 Instruction = (
         I.PUSH
@@ -213,6 +222,12 @@ def print_bytecode(code: ByteCode):
                 
             case I.JMP(Label(offset)) | I.JMP_IF_TRUE(Label(offset)) | I.JMP_IF_FALSE(Label(offset)):
                 print(f"{i:=4} {insn.__class__.__name__:<15} {offset}")
+                
+            case I.ENTER_SCOPE():
+                print(f"{i:=4} {'ENTER_SCOPE':<15}")
+                
+            case I.EXIT_SCOPE():
+                print(f"{i:=4} {'EXIT_SCOPE':<15}")
 
 
 class VM:
@@ -326,6 +341,15 @@ class VM:
                     self.ip += 1
                 case I.PRINT():
                     print(self.data.pop())
+                    self.ip += 1
+                case I.ENTER_SCOPE():
+                    # Enter scope
+                    self.program_env.enter_scope()
+                    self.ip += 1
+                
+                case I.EXIT_SCOPE():
+                    # Exit scope
+                    self.program_env.exit_scope()
                     self.ip += 1
                 
                 # Jump cases    
@@ -457,38 +481,62 @@ def do_codegen(program: AST, code: ByteCode) -> None:
         #         code.emit_label((label2))
         #     else:
         #         code.emit_label((code.trackList[-1]))
+        # case IfElse(condition, if_body, elif_body, else_body):
+        #     label1 = code.label()
+        #     label2 = code.label()
+        #     # label3 = code.label()
+        #     codegen_(condition)
+        #     code.emit(I.JMP_IF_FALSE(label1))
+        #
+        #     codegen_(if_body)
+        #
+        #     if(code.flag > 0):
+        #         label = code.trackList.pop()
+        #         code.emit(I.JMP(label))
+        #         code.trackList.append(label)
+        #
+        #     else:
+        #         code.trackList.append(label2)
+        #         code.emit(I.JMP(label2))
+        #
+        #     code.emit_label(label1)
+        #     if(len(elif_body) != 0):
+        #         code.flag += 1
+        #
+        #
+        #     for elif_ in elif_body:
+        #         codegen_(elif_)
+        #
+        #     if(len(elif_body) != 0):
+        #         code.flag -= 1
+        #
+        #     codegen_(else_body)
+        #     if code.flag == 0:
+        #         code.emit_label((label2))
+
         case IfElse(condition, if_body, elif_body, else_body):
-            label1 = code.label()
-            label2 = code.label()
-            label3 = code.label()
-            codegen_(condition)
-            code.emit(I.JMP_IF_FALSE(label1))
-            
-            codegen_(if_body)
-            
-            if(code.flag > 0):
-                label = code.trackList.pop()
-                code.emit(I.JMP(label))
-                code.trackList.append(label)
+            elif_list = []
 
-            else:
-                code.trackList.append(label2)
-                code.emit(I.JMP(label2))
-                
-            code.emit_label(label1)
-            if(len(elif_body) != 0):
-                code.flag += 1
+            new_if = IfElse(condition, if_body, [], None)
+            elif_list.append(new_if)
 
-            
+            labels = []
             for elif_ in elif_body:
-                codegen_(elif_)
-                
-            if(len(elif_body) != 0):
-                code.flag -= 1
-            
-            codegen_(else_body) 
-            if code.flag == 0:
-                code.emit_label((label2))
+                elif_list.append(elif_)
+
+            for elif_ in elif_list:
+                label1 = code.label()
+                label2 = code.label()
+                codegen_(elif_.condition)
+                code.emit(I.JMP_IF_FALSE(label1))
+                codegen_(elif_.if_body)
+                code.emit(I.JMP(label2))
+                code.emit_label(label1)
+                labels.append(label2)
+
+            codegen_(else_body)
+            for label in labels:
+                code.emit_label(label)
                 
         case While(condition, body):
             label1 = code.label()
@@ -496,9 +544,32 @@ def do_codegen(program: AST, code: ByteCode) -> None:
             code.emit_label(label1)
             codegen_(condition)
             code.emit(I.JMP_IF_FALSE(label2))
+            code.emit(I.ENTER_SCOPE())
             codegen_(body)
+            code.emit(I.EXIT_SCOPE())
             code.emit(I.JMP(label1))
             code.emit_label(label2)
+            
+        case For(exp1, condition, exp2, body):
+            label1 = code.label()
+            label2 = code.label()
+            label3 = code.label()
+            codegen_(exp1)
+            code.emit_label(label1)
+            codegen_(condition)
+            code.emit(I.JMP_IF_FALSE(label2))
+            # Enter scope
+            code.emit(I.ENTER_SCOPE())
+            codegen_(body)
+            # Exit scope
+            code.emit(I.EXIT_SCOPE())
+            
+            codegen_(exp2)
+            code.emit(I.JMP(label1))
+            code.emit_label(label2)
+            
+
+
             
             
 
@@ -525,6 +596,35 @@ def do_codegen(program: AST, code: ByteCode) -> None:
     #     ]
     # )    
 
+# Program for Single For loop
+
+    # program = Sequence(
+    #     [
+    #         For(Assign((Identifier("i"),) , (NumLiteral(0), )), 
+    #             ComparisonOp(Identifier("i"), '<',  NumLiteral(10)), 
+    #             Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1))), 
+    #             Sequence([Print(Identifier("i"))])
+    #             )
+    #     ]
+    # )
+    
+# Program for Nested For loop
+
+    # program = Sequence(
+    #     [
+    #         For(Assign((Identifier("i", is_mutable=True), ) , (NumLiteral(0), )), 
+    #             ComparisonOp(Identifier("i"), '<',  NumLiteral(5)), 
+    #             Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1))), 
+    #             Sequence([Print(Identifier("i")), 
+    #                       For(Assign((Identifier("j", is_mutable=True),) , (NumLiteral(0), )),
+    #                             ComparisonOp(Identifier("j", is_mutable= True), '<',  NumLiteral(3)),
+    #                             Update(Identifier("j", is_mutable=True), Operator("="), BinOp(Identifier("j", is_mutable=True), "+", NumLiteral(1))),
+    #                             Sequence([Print(StringLiteral("Hi"))])
+    #                           )
+    #                       ])
+    #             )
+    #     ]
+    # )
 
 # Program for if-else
 
@@ -555,11 +655,13 @@ def do_codegen(program: AST, code: ByteCode) -> None:
       
 def test_codegen():
 
+    # Make case for FOR loop
     program = Sequence(
         [
-            Assign((Identifier("i"), Identifier("j")), (NumLiteral(0), NumLiteral(0))),
+            Assign((Identifier("i"),), (NumLiteral(0),)),
             While(ComparisonOp(Identifier("i"), '<',  NumLiteral(10)), 
-                  Sequence([Print(Identifier("i")), 
+                  Sequence([Assign((Identifier("j"),), (NumLiteral(0),)),
+                            Print(Identifier("i")), 
                             While(ComparisonOp(Identifier("j"), '<',  NumLiteral(3)), Sequence([Print(StringLiteral("Hi")), Update(Identifier("j"), Operator("="), BinOp(Identifier("j"), "+", NumLiteral(1)))])),
                             Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1)))]
                            ))
@@ -574,10 +676,11 @@ test_codegen()
 def test_vm():
     program = Sequence(
         [
-            Assign((Identifier("i"), Identifier("j")), (NumLiteral(0), NumLiteral(0))),
+            Assign((Identifier("i"),), (NumLiteral(0),)),
             While(ComparisonOp(Identifier("i"), '<',  NumLiteral(10)), 
-                  Sequence([Print(Identifier("i")), 
-                            While(ComparisonOp(Identifier("j"), '<=',  NumLiteral(3)), Sequence([Print(StringLiteral("Hi")), Update(Identifier("j"), Operator("="), BinOp(Identifier("j"), "+", NumLiteral(1)))])),
+                  Sequence([Assign((Identifier("j"),), (NumLiteral(0),)),
+                            Print(Identifier("i")), 
+                            While(ComparisonOp(Identifier("j"), '<',  NumLiteral(3)), Sequence([Print(StringLiteral("Hi")), Update(Identifier("j"), Operator("="), BinOp(Identifier("j"), "+", NumLiteral(1)))])),
                             Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1)))]
                            ))
         ]
@@ -590,3 +693,40 @@ def test_vm():
     vm.execute()
 test_vm()
 
+
+
+    # program = Sequence(
+    #     [
+    #         Assign((Identifier("j", is_mutable=True),), (NumLiteral(0),)),
+    #         For(Assign((Identifier("i", is_mutable=True), ) , (NumLiteral(0), )), 
+    #             ComparisonOp(Identifier("i"), '<',  NumLiteral(5)), 
+    #             Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1))), 
+    #             Sequence([Print(Identifier("i")), 
+                          
+    #                       For(Update(Identifier("j", is_mutable=True), Operator("="), NumLiteral(0)),
+    #                             ComparisonOp(Identifier("j", is_mutable= True), '<',  NumLiteral(3)),
+    #                             Update(Identifier("j", is_mutable=True), Operator("="), BinOp(Identifier("j", is_mutable=True), "+", NumLiteral(1))),
+    #                             Sequence([Print(StringLiteral("Hi"))])
+    #                           )
+                              
+    #                       ])
+    #             )
+    #     ]
+    # )
+    
+    
+    # program = Sequence(
+    #     [
+    #         For(Assign((Identifier("i", is_mutable=True), ) , (NumLiteral(0), )), 
+    #             ComparisonOp(Identifier("i"), '<',  NumLiteral(5)), 
+    #             Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1))), 
+    #             Sequence([Print(Identifier("i")), 
+    #                       For(Assign((Identifier("j", is_mutable=True),) , (NumLiteral(0), )),
+    #                             ComparisonOp(Identifier("j", is_mutable= True), '<',  NumLiteral(3)),
+    #                             Update(Identifier("j", is_mutable=True), Operator("="), BinOp(Identifier("j", is_mutable=True), "+", NumLiteral(1))),
+    #                             Sequence([Print(StringLiteral("Hi"))])
+    #                           )
+    #                       ])
+    #             )
+    #     ]
+    # )
