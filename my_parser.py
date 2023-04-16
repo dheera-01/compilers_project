@@ -1,6 +1,7 @@
 from my_lexer import *
 from eval_for_parser import *
 from dataclasses import dataclass
+from my_VM import *
 import sys
 
 # importing copy module
@@ -724,7 +725,14 @@ if __name__ == '__main__':
         Lexer.from_stream(Stream.from_string(program)))
     # print(f"object parser {obj_parser}")
     a = obj_parser.parse_program()
+    
+    
+    code = codegen(a)
+    # print_bytecode(code)
+    vm = VM()
+    vm.load(code)
+    vm.execute()
     # print(a)
-    eval(a)
+    # eval(a)
     # print(f"Parsed program: {a}")
 

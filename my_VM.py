@@ -326,19 +326,19 @@ class VM:
                     left = self.data.pop()
                     self.data.append(left != right)
                     self.ip += 1
-                case I.MUL:
+                case I.MUL():
                     right = self.data.pop()
                     left = self.data.pop()
                     self.data.append(left * right)
                     self.ip += 1
-                case I.DIV:
+                case I.DIV():
                     right = self.data.pop()
                     left = self.data.pop()
                     if right == 0:
                         raise ZeroDivisionError()
                     self.data.append(left / right)
                     self.ip += 1
-                case I.MOD:
+                case I.MOD():
                     right = self.data.pop()
                     left = self.data.pop()
                     if right == 0:
@@ -452,6 +452,7 @@ def do_codegen(program: AST, code: ByteCode) -> None:
         "+": I.ADD(),
         "-": I.SUB(),
         "/": I.DIV(),
+        "*": I.MUL(),
         "**": I.POW(),
         "//": I.FLOORDIV(),
         '%': I.MOD(), 
@@ -586,13 +587,21 @@ def do_codegen(program: AST, code: ByteCode) -> None:
                 label1 = code.label()
                 label2 = code.label()
                 codegen_(elif_.condition)
+                
                 code.emit(I.JMP_IF_FALSE(label1))
+                
+                code.emit(I.ENTER_SCOPE())
                 codegen_(elif_.if_body)
                 code.emit(I.JMP(label2))
+                
+                code.emit(I.EXIT_SCOPE())
                 code.emit_label(label1)
+                
                 labels.append(label2)
 
+            code.emit(I.ENTER_SCOPE())
             codegen_(else_body)
+            code.emit(I.EXIT_SCOPE())
             for label in labels:
                 code.emit_label(label)
                 
@@ -600,33 +609,38 @@ def do_codegen(program: AST, code: ByteCode) -> None:
             label1 = code.label()
             label2 = code.label()
             code.emit_label(label1)
-            codegen_(condition)
-            code.emit(I.JMP_IF_FALSE(label2))
             code.emit(I.ENTER_SCOPE())
+            codegen_(condition)
+            
+            code.emit(I.JMP_IF_FALSE(label2))
+            
+            
             codegen_(body)
-            code.emit(I.EXIT_SCOPE())
+            
+            
             code.emit(I.JMP(label1))
             code.emit_label(label2)
+            code.emit(I.EXIT_SCOPE())
             
         case For(exp1, condition, exp2, body):
             label1 = code.label()
             label2 = code.label()
-            label3 = code.label()
+            # label3 = code.label()
             codegen_(exp1)
             code.emit_label(label1)
             codegen_(condition)
             code.emit(I.JMP_IF_FALSE(label2))
             # Enter scope
             code.emit(I.ENTER_SCOPE())
+            
             codegen_(body)
             # Exit scope
-            code.emit(I.EXIT_SCOPE())
-            
             codegen_(exp2)
-            code.emit(I.JMP(label1))
-            code.emit_label(label2)
             
-
+            code.emit(I.JMP(label1))
+            
+            code.emit_label(label2)
+            code.emit(I.EXIT_SCOPE())
 
             
             
@@ -733,13 +747,7 @@ def test_codegen():
     # Make case for FOR loop
     program = Sequence(
         [
-            Assign((Identifier("i"),), (NumLiteral(0),)),
-            While(ComparisonOp(Identifier("i"), '<',  NumLiteral(10)), 
-                  Sequence([Assign((Identifier("j"),), (NumLiteral(0),)),
-                            Print(Identifier("i")), 
-                            While(ComparisonOp(Identifier("j"), '<',  NumLiteral(3)), Sequence([Print(StringLiteral("Hi")), Update(Identifier("j"), Operator("="), BinOp(Identifier("j"), "+", NumLiteral(1)))])),
-                            Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1)))]
-                           ))
+            BinOp(NumLiteral(4), '%', NumLiteral(2))
         ]
     )
     code = codegen(program)
@@ -750,13 +758,7 @@ def test_codegen():
 def test_vm():
     program = Sequence(
         [
-            Assign((Identifier("i"),), (NumLiteral(0),)),
-            While(ComparisonOp(Identifier("i"), '<',  NumLiteral(10)), 
-                  Sequence([Assign((Identifier("j"),), (NumLiteral(0),)),
-                            Print(Identifier("i")), 
-                            While(ComparisonOp(Identifier("j"), '<',  NumLiteral(3)), Sequence([Print(StringLiteral("Hi")), Update(Identifier("j"), Operator("="), BinOp(Identifier("j"), "+", NumLiteral(1)))])),
-                            Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1)))]
-                           ))
+            BinOp(NumLiteral(4), '%', NumLiteral(2))
         ]
     )
         
@@ -767,4 +769,4 @@ def test_vm():
     vm.load(code)
     vm.execute()
 
-test_vm()
+# test_vm()
