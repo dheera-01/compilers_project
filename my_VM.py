@@ -121,6 +121,18 @@ class I:
         pass
         
 
+    @dataclass
+    class MAKE_LIST:
+        pass
+
+    @dataclass
+    class LIST_OP:
+        op: str # LEN, APPEND, HEAD, POP, UPDATE, TAIL
+
+    @dataclass
+    class INDEX:
+        pass
+
 Instruction = (
         I.PUSH
         | I.ADD
@@ -150,6 +162,9 @@ Instruction = (
         | I.STORE_FAST_UPDATE
 
         | I.PRINT
+        | I.MAKE_LIST
+        | I.LIST_OP
+        | I.INDEX
 )
 
 
@@ -229,6 +244,13 @@ def print_bytecode(code: ByteCode):
             case I.EXIT_SCOPE():
                 print(f"{i:=4} {'EXIT_SCOPE':<15}")
 
+            case I.MAKE_LIST():
+                print(f"{i:=4} {'MAKE_LIST':<15}")
+            case I.LIST_OP(op):
+                print(f"{i:=4} {'LIST_OP':<15} {op}")
+            case I.INDEX():
+                print(f"{i:=4} {'INDEX':<15}")
+
 
 class VM:
     bytecode: ByteCode
@@ -258,7 +280,6 @@ class VM:
                     b = self.data.pop()
                     self.data.append(a + b)
                     self.ip += 1
-
 
                 case I.SUB():
                     right = self.data.pop()
@@ -352,6 +373,46 @@ class VM:
                     self.program_env.exit_scope()
                     self.ip += 1
                 
+
+                case I.MAKE_LIST():
+                    lst = []
+                    while True:
+                        val = self.data.pop()
+                        if val == 'LIST_BEGIN':
+                            break
+                        lst.append(val)
+                    lst.reverse()
+                    self.data.append(lst)
+                    self.ip += 1
+
+                case I.LIST_OP(op):
+                    lst = self.data.pop()
+                    # LEN, APPEND, HEAD, POP, UPDATE, TAIL
+                    if op == 'LEN':
+                        self.data.append(len(lst))
+                    elif op == 'APPEND':
+                        lst.append(self.data.pop())
+                        self.data.append(lst)
+                    elif op == 'HEAD':
+                        self.data.append(lst[0])
+                    elif op == 'POP':
+                        self.data.append(lst.pop())
+                        self.data.append(lst)
+                    elif op == 'UPDATE':
+                        value = self.data.pop()
+                        index = self.data.pop()
+                        lst[index] = value
+                        self.data.append(lst)
+                    elif op == 'TAIL':
+                        self.data.append(lst[-1])
+                    self.ip += 1
+
+                case I.INDEX():
+                    obj = self.data.pop()
+                    index = self.data.pop()
+                    self.data.append(obj[index])
+                    self.ip += 1
+
                 # Jump cases    
                 case I.JMP(label):
                     self.ip = label.target
@@ -412,12 +473,9 @@ def do_codegen(program: AST, code: ByteCode) -> None:
         case Sequence(statements):
             for statement in statements:
                 codegen_(statement)
-        # Do codegen for a list
-        # case ListLiteral(elements):
-        #     for element in elements:
-        #         codegen_(element)
         case NumLiteral(value) | StringLiteral(value):
             code.emit(I.PUSH(value))
+
         case BinOp(left, op, right) if op in simple_ops:
             codegen_(left)
             codegen_(right)
@@ -444,43 +502,43 @@ def do_codegen(program: AST, code: ByteCode) -> None:
         case Print(value):
             codegen_(value)
             code.emit(I.PRINT())
-        # case IfElse(condition, if_body, elif_body, else_body):
-        #     label1 = code.label()
-        #     label2 = code.label()
-        #     codegen_(condition)
-        #     code.emit(I.JMP_IF_FALSE(label1))
-            
-        #     codegen_(if_body)
-            
-        #     if(code.flag > 0):
-        #         # label = code.trackList.pop()
-        #         # code.emit(I.JMP(label))
-        #         # code.trackList.append(label)
-                
-        #         code.emit(I.JMP(code.trackList[-1]))
 
-        #     else:
-        #         # code.trackList.append(label2)
-        #         code.emit(I.JMP(label2))
-                
-        #     code.emit_label(label1)
-        #     if(len(elif_body) != 0):
-        #         code.trackList.append(label2)
-        #         code.flag += 1
+        case ListLiteral(value):
+            code.emit(I.PUSH('LIST_BEGIN'))
+            for element in value:
+                codegen_(element)
+            code.emit(I.MAKE_LIST())
+
+        case ListOperations(identifier, val, item, indVal):
+            if val == "LEN":
+                codegen_(identifier)
+                code.emit(I.LIST_OP('LEN'))
+            elif val == "HEAD":
+                codegen_(identifier)
+                code.emit(I.LIST_OP('HEAD'))
+            elif val == "TAIL":
+                codegen_(identifier)
+                code.emit(I.LIST_OP('TAIL'))
+            elif val == "APPEND":
+                codegen_(item)
+                codegen_(identifier)
+                code.emit(I.LIST_OP('APPEND'))
+            elif val == "POP":
+                codegen_(identifier)
+                code.emit(I.LIST_OP('POP'))
+                code.emit(I.STORE_FAST_UPDATE(identifier.name))
+            elif val == "ChangeOneElement":
+                codegen_(indVal)
+                codegen_(item)
+                codegen_(identifier)
+                code.emit(I.LIST_OP('UPDATE'))
+
+        case Indexer(identifier, indexVal):
+            codegen_(indexVal)
+            codegen_(identifier)
+            code.emit(I.INDEX())
 
             
-        #     for elif_ in elif_body:
-        #         codegen_(elif_)
-                
-        #     if(len(elif_body) != 0):
-        #         code.trackList.pop()
-        #         code.flag -= 1
-            
-        #     codegen_(else_body) 
-        #     if code.flag == 0:
-        #         code.emit_label((label2))
-        #     else:
-        #         code.emit_label((code.trackList[-1]))
         # case IfElse(condition, if_body, elif_body, else_body):
         #     label1 = code.label()
         #     label2 = code.label()
@@ -650,6 +708,23 @@ def do_codegen(program: AST, code: ByteCode) -> None:
     #                         ))
     #      ]
     #  )
+
+# Program for listLiteral
+
+# program = Sequence(
+#          [
+#              Assign((Identifier("arr"),),(ListLiteral([ListLiteral([NumLiteral(1), NumLiteral(4)]), NumLiteral(2), NumLiteral(3)]),))
+#              ,Print(Identifier("arr"))
+#              ,Assign((Identifier("i"),),(NumLiteral(0),))
+#              ,Print(Indexer(Identifier("arr"), Identifier("i")))
+#              ,Print(ListOperations(Identifier("arr"), "LEN", None, None))
+#              ,Print(ListOperations(Identifier("arr"), "HEAD", None, None))
+#                 ,Print(ListOperations(Identifier("arr"), "TAIL", None, None))
+#                 ,Print(ListOperations(Identifier("arr"), "APPEND", NumLiteral(5), None))
+#                 ,Print(ListOperations(Identifier("arr"), "POP", None, None))
+#                 ,Print(ListOperations(Identifier("arr"), "ChangeOneElement", NumLiteral(5), NumLiteral(1)))
+#          ]
+#      )
       
 
       
@@ -670,8 +745,7 @@ def test_codegen():
     code = codegen(program)
     print_bytecode(code)
 
-
-test_codegen()
+# test_codegen()
 
 def test_vm():
     program = Sequence(
@@ -688,45 +762,9 @@ def test_vm():
         
 
     code = codegen(program)
+    print_bytecode(code)
     vm = VM()
     vm.load(code)
     vm.execute()
+
 test_vm()
-
-
-
-    # program = Sequence(
-    #     [
-    #         Assign((Identifier("j", is_mutable=True),), (NumLiteral(0),)),
-    #         For(Assign((Identifier("i", is_mutable=True), ) , (NumLiteral(0), )), 
-    #             ComparisonOp(Identifier("i"), '<',  NumLiteral(5)), 
-    #             Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1))), 
-    #             Sequence([Print(Identifier("i")), 
-                          
-    #                       For(Update(Identifier("j", is_mutable=True), Operator("="), NumLiteral(0)),
-    #                             ComparisonOp(Identifier("j", is_mutable= True), '<',  NumLiteral(3)),
-    #                             Update(Identifier("j", is_mutable=True), Operator("="), BinOp(Identifier("j", is_mutable=True), "+", NumLiteral(1))),
-    #                             Sequence([Print(StringLiteral("Hi"))])
-    #                           )
-                              
-    #                       ])
-    #             )
-    #     ]
-    # )
-    
-    
-    # program = Sequence(
-    #     [
-    #         For(Assign((Identifier("i", is_mutable=True), ) , (NumLiteral(0), )), 
-    #             ComparisonOp(Identifier("i"), '<',  NumLiteral(5)), 
-    #             Update(Identifier("i"), Operator("="), BinOp(Identifier("i"), "+", NumLiteral(1))), 
-    #             Sequence([Print(Identifier("i")), 
-    #                       For(Assign((Identifier("j", is_mutable=True),) , (NumLiteral(0), )),
-    #                             ComparisonOp(Identifier("j", is_mutable= True), '<',  NumLiteral(3)),
-    #                             Update(Identifier("j", is_mutable=True), Operator("="), BinOp(Identifier("j", is_mutable=True), "+", NumLiteral(1))),
-    #                             Sequence([Print(StringLiteral("Hi"))])
-    #                           )
-    #                       ])
-    #             )
-    #     ]
-    # )
