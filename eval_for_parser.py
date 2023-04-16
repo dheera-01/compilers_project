@@ -427,11 +427,6 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                     f"TypeError: ** not supported between instances of {left} and {right}")
 
         case Indexer(identifier, indexVal):
-            # if(type(indexVal) == Identifier):
-            #     i = eval_literals(eval(program_env.get(indexVal.name)))
-            # else:
-            #     i = eval_literals(indexVal)
-                
             i = eval_literals(eval(indexVal, program_env))
             objectToBeIndexed = eval_literals(program_env.get(identifier.name))
             if(len(objectToBeIndexed) <= i):
