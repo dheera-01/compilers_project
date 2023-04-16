@@ -257,6 +257,8 @@ class VM:
     ip: int
     data: List[Value]
     program_env: Environment()
+    list_cache: []
+    list_cache_name: []
 
     def load(self, bytecode):
         self.bytecode = bytecode
@@ -266,6 +268,8 @@ class VM:
     def restart(self):
         self.ip = 0
         self.data = []
+        self.list_cache = []
+        self.list_cache_name = []
 
     def execute(self) -> Value:
         while True:
@@ -352,10 +356,25 @@ class VM:
                     self.program_env.add(ident, top)
                     self.ip += 1
                 case I.LOAD_FAST(name):
+                    if name in self.list_cache_name:
+                        self.ip += 1
+                        continue
+
                     value = self.program_env.get(name)
+
+                    if isinstance(value, list):
+                        self.list_cache.append(value)
+                        self.list_cache_name.append(name)
+                        self.ip += 1
+                        continue
+
                     self.data.append(value)
                     self.ip += 1
                 case I.STORE_FAST_UPDATE(name):
+                    if name in self.list_cache_name:
+                        self.ip += 1
+                        continue
+
                     top = self.data.pop()
                     ident = Identifier(name)
                     self.program_env.update(ident, top)
@@ -386,31 +405,52 @@ class VM:
                     self.ip += 1
 
                 case I.LIST_OP(op):
-                    lst = self.data.pop()
-                    # LEN, APPEND, HEAD, POP, UPDATE, TAIL
-                    if op == 'LEN':
-                        self.data.append(len(lst))
-                    elif op == 'APPEND':
-                        lst.append(self.data.pop())
-                        self.data.append(lst)
-                    elif op == 'HEAD':
-                        self.data.append(lst[0])
-                    elif op == 'POP':
-                        self.data.append(lst.pop())
-                        self.data.append(lst)
-                    elif op == 'UPDATE':
-                        value = self.data.pop()
-                        index = self.data.pop()
-                        lst[index] = value
-                        self.data.append(lst)
-                    elif op == 'TAIL':
-                        self.data.append(lst[-1])
+                    if len(self.list_cache) != 0:
+                        if op == 'LEN':
+                            self.data.append(len(self.list_cache[-1]))
+                        elif op == 'APPEND':
+                            self.list_cache[-1].append(self.data.pop())
+                        elif op == 'HEAD':
+                            self.data.append(self.list_cache[-1][0])
+                        elif op == 'POP':
+                            self.data.append(self.list_cache[-1].pop())
+                        elif op == 'UPDATE':
+                            value = self.data.pop()
+                            index = self.data.pop()
+                            self.list_cache[-1][index] = value
+                        elif op == 'TAIL':
+                            self.data.append(self.list_cache[-1][-1])
+                    else:
+                        lst = self.data.pop()
+                        # LEN, APPEND, HEAD, POP, UPDATE, TAIL
+                        if op == 'LEN':
+                            self.data.append(len(lst))
+                        elif op == 'APPEND':
+                            lst.append(self.data.pop())
+                            self.data.append(lst)
+                        elif op == 'HEAD':
+                            self.data.append(lst[0])
+                        elif op == 'POP':
+                            self.data.append(lst.pop())
+                            self.data.append(lst)
+                        elif op == 'UPDATE':
+                            value = self.data.pop()
+                            index = self.data.pop()
+                            lst[index] = value
+                            self.data.append(lst)
+                        elif op == 'TAIL':
+                            self.data.append(lst[-1])
+
                     self.ip += 1
 
                 case I.INDEX():
-                    obj = self.data.pop()
-                    index = self.data.pop()
-                    self.data.append(obj[index])
+                    if len(self.list_cache) != 0:
+                        index = self.data.pop()
+                        self.data.append(self.list_cache[-1][index])
+                    else:
+                        obj = self.data.pop()
+                        index = self.data.pop()
+                        self.data.append(obj[index])
                     self.ip += 1
 
                 # Jump cases    

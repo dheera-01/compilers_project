@@ -728,7 +728,7 @@ if __name__ == '__main__':
     
     
     code = codegen(a)
-    # print_bytecode(code)
+    print_bytecode(code)
     vm = VM()
     vm.load(code)
     vm.execute()

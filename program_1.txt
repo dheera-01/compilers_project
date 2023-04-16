@@ -1,21 +1,10 @@
-for (assign i = 2; i <= 5; i = i + 1;)
-{
-    print("");
-    print(i);
-    assign num = i;
-    assign length = 0;
-    while (num > 1)
-    {
-        print(num);
-        if (num % 2 == 0)
-        {
-            num = num // 2;
-        }
-        else
-        {
-            num = (3 * num) + 1;
-        }
-        length = length + 1;
-    }
-    print("");
-}
+assign lst = [1, 2, 3, 4, 5];
+assign len = lst.LEN;
+print(len);
+assign b = lst.HEAD;
+print(b);
+assign c = lst.TAIL;
+print(c);
+lst = lst.APPEND(6);
+assign d = lst.POP;
+print(d);
