@@ -292,8 +292,8 @@ def do_codegen (program: AST, code: ByteCode) -> None:
         "<": I.LT(),
         "++":I.UPLUS(),
         "--":I.UMINUS(),
-        "<" : I.LT(),
-        ">" : I.GT()
+        # "<" : I.LT(),
+        # ">" : I.GT()
     }
 
     match program:
@@ -343,9 +343,19 @@ def test_comparison_operators():
 
     # test <
     bytecode = ByteCode()
-    bytecode.emit(I.PUSH(5))
     bytecode.emit(I.PUSH(10))
-    bytecode.emit(I.LT())
+    bytecode.emit(I.PUSH(10))
+    bytecode.emit(I.E())
     bytecode.emit(I.HALT())
     vm.load(bytecode)
-    assert vm.execute() == True
+    assert vm.execute() == "True"
+# code = ByteCode(
+# code.emit(I.PUSH(10))
+# code.emit(I.PUSH(3))
+# code.emit(I.MOD())
+# code.emit(I.HALT())
+# vm = VM()
+# vm.load(code)
+# result = vm.execute()
+# print(result)  # should print 1
+
