@@ -427,30 +427,30 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                     f"TypeError: ** not supported between instances of {left} and {right}")
 
         case Indexer(identifier, indexVal):
-            if(type(indexVal) == Identifier):
-                i = eval_literals(eval(program_env.get(indexVal.name)))
-            else:
-                i = eval_literals(indexVal)
+            # if(type(indexVal) == Identifier):
+            #     i = eval_literals(eval(program_env.get(indexVal.name)))
+            # else:
+            #     i = eval_literals(indexVal)
                 
+            i = eval_literals(eval(indexVal, program_env))
             objectToBeIndexed = eval_literals(program_env.get(identifier.name))
             if(len(objectToBeIndexed) <= i):
                 print("Index out of range")
 
-            for env in reversed(program_env.envs):
-                if identifier.name in env:
-                    if(type(program_env.get(identifier.name).value) == list):
-                        return program_env.get(identifier.name).value[i]
-                    elif(type(program_env.get(identifier.name)) == StringLiteral):
-                        res = eval_literals(program_env.get(identifier.name))[i]
-                        return StringLiteral(res)
-                    else:
-                        print(f"The Indentifier {identifier} is not iterable")
-                        return None
+            item = program_env.get(identifier.name)
+
+            ans = (eval_literals(program_env.get(identifier.name)))[i]
+
+            if(isinstance(item, ListLiteral)):
+                return NumLiteral(ans)
+            elif(isinstance(item, StringLiteral)):
+                return StringLiteral(ans)
+            else:
+                print(f"Indexing not supported for {identifier} of type {type(item)}")
+                return None
 
         case ListOperations(identifier, val, item, indVal):
-            # print(val)
-            # print(item)
-            # print(len(program_env.get(identifier.name)))
+
             if(val == "LEN"):
                 listLit = program_env.get(identifier.name)
                 lis = listLit.value
@@ -477,13 +477,12 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                     a = a.value
                 elem = a.pop()
                 
-                # a = program_env.get(identifier.name)
                 return elem
             elif (val == "ChangeOneElement"):
                 a = program_env.get(identifier.name)    
                 if(isinstance(a, ListLiteral)):
                     a = a.value
-                a[eval_literals(indVal)] = item
+                a[eval_literals(eval(indVal, program_env))] = eval(item, program_env)
             return None
 
 
