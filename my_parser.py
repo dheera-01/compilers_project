@@ -102,22 +102,8 @@ class Parser:
                         #     val = self.parse_atom()
                         #     return ListOperations(Identifier(name), "ChangeOneElement", val, right_part)
                         return Indexer(Identifier(name), right_part)
-                    case Bracket("("):
-                        self.lexer.advance()   
-
-                        #this code logically clashes with custom datatype construct
-                        # args = []
-                        # while self.lexer.peek_current_token() != Bracket(")"):
-                        #     args.append(self.parse_simple())
-                        #     if self.lexer.peek_current_token() == Operator(","):
-                        #         self.lexer.advance()
-                        # self.lexer.match(Bracket(")"))
-                        # if is_func:
-                        #     return (Identifier(name), args)
-
-                        # return FunctionCall(Identifier(name), args)
-
-
+                    case Bracket("{"):
+                        self.lexer.advance()
                         ind = 0
                         f = []
                         while True:
@@ -127,12 +113,29 @@ class Parser:
                             temp.append(self.parse_simple())
                             f.append(temp)
                             ind = ind + 1
-                            if self.lexer.peek_current_token() == Bracket(")"):
+                            if self.lexer.peek_current_token() == Bracket("}"):
                                 self.lexer.advance()
                                 break
                             self.lexer.match(Operator(","))
                         # print(f"user defined data type {user_defined_data_types}") 
                         return Struct(name, f)    
+                        
+                    
+                    
+                    case Bracket("("):
+                        self.lexer.advance()   
+
+                        # this code logically clashes with custom datatype construct
+                        args = []
+                        while self.lexer.peek_current_token() != Bracket(")"):
+                            args.append(self.parse_simple())
+                            if self.lexer.peek_current_token() == Operator(","):
+                                self.lexer.advance()
+                        self.lexer.match(Bracket(")"))
+                        if is_func:
+                            return (Identifier(name), args)
+
+                        return FunctionCall(Identifier(name), args)   
                     case Operator("."):
                         # print("Here")
                         self.lexer.advance()
@@ -155,6 +158,14 @@ class Parser:
                             case Keyword("POP"):
                                 self.lexer.advance()
                                 return ListOperations(Identifier(name), "POP", None, None)
+                            case Identifier(name_):
+                                ind = Indexer(Identifier(name), Identifier(name_))
+                                self.lexer.advance() # consuming the identifier
+                                ass_op = self.lexer.peek_current_token()
+                                self.lexer.advance()
+                                val = self.parse_simple()
+                                print(f"ans: {Update(ind, ass_op, val)}")
+                                return Update(ind, ass_op, val)
                     case _:
                         # self.lexer.advance()
                         return Identifier(name)
@@ -468,10 +479,13 @@ class Parser:
         left_part = self.parse_atom()
         flag = 0
         if(type(left_part) == Indexer):
-            flag = 1;
+            flag = 1
             va = left_part.val
             ind = left_part.index
         elif (type(left_part) == ListOperations):
+            self.lexer.match(EndOfLine(";"))
+            return left_part
+        elif (type(left_part) == Update):
             self.lexer.match(EndOfLine(";"))
             return left_part
 
@@ -579,10 +593,6 @@ class Parser:
 
         raise InvalidProgram(f"Syntax Error: Expected '(' but got {self.lexer.peek_current_token()}")
 
-
-
-
-
     def parse_func(self):
         """parse the function expression
         """
@@ -609,8 +619,6 @@ class Parser:
         args = self.parse_args()
         self.lexer.match(EndOfLine(";"))
         return FunctionCall(func_name, args)
-
-
 
 
     def parse_expr(self):
@@ -724,7 +732,7 @@ if __name__ == '__main__':
         Lexer.from_stream(Stream.from_string(program)))
     # print(f"object parser {obj_parser}")
     a = obj_parser.parse_program()
-    # print(a)
-    eval(a)
+    print(a)
+    # eval(a)
     # print(f"Parsed program: {a}")
 

@@ -1,36 +1,18 @@
-assign dp = [0, 0];
-assign N = 100000;
+struct Student {name, roll, std};
+assign s = Student{"John", 20110048};
+s.std = "13";
+assign t = Student{"chirag", 20110047, "12"};
+t.std = "10";
+print(s);
+print(t);
+print(t[roll]);
 
-for(assign i = 2; i <= N; i = i + 1;)
-{
-    dp.APPEND(0);
+
+assign a=  [4,5];
+a[0] = 5;
+print(a[1]);
+
+func add(a, b){
+    return a + b;
 }
-# Euler 14 - Longest Collatz sequence solution
-assign max_length = 0;
-assign max_num = 1;
-for (assign i = 2; i <= N; i = i + 1;)
-{
-    assign num = i;
-    assign length = 0;
-    while (num >= i)
-    {
-        if (num % 2 == 0)
-        {
-            num = num // 2;
-        }
-        else
-        {
-            num = 3 * num + 1;
-        }
-        length = length + 1;
-    }
-    dp[i] = length + dp[num];
-    if (dp[i] > max_length)
-    {
-        max_length = dp[i];
-        max_num = i;
-    }
-}
-print(max_num);
-print(max_length);
-#print(dp);
+print(add(2,3));
