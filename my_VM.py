@@ -481,38 +481,62 @@ def do_codegen(program: AST, code: ByteCode) -> None:
         #         code.emit_label((label2))
         #     else:
         #         code.emit_label((code.trackList[-1]))
+        # case IfElse(condition, if_body, elif_body, else_body):
+        #     label1 = code.label()
+        #     label2 = code.label()
+        #     # label3 = code.label()
+        #     codegen_(condition)
+        #     code.emit(I.JMP_IF_FALSE(label1))
+        #
+        #     codegen_(if_body)
+        #
+        #     if(code.flag > 0):
+        #         label = code.trackList.pop()
+        #         code.emit(I.JMP(label))
+        #         code.trackList.append(label)
+        #
+        #     else:
+        #         code.trackList.append(label2)
+        #         code.emit(I.JMP(label2))
+        #
+        #     code.emit_label(label1)
+        #     if(len(elif_body) != 0):
+        #         code.flag += 1
+        #
+        #
+        #     for elif_ in elif_body:
+        #         codegen_(elif_)
+        #
+        #     if(len(elif_body) != 0):
+        #         code.flag -= 1
+        #
+        #     codegen_(else_body)
+        #     if code.flag == 0:
+        #         code.emit_label((label2))
+
         case IfElse(condition, if_body, elif_body, else_body):
-            label1 = code.label()
-            label2 = code.label()
-            # label3 = code.label()
-            codegen_(condition)
-            code.emit(I.JMP_IF_FALSE(label1))
-            
-            codegen_(if_body)
-            
-            if(code.flag > 0):
-                label = code.trackList.pop()
-                code.emit(I.JMP(label))
-                code.trackList.append(label)
+            elif_list = []
 
-            else:
-                code.trackList.append(label2)
-                code.emit(I.JMP(label2))
-                
-            code.emit_label(label1)
-            if(len(elif_body) != 0):
-                code.flag += 1
+            new_if = IfElse(condition, if_body, [], None)
+            elif_list.append(new_if)
 
-            
+            labels = []
             for elif_ in elif_body:
-                codegen_(elif_)
-                
-            if(len(elif_body) != 0):
-                code.flag -= 1
-            
-            codegen_(else_body) 
-            if code.flag == 0:
-                code.emit_label((label2))
+                elif_list.append(elif_)
+
+            for elif_ in elif_list:
+                label1 = code.label()
+                label2 = code.label()
+                codegen_(elif_.condition)
+                code.emit(I.JMP_IF_FALSE(label1))
+                codegen_(elif_.if_body)
+                code.emit(I.JMP(label2))
+                code.emit_label(label1)
+                labels.append(label2)
+
+            codegen_(else_body)
+            for label in labels:
+                code.emit_label(label)
                 
         case While(condition, body):
             label1 = code.label()
