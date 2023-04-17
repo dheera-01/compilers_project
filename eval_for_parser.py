@@ -506,7 +506,7 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             for i in range(len(func_args)):
 
                 program_env.add(func_args[i],evaled_args[i])
-                print(program_env)
+
             rtr_value = None
 
             try:

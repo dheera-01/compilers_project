@@ -1,5 +1,5 @@
 assign dp = [0, 0];
-assign N = 100000;
+assign N = 1000;
 
 for(assign i = 2; i <= N; i = i + 1;)
 {

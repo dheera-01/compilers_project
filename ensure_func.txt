@@ -1,0 +1,48 @@
+func add(a,b) {
+    return a+b;
+}
+
+print(add(1,2));
+
+func odd_even(a) {
+    if(a%2==0) {
+        return "Even";
+    }
+    else {
+        return "Odd";
+    }
+}
+
+print(odd_even(2));
+print(odd_even(3));
+
+func fact(a) {
+    if(a==1) {
+        return 1;
+    }
+    else {
+        return a*fact(a-1);
+    }
+}
+
+print(fact(5));
+
+func fib(a) {
+    if(a==0) {
+        return 0;
+    }
+    elif(a==1) {
+        return 1;
+    }
+    else {
+        return fib(a-1)+fib(a-2);
+    }
+}
+
+print(fib(10));
+
+func hello() {
+    print("Hello");
+}
+
+assign hl=hello();
