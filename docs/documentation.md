@@ -14,6 +14,7 @@
 - [Lists](Implementation/List_declaration.md)
 - [Print](Implementation/print.md)
 - [Let](Implementation/let.md)
+- [Function](Impelementation/func.md)
 
 ## Language Docs
 
@@ -25,3 +26,4 @@
 - [Lists](usage/Lists.md)
 - [Print](usage/print.md)
 - [Let](usage/let.md)
+- [Function](usage/func.md)

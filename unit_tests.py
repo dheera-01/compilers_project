@@ -114,6 +114,17 @@ def test_lexer_slice():
     for token in object_lexer:
         assert str(token) == expected_token.pop(0)
 
+def test_lexer_func_def():
+    print(f'\nTestcase 7')
+    text = """
+    func add(a, b){
+        return a + b;
+    }
+    """
+    object_lexer = Lexer.from_stream(Stream.from_string(text))
+    expected_toekn=['Keyword(func)', 'Identifier(add, True)', 'Bracket(()', 'Identifier(a, True)', 'Operator(,)', 'Identifier(b, True)', 'Bracket())', 'Bracket({)', 'Keyword(return)', 'Identifier(a, True)', 'Operator(+)', 'Identifier(b, True)', 'EndOfLine(;)', 'Bracket(})']
+    for token in object_lexer:
+        assert str(token) == expected_toekn.pop(0)
 #--------------------------------------------
 # Parser Testcases
 
@@ -346,6 +357,23 @@ def test_parser_let():
     for i in obj_parser.parse_program().statements:
         assert str(i) == expected_paresed.pop(0)
 
+
+# def test_parse_func_def():
+#     token_list = [Keyword("func"), Identifier("add", True), Bracket('('), Identifier("a", True), Operator(','),
+#                       Identifier('b', True), Bracket(')'), Bracket('{'), Keyword('return'), Identifier('a', True),
+#                       Operator('+'), Identifier('b', True), EndOfLine(';'), Bracket('}')]
+#     object_lexer=DummyLexer(token_list)
+#
+#
+#     obj_parser = Parser.from_lexer(object_lexer)
+#     print(obj_parser.parse_program().statements)
+#
+#     expected_parsed=["""Function(Identifier(add), [Identifier(a), Identifier(b)], Return(BinOp(Identifier(a) + Identifier(b))))"""]
+#     for i in obj_parser.parse_program().statements:
+#         assert str(i) == expected_parsed.pop(0)
+
+
+
 #--------------------------------------------
 # Eval testcases
 
@@ -439,6 +467,15 @@ def test_eval_binOp():
 
 def test_eval_unaryOp():
     assert eval(UnaryOp("-", NumLiteral(1))) == NumLiteral(-1)
+
+
+def test_eval_func_def():
+    env = Environment()
+    body = Sequence([Return(NumLiteral(5)), Print(StringLiteral("Hello World"))])
+    func = Function(Identifier("test"), [], body)
+    env.add(func.name, func)
+    func_call = FunctionCall(Identifier("test"), [])
+    assert eval(func_call, env) == NumLiteral(5)
 
 # def test_eval_indexer(capsys):
 #     parsed_program = Sequence([Assign((Identifier("x"),), (NumLiteral(1),)), Assign((Identifier("y"),), (NumLiteral(2),)), Assign((Identifier("z"),), (NumLiteral(3),)), Assign((Identifier("a"),), (ListLiteral((Identifier("x"), Identifier("y"), Identifier("z"))),)), Print(Indexer(Identifier("a"), NumLiteral(0)))])
