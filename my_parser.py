@@ -733,6 +733,6 @@ if __name__ == '__main__':
     # print(f"object parser {obj_parser}")
     a = obj_parser.parse_program()
     print(a)
-    # eval(a)
+    eval(a)
     # print(f"Parsed program: {a}")
 

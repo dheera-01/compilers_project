@@ -510,19 +510,17 @@ def eval(program: AST, program_env:Environment = None) -> Value:
 
             func=program_env.get(function.name)
             func_args=func.args
-            # print("function args are ",func_args[0])
 
             evaled_args=[]
             for i in range(len(args)):
                 evaled_args.append(eval(args[i],program_env))
 
-
             program_env.enter_scope()
 
             if(len(func_args)!=len(args)):
                 raise InvalidProgram(f"TypeError: {function.name}() takes {len(func_args)} positional arguments but {len(args)} were given")
-            for i in range(len(func_args)):
 
+            for i in range(len(func_args)):
                 program_env.add(func_args[i],evaled_args[i])
                
             rtr_value = None
@@ -535,28 +533,19 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 rtr_value=None
                 if(isinstance(rtr_value,AST)):
                     rtr_value = e.args[0]
-
                 else:
                     print(e)
 
-
-            # fibo works when we exit scope twice why?
             program_env.exit_scope()
-
-
             program_env.restore(program_env_copy.envs)
 
             return rtr_value
 
         case Return(val):
-
             raise Exception(eval(val,program_env))
 
         case Function(name, args, body):
             program_env.add(name, Function(name, args, body))
-            # add program evironment with function keep track of args
-            # initialize args with None
-            # replace them while function call
             return None
         
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
