@@ -1,7 +1,8 @@
 # Weekly Report - 16 April 23
 
 ## @chirag-25
-
+- Fixed issue 51 for struct.
+- Wrote the euler problem in our language.
 
 ## Dheeraj Yadav(@dheera-01)
 - Added unittests for eval.
