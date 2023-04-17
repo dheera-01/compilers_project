@@ -45,23 +45,31 @@ We are using the eval_literals function to evaluate the value of the index and t
 
 ```python
 case Indexer(identifier, indexVal):
-            i = eval_literals(indexVal)
-            objectToBeIndexed = eval_literals(program_env.get(identifier.name))
-            if(len(objectToBeIndexed) <= i):
-                print("Index out of range")
-            for env in reversed(program_env.envs):
-                if identifier.name in env:
-                    if(type(program_env.get(identifier.name)) == list):
-                        return program_env.get(identifier.name)[i]
-                    elif(type(program_env.get(identifier.name)) == StringLiteral):
-                        res = eval_literals(program_env.get(identifier.name))[i]
-                        return StringLiteral(res)        
-                    else:
-                        print(f"The Indentifier {identifier} is not iterable")
-                        return None
+    i = eval_literals(eval(indexVal, program_env))
+    objectToBeIndexed = eval_literals(program_env.get(identifier.name))
+    if(len(objectToBeIndexed) <= i):
+        print("Index out of range")
+
+    item = program_env.get(identifier.name)
+
+    ans = (eval_literals(program_env.get(identifier.name)))[i]
+
+    if(isinstance(item, ListLiteral)):
+        return NumLiteral(ans)
+    elif(isinstance(item, StringLiteral)):
+        return StringLiteral(ans)
+    else:
+        print(f"Indexing not supported for {identifier} of type {type(item)}")
+        return None
 ```
 
-If its a list, then get the list coresponding to that identifier and index it. If its a string, then get the string coresponding to that identifier and index it. If it is any other data structure, then it is not iterable.
+The function first evaluates the indexVal expression using the eval_literals function and stores the result in the variable i. Then, it evaluates the value of the identifier using program_env.get() and stores it in the variable objectToBeIndexed.
+
+Next, it checks if the value of i is greater than or equal to the length of the objectToBeIndexed. If it is, it prints a message saying that the index is out of range.
+
+Then, the function gets the value of item using program_env.get() and stores it in the variable item. It also calculates the indexed value of the identifier using the evaluated value of indexVal and stores it in the variable ans.
+
+Finally, the function checks the type of the item and returns a NumLiteral or StringLiteral object containing the value of the indexed element if it is of the corresponding type. If the type of the item is neither ListLiteral nor StringLiteral, the function prints a message saying that indexing is not supported for the type of the identifier and returns None.
 
 ### How to parse the Indexer class?
 

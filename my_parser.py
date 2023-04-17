@@ -727,12 +727,16 @@ if __name__ == '__main__':
     a = obj_parser.parse_program()
     
     
-    code = codegen(a)
-    # print_bytecode(code)
-    vm = VM()
-    vm.load(code)
-    vm.execute()
+    #   ----------UNCOMMENT FOR VM CODE ------------
+    # code = codegen(a)
+    # # print_bytecode(code)
+    # vm = VM()
+    # vm.load(code)
+    # vm.execute()
+    #    ----------END-----------------
+    
+    
     # print(a)
-    # eval(a)
+    eval(a)
     # print(f"Parsed program: {a}")
 
