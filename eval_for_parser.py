@@ -151,7 +151,8 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             # The print function will print the evaluated value of val and return the AST val
             val = eval(value, program_env)
             # print(f"val: {val}")
-            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral)  or isinstance(val, Identifier) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral) or isinstance(val, ListLiteral) or isinstance(val, Struct):
+            # print(f"type of val: {type(val)}")
+            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral)  or isinstance(val, Identifier) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral) or isinstance(val, ListLiteral) or isinstance(val, Struct) or  val is None:
                 # print(f"----------------------------------------")
                 ans = eval_literals(val)
                 print(f"{ans}")

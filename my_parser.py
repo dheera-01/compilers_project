@@ -118,10 +118,7 @@ class Parser:
                                 break
                             self.lexer.match(Operator(","))
                         # print(f"user defined data type {user_defined_data_types}") 
-                        return Struct(name, f)    
-                        
-                    
-                    
+                        return Struct(name, f)              
                     case Bracket("("):
                         self.lexer.advance()   
 
@@ -164,7 +161,6 @@ class Parser:
                                 ass_op = self.lexer.peek_current_token()
                                 self.lexer.advance()
                                 val = self.parse_simple()
-                                print(f"ans: {Update(ind, ass_op, val)}")
                                 return Update(ind, ass_op, val)
                     case _:
                         # self.lexer.advance()
