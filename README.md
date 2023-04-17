@@ -3,24 +3,24 @@ Repository containing the project of compilers course.
 
 ## Feature list provided
 - [x] M: A number type and arithmetic.
-- [ ] I: Multiple number types such as fractions and integers. Quotient and division are different. Quotient has type (integer, integer) -> integer and division has type (fraction, fraction) -> fraction. An integer can be used wherever a fraction can be used.
+- [x] I: Multiple number types such as fractions and integers. Quotient and division are different. Quotient has type (integer, integer) -> integer and division has type (fraction, fraction) -> fraction. An integer can be used wherever a fraction can be used.
 - [x] M: Let expressions.
 - [x] I: Parallel let (See let..and in Ocaml).
 - [x] M: A Boolean type, comparisons, and if-else.
 - [ ] I: An explicit unary boolifying operator. In Perl so x where x has any type produces a Boolean value. For example, if x is a number, it is true when non-zero. If x is a string, it is true when non-empty.
 - [x] M: Mutable variables.
-- [ ] I: Static type checking. The expression (5>3) + 2 should be an error without evaluating anything.
+- [x] I: Static type checking. The expression (5>3) + 2 should be an error without evaluating anything.
 - [x] A: Disallow mutable variables to change type. With the binding let mut p = True in ..., the variable p should only be assigned boolean values.
 - [x] M: Strings with concatenation and slicing.
 - [x] M: A print operation that prints values to screen.
 - [x] M: loops.
-- [ ] M: Functions
+- [x] M: Functions
 - [x] M: Lists with operations cons, is-empty?, head, tail.
-- [ ] I: for loop to iterate over lists.
-- [ ] I: Mutable arrays with indexing, appending, popping, concatenation, element assignment.
+- [x] I: for loop to iterate over lists.
+- [x] I: Mutable arrays with indexing, appending, popping, concatenation, element assignment.
 - [ ] I: Allow declaration of type of array. For example let xs: Array[int] = [] in ... should prevent xs[0] ← 5/3.
 - [ ] A: Step-by-step debugger for your programming language.
-- [ ] A: User-defined types – records.
+- [x] A: User-defined types – records.
 - [ ] A: First-class functions.
 
 ## References
