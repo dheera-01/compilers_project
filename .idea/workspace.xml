@@ -59,7 +59,7 @@
       <recent name="$PROJECT_DIR$/temp_files" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Python tests for my_VM.test_vm">
+  <component name="RunManager">
     <configuration name="my_lexer" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="compilers_project" />
       <option name="INTERPRETER_OPTIONS" value="" />
