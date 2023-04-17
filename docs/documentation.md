@@ -14,9 +14,9 @@
 - [Lists](Implementation/List_declaration.md)
 - [Print](Implementation/print.md)
 - [Let](Implementation/let.md)
-- [Function](Impelementation/func.md)
-- [Bytecode](Impelementation/Bytecode.md)
-- [Struct](Impelementation/struct.md)
+- [Function](Implementation/func.md)
+- [Bytecode](Implementation/Bytecode.md)
+- [Struct](Implementation/struct.md)
 
 ## Language Docs
 
