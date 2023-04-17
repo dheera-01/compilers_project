@@ -107,33 +107,33 @@ class Parser:
                         self.lexer.advance()   
 
                         #this code logically clashes with custom datatype construct
-                        # args = []
-                        # while self.lexer.peek_current_token() != Bracket(")"):
-                        #     args.append(self.parse_simple())
-                        #     if self.lexer.peek_current_token() == Operator(","):
-                        #         self.lexer.advance()
-                        # self.lexer.match(Bracket(")"))
-                        # if is_func:
-                        #     return (Identifier(name), args)
-
-                        # return FunctionCall(Identifier(name), args)
-
-
-                        ind = 0
-                        f = []
-                        while True:
-                            # if ind >= len(f):
-                            #     raise Exception("Too many arguments")
-                            temp = [Identifier('NULL')]
-                            temp.append(self.parse_simple())
-                            f.append(temp)
-                            ind = ind + 1
-                            if self.lexer.peek_current_token() == Bracket(")"):
+                        args = []
+                        while self.lexer.peek_current_token() != Bracket(")"):
+                            args.append(self.parse_simple())
+                            if self.lexer.peek_current_token() == Operator(","):
                                 self.lexer.advance()
-                                break
-                            self.lexer.match(Operator(","))
-                        # print(f"user defined data type {user_defined_data_types}") 
-                        return Struct(name, f)    
+                        self.lexer.match(Bracket(")"))
+                        if is_func:
+                            return (Identifier(name), args)
+
+                        return FunctionCall(Identifier(name), args)
+
+
+                        # ind = 0
+                        # f = []
+                        # while True:
+                        #     # if ind >= len(f):
+                        #     #     raise Exception("Too many arguments")
+                        #     temp = [Identifier('NULL')]
+                        #     temp.append(self.parse_simple())
+                        #     f.append(temp)
+                        #     ind = ind + 1
+                        #     if self.lexer.peek_current_token() == Bracket(")"):
+                        #         self.lexer.advance()
+                        #         break
+                        #     self.lexer.match(Operator(","))
+                        # # print(f"user defined data type {user_defined_data_types}")
+                        # return Struct(name, f)
                     case Operator("."):
                         # print("Here")
                         self.lexer.advance()
@@ -717,7 +717,7 @@ def parse_code_file(file_location:str):
 
 if __name__ == '__main__':
 
-    file = open("program.txt", "r")
+    file = open("ensure_func.txt", "r")
 
     program = file.read()
     
