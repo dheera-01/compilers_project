@@ -10,6 +10,8 @@ import copy
 def ReturnException(value: Value):
     return value
 
+
+struct_instance = []
 def eval_literals(literal: Value) -> Value_literal:
     match literal:
         case NumLiteral(value):
@@ -130,7 +132,12 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 # else:
                     # print("Right value", right[i])
                 value = eval(right[i], program_env)
+                # print(f"i = {i}, ident = {ident}, value = {value}")
                 # print("Value is", value)
+                if isinstance(value, Struct):
+                    struct_instance.append(ident)
+                    
+                    
                 program_env.add(ident, value)
             return None
         
@@ -151,7 +158,8 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             # The print function will print the evaluated value of val and return the AST val
             val = eval(value, program_env)
             # print(f"val: {val}")
-            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral)  or isinstance(val, Identifier) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral) or isinstance(val, ListLiteral) or isinstance(val, Struct):
+            # print(f"type of val: {type(val)}")
+            if isinstance(val, NumLiteral) or isinstance(val, StringLiteral)  or isinstance(val, Identifier) or isinstance(val, BoolLiteral) or isinstance(val, FloatLiteral) or isinstance(val, ListLiteral) or isinstance(val, Struct) or  val is None:
                 # print(f"----------------------------------------")
                 ans = eval_literals(val)
                 print(f"{ans}")
@@ -427,22 +435,52 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                     f"TypeError: ** not supported between instances of {left} and {right}")
 
         case Indexer(identifier, indexVal):
-            i = eval_literals(eval(indexVal, program_env))
-            objectToBeIndexed = eval_literals(program_env.get(identifier.name))
-            if(len(objectToBeIndexed) <= i):
-                print("Index out of range")
-
-            item = program_env.get(identifier.name)
-
-            ans = (eval_literals(program_env.get(identifier.name)))[i]
-
-            if(isinstance(item, ListLiteral)):
-                return NumLiteral(ans)
-            elif(isinstance(item, StringLiteral)):
-                return StringLiteral(ans)
+            # print(f"identifier: {identifier}, indexVal: {indexVal}")
+            # print(f'user defined dat {user_defined_data_types}')
+            if identifier in struct_instance:
+                i = indexVal
             else:
-                print(f"Indexing not supported for {identifier} of type {type(item)}")
-                return None
+                i = eval_literals(eval(indexVal, program_env))
+            # if not isinstance(indexVal, Identifier):
+            #     i = eval_literals(eval(indexVal, program_env))
+            # else:
+            #     i = indexVal
+            objectToBeIndexed = eval(program_env.get(identifier.name), program_env)
+            
+            if isinstance( objectToBeIndexed, Struct):
+                return objectToBeIndexed.get(i)
+
+            if(len(objectToBeIndexed.value) <= i):
+                raise InvalidProgram(f"Index out of range")
+            if isinstance(objectToBeIndexed, ListLiteral):
+                return objectToBeIndexed.value[i]
+            if isinstance(objectToBeIndexed, StringLiteral):
+                return StringLiteral(objectToBeIndexed.value[i]) 
+            raise InvalidProgram(f"TypeError: {identifier} is not iterable")
+            
+            
+            
+            # # if(type(indexVal) == Identifier):
+            # #     i = eval_literals(eval(program_env.get(indexVal.name)))
+            # # else:
+            # #     i = eval_literals(indexVal)
+                
+            # i = eval_literals(eval(indexVal, program_env))
+            # objectToBeIndexed = eval_literals(program_env.get(identifier.name))
+            # if(len(objectToBeIndexed) <= i):
+            #     print("Index out of range")
+
+            # item = program_env.get(identifier.name)
+
+            # ans = (eval_literals(program_env.get(identifier.name)))[i]
+
+            # if(isinstance(item, ListLiteral)):
+            #     return NumLiteral(ans)
+            # elif(isinstance(item, StringLiteral)):
+            #     return StringLiteral(ans)
+            # else:
+            #     print(f"Indexing not supported for {identifier} of type {type(item)}")
+            #     return None
 
         case ListOperations(identifier, val, item, indVal):
 
@@ -547,6 +585,8 @@ def eval_of_text(program: str):
 
 
 if __name__ == "__main__":
+    # file = open("ensure_func.txt", "r")
+    # file = open("Euler14.txt", "r")
     file = open("program.txt", "r")
     program = file.read()
     eval_of_text(program)

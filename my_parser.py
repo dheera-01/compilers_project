@@ -103,6 +103,23 @@ class Parser:
                         #     val = self.parse_atom()
                         #     return ListOperations(Identifier(name), "ChangeOneElement", val, right_part)
                         return Indexer(Identifier(name), right_part)
+                    case Bracket("{"):
+                        self.lexer.advance()
+                        ind = 0
+                        f = []
+                        while True:
+                            # if ind >= len(f):
+                            #     raise Exception("Too many arguments")
+                            temp = [Identifier('NULL')]
+                            temp.append(self.parse_simple())
+                            f.append(temp)
+                            ind = ind + 1
+                            if self.lexer.peek_current_token() == Bracket("}"):
+                                self.lexer.advance()
+                                break
+                            self.lexer.match(Operator(","))
+                        # print(f"user defined data type {user_defined_data_types}") 
+                        return Struct(name, f)              
                     case Bracket("("):
                         self.lexer.advance()   
 
@@ -156,6 +173,13 @@ class Parser:
                             case Keyword("POP"):
                                 self.lexer.advance()
                                 return ListOperations(Identifier(name), "POP", None, None)
+                            case Identifier(name_):
+                                ind = Indexer(Identifier(name), Identifier(name_))
+                                self.lexer.advance() # consuming the identifier
+                                ass_op = self.lexer.peek_current_token()
+                                self.lexer.advance()
+                                val = self.parse_simple()
+                                return Update(ind, ass_op, val)
                     case _:
                         # self.lexer.advance()
                         return Identifier(name)
