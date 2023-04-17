@@ -15,6 +15,8 @@
 - [Print](Implementation/print.md)
 - [Let](Implementation/let.md)
 - [Function](Impelementation/func.md)
+- [Bytecode](Impelementation/Bytecode.md)
+- [Struct](Impelementation/struct.md)
 
 ## Language Docs
 
@@ -27,3 +29,4 @@
 - [Print](usage/print.md)
 - [Let](usage/let.md)
 - [Function](usage/func.md)
+- [Struct](usage/struct.md)
