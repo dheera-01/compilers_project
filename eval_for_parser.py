@@ -10,6 +10,8 @@ import copy
 def ReturnException(value: Value):
     return value
 
+
+struct_instance = []
 def eval_literals(literal: Value) -> Value_literal:
     match literal:
         case NumLiteral(value):
@@ -130,7 +132,12 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 # else:
                     # print("Right value", right[i])
                 value = eval(right[i], program_env)
+                # print(f"i = {i}, ident = {ident}, value = {value}")
                 # print("Value is", value)
+                if isinstance(value, Struct):
+                    struct_instance.append(ident)
+                    
+                    
                 program_env.add(ident, value)
             return None
         
@@ -429,13 +436,20 @@ def eval(program: AST, program_env:Environment = None) -> Value:
 
         case Indexer(identifier, indexVal):
             # print(f"identifier: {identifier}, indexVal: {indexVal}")
-            if not isinstance(indexVal, Identifier):
-                i = eval_literals(eval(indexVal, program_env))
-            else:
+            # print(f'user defined dat {user_defined_data_types}')
+            if identifier in struct_instance:
                 i = indexVal
+            else:
+                i = eval_literals(eval(indexVal, program_env))
+            # if not isinstance(indexVal, Identifier):
+            #     i = eval_literals(eval(indexVal, program_env))
+            # else:
+            #     i = indexVal
             objectToBeIndexed = eval(program_env.get(identifier.name), program_env)
+            
             if isinstance( objectToBeIndexed, Struct):
                 return objectToBeIndexed.get(i)
+
             if(len(objectToBeIndexed.value) <= i):
                 raise InvalidProgram(f"Index out of range")
             if isinstance(objectToBeIndexed, ListLiteral):
@@ -571,6 +585,8 @@ def eval_of_text(program: str):
 
 
 if __name__ == "__main__":
+    # file = open("ensure_func.txt", "r")
+    # file = open("Euler14.txt", "r")
     file = open("program.txt", "r")
     program = file.read()
     eval_of_text(program)

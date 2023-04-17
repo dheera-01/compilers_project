@@ -1,15 +1,12 @@
 assign dp = [0, 0];
-assign N = 100000;
+assign N = 50000;
 
-for(assign i = 2; i <= N; i = i + 1;)
-{
-    dp.APPEND(0);
-}
 # Euler 14 - Longest Collatz sequence solution
 assign max_length = 0;
 assign max_num = 1;
 for (assign i = 2; i <= N; i = i + 1;)
 {
+    dp.APPEND(0);
     assign num = i;
     assign length = 0;
     while (num >= i)
