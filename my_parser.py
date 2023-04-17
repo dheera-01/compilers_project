@@ -499,6 +499,9 @@ class Parser:
         elif (type(left_part) == ListOperations):
             self.lexer.match(EndOfLine(";"))
             return left_part
+        elif (type(left_part) == Update):
+            self.lexer.match(EndOfLine(";"))
+            return left_part
 
         #instead of this, it should be parse of right
         # if(isinstance(left_part, FunctionCall)):

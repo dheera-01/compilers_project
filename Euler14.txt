@@ -1,5 +1,5 @@
 assign dp = [0, 0];
-assign N = 50000;
+assign N = 10;
 
 # Euler 14 - Longest Collatz sequence solution
 assign max_length = 0;
