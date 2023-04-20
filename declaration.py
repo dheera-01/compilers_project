@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 from typing import List
 
 
+is_line_show = False
+
 # datatype for AST
 @dataclass
 class Sequence:
@@ -16,6 +18,12 @@ class Sequence:
 @dataclass
 class NumLiteral:
     value: int
+    line_number: int = 0
+    column_number: int = 0
+    
+    
+    def __repr__(self) -> str:
+        return f"NumLiteral({self.value}) [{self.line_number}: {self.column_number}]"
     
     def __repr__(self) -> str:
         return f"NumLiteral({self.value})"
@@ -24,46 +32,77 @@ class NumLiteral:
 @dataclass
 class StringLiteral:
     value: str
-
+    line_number: int = 0
+    column_number: int = 0
+    
+    
+    def __repr__(self) -> str:
+        return f"StringLiteral(\"{self.value}\") [{self.line_number}: {self.column_number}]"
+    
     def __repr__(self) -> str:
         return f"StringLiteral(\"{self.value}\")"
+    
 
 
 @dataclass
 class FloatLiteral:
     value: float
+    line_number: int = 0
+    column_number: int = 0
+
+    def __repr__(self) -> str:
+        return f"FloatLiteral({self.value}) [{self.line_number}: {self.column_number}]"
 
     def __repr__(self) -> str:
         return f"FloatLiteral({self.value})"
 
-
 @dataclass
 class BoolLiteral:
     value: bool
+    line_number: int = 0
+    column_number: int = 0
+
+    def __repr__(self) -> str:
+        return f"BoolLiteral({self.value}) [{self.line_number}: {self.column_number}]"
 
     def __repr__(self) -> str:
         return f"BoolLiteral({self.value})"
-
+    
 @dataclass
 class ListLiteral:
     value: list
+    line_number: int = 0
+    column_number: int = 0
 
+    def __repr__(self) -> str:
+        return f"ListLiteral({self.value}) [{self.line_number}: {self.column_number}]"
+    
     def __repr__(self) -> str:
         return f"ListLiteral({self.value})"
 
 @dataclass
 class Keyword:
     value: str
+    line_number: int = 0
+    column_number: int = 0
+
+    
+    def __repr__(self) -> str:
+        return f"Keyword({self.value}) [{self.line_number}: {self.column_number}]"
 
     def __repr__(self) -> str:
         return f"Keyword({self.value})"
-
 
 @dataclass
 class Identifier:
     name: str
     is_mutable: bool = True
+    line_number: int = 0
+    column_number: int = 0
 
+    def __repr__(self) -> str:
+        return f"Identifier({self.name}, {self.is_mutable}) [{self.line_number}: {self.column_number}]"
+    
     def __repr__(self) -> str:
         return f"Identifier({self.name}, {self.is_mutable})"
 
@@ -71,7 +110,13 @@ class Identifier:
 @dataclass
 class Operator:
     _operator: str
+    line_number: int = 0
+    column_number: int = 0
 
+    
+    def __repr__(self) -> str:
+        return f"Operator({self._operator}) [{self.line_number}: {self.column_number}]"
+    
     def __repr__(self) -> str:
         return f"Operator({self._operator})"
 
@@ -79,6 +124,11 @@ class Operator:
 @dataclass
 class Bracket:
     _bracket: str
+    line_number: int = 0
+    column_number: int = 0
+    
+    def __repr__(self) -> str:
+        return f"Bracket({self._bracket}) [{self.line_number}: {self.column_number}]"
 
     def __repr__(self) -> str:
         return f"Bracket({self._bracket})"
@@ -87,26 +137,39 @@ class Bracket:
 @dataclass
 class Comments:
     _comment: str
+    line_number: int = 0
+    column_number: int = 0
+
+    # def __repr__(self) -> str:
+    #     return f"Comments({self._comment})"
 
     def __repr__(self) -> str:
-        return f"Comments({self._comment})"
-
+        return f"Comments({self._comment}) [{self.line_number}: {self.column_number}]"
 
 @dataclass
 class EndOfLine:
     _eol: str
+    line_number: int = 0
+    column_number: int = 0
+
+    
+    def __repr__(self) -> str:
+        return f"EndOfLine({self._eol}) [{self.line_number}: {self.column_number}]"
 
     def __repr__(self) -> str:
         return f"EndOfLine({self._eol})"
 
-
 @dataclass
 class EndOfFile:
     _eof: str
+    line_number: int = 0
+    column_number: int = 0
+    
+    def __repr__(self) -> str:
+        return f"EndOfFile({self._eof}) [{self.line_number}: {self.column_number}]"
 
     def __repr__(self) -> str:
         return f"EndOfFile({self._eof})"
-
 
 @dataclass
 class BinOp:

@@ -1,36 +1,10 @@
-assign dp = [0, 0];
-assign N = 10;
-
-for(assign i = 2; i <= N; i = i + 1;)
-{
-    dp.APPEND(0);
-}
-# Euler 14 - Longest Collatz sequence solution
-assign max_length = 0;
-assign max_num = 1;
-for (assign i = 2; i <= N; i = i + 1;)
-{
-    assign num = i;
-    assign length = 0;
-    while (num >= i)
-    {
-        if (num % 2 == 0)
-        {
-            num = num // 2;
-        }
-        else
-        {
-            num = 3 * num + 1;
-        }
-        length = length + 1;
-    }
-    dp[i] = length + dp[num];
-    if (dp[i] > max_length)
-    {
-        max_length = dp[i];
-        max_num = i;
-    }
-}
-print(max_num);
-print(max_length);
-#print(dp);
+a.LEN;
+.25
+"chir"
++-+  + 2
+12
+0.2
+4.2
+64545
+{{}}
+a b True False and

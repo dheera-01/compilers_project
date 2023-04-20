@@ -13,6 +13,9 @@ class EndOfStream(Exception):
 class Stream:
     source: str
     pos: int
+    source_code: list = None
+    current_line_number: int = 1
+    current_column_number: int = 0
 
     def from_string(s):
         """Set the source to the string s and the position to 0 to start
@@ -23,10 +26,12 @@ class Stream:
         Returns:
             Stream: Stream object
         """
-        return Stream(s, 0)
+        scode = ["Start"] + s.splitlines()
+        return Stream(s, 0, scode)
 
     def next_char(self):
         """Return the current char in the stream and advance the position by 1 to go to the next char
+        column number is incremented by 1 so now it is pointing to the next char
 
         Raises:
             EndOfStream: if the end of the stream is reached
@@ -37,13 +42,31 @@ class Stream:
         if self.pos >= len(self.source):
             raise EndOfStream(f"End of stream reached")
         self.pos = self.pos + 1
+
+        if self.source[self.pos - 1] == "\n":
+            self.current_line_number += 1
+            self.current_column_number = 0
+            # self.source_code.append("")
+            return self.source[self.pos - 1]
+
+        self.current_column_number += 1
+        # self.source_code[-1] += self.source[self.pos - 1]
         return self.source[self.pos - 1]
 
     def unget(self):
         """Decrement the position by 1 to go back one character
         """
+
         assert self.pos > 0
         self.pos = self.pos - 1
+        if self.source[self.pos] == "\n":
+            self.current_line_number -= 1
+            self.current_column_number = len(
+                self.source_code[self.current_line_number - 1])
+            # self.source_code.pop()
+        else:
+            self.current_column_number -= 1
+            # self.source_code[-1] = self.source_code[-1][:-1]
 
 
 keywords = """
@@ -51,13 +74,13 @@ keywords = """
     if elif else break continue
     for while break continue
     def
-    print let 
-    slice in LEN TAIL HEAD APPEND POP 
+    print let
+    slice in LEN TAIL HEAD APPEND POP
     struct
     func
     return
     """.split()
-    
+
 symbolic_operators = """
     + - * / % // **
     > < <= >= == !=
@@ -73,17 +96,28 @@ closing_brackets = ") ] }".split()
 whitespace = " \t\n"
 
 
-def word_to_token(word):
+# def word_to_token(word):
+#     """Convert a word to a tokens. Tokens are keywords, word operators, bool literals, identifiers"""
+#     if word in keywords:
+#         return Keyword(word)
+#     if word in word_operators:
+#         return Operator(word)
+#     if word == "True":
+#         return BoolLiteral(True)
+#     if word == "False":
+#         return BoolLiteral(False)
+#     return Identifier(word)
+def word_to_token(word, line, col):
     """Convert a word to a tokens. Tokens are keywords, word operators, bool literals, identifiers"""
     if word in keywords:
-        return Keyword(word)
+        return Keyword(word, line, col)
     if word in word_operators:
-        return Operator(word)
+        return Operator(word, line, col)
     if word == "True":
-        return BoolLiteral(True)
+        return BoolLiteral(True, line, col)
     if word == "False":
-        return BoolLiteral(False)
-    return Identifier(word)
+        return BoolLiteral(False, line, col)
+    return Identifier(word, line_number= line, column_number= col)
 
 
 class TokenError(Exception):
@@ -113,6 +147,15 @@ class Lexer:
         """
         return Lexer(s)
 
+    def get_line_number(self):
+        return self.stream.current_line_number
+
+    def get_column_number(self):
+        return self.stream.current_column_number
+
+    def get_code(self):
+        return self.stream.source_code[self.get_line_number()]
+
     def next_token(self) -> Token:
         """Return the next token in the stream
 
@@ -123,7 +166,7 @@ class Lexer:
             match self.stream.next_char():
                 # reading the end of line
                 case c if c == ";":
-                    return EndOfLine(c)
+                    return EndOfLine(c, self.get_line_number(), self.get_column_number())
                     pass
                 # reading the comments:
                 case c if c == "#":
@@ -142,11 +185,16 @@ class Lexer:
                 case c if c == "!":
                     s = self.stream.next_char()
                     if c + s in symbolic_operators:
-                        return Operator(c + s)
-                    raise TokenError(f"{c + s} is an Invalid operator")
+                        # return Operator(c + s)
+                        # -1 as != is 2 chars so pointer should be at !
+                        return Operator(c + s, self.get_line_number(), self.get_column_number() - 1)
+                    # raise TokenError(f"{c + s} is an Invalid operator")
+                    raise TokenError(
+                        f"Token Error: In line {self.get_line_number}\n{self.get_code()}\n{' ' * self.get_column_number()}^\n{c + s} is an Invalid operator")
 
                 case c if c in symbolic_operators:
                     start = self.stream.pos - 1
+                    start_column = self.get_column_number()
                     while True:
                         s = self.stream.next_char()
                         # +- for unary operator ++--6
@@ -155,138 +203,157 @@ class Lexer:
                         else:
                             self.stream.unget()
                             if c in symbolic_operators:
-                                return Operator(c)
+                                return Operator(c, self.get_line_number(), start_column)
                             else:
                                 for i in c:
                                     if i not in "+-":
                                         # =! is not a valid operator
-                                        raise TokenError(f"{c} is an Invalid operator")
+                                        # raise TokenError(f"{c} is an Invalid operator")
+                                        raise TokenError(
+                                            f"Token Error: In line {self.get_line_number()}\n{self.get_code()}\n{' ' * self.get_column_number()}^\n{c} is an Invalid operator")
                                 # here getting unary operator
                                 self.stream.pos = start + 1
-                                return Operator(c[0])
+                                # return Operator(c[0])
+                                self.stream.current_column_number = start_column
+                                return Operator(c[0], self.get_line_number(), start_column)
 
                 # reading the string literal, "" or ''
                 case c if c == '"' or c == "'":
+                    start_column = self.get_column_number()
                     current_quote = c
                     st = ''
                     while True:
                         try:
                             c = self.stream.next_char()
                             if c == current_quote:
-                                return StringLiteral(st)
+                                # return StringLiteral(st)
+                                return StringLiteral(st, self.get_line_number(), start_column)
                             else:
-                                st = st + c
+                                st=st + c
                         except EndOfStream:
-                            raise TokenError(f"{st}: Unterminated string literal")
+                            # raise TokenError(f"{st}: Unterminated string literal")
+                            raise TokenError(f"Token Error: In line {self.get_line_number()}\n{self.get_code()}\n{' ' * self.get_column_number()}^\n{st}: Unterminated string literal")
 
                 case c if c == ".":
-                    temp_str = ""
-                    unget_count = 0
-                    list_operations = ["LEN", "TAIL", "HEAD", "APPEND", "POP"]
-                    list_operations_flag = False
+                    start_column = self.get_column_number()
+                    # temp_str=""
+                    # unget_count=0
+                    # list_operations=["LEN", "TAIL", "HEAD", "APPEND", "POP"]
+                    # list_operations_flag=False
+                    # while True:
+                    #     unget_count += 1
+                    #     char=self.stream.next_char()
+                    #     temp_str += c
+                    #     if temp_str in list_operations:
+                    #         list_operations_flag=True
+                    #         break
 
-                    while True:
-                        unget_count += 1
-                        char = self.stream.next_char()
-                        temp_str += c
-                        if temp_str in list_operations:
-                            list_operations_flag = True
-                            break
+                    #     if char not in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                    #         break
 
-                        if char not in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
-                            break
+                    #     if unget_count > 6:
+                    #         break
 
-                        if unget_count > 6:
-                            break
+                    # for i in range(unget_count):
+                    #     self.stream.unget()
 
-                    for i in range(unget_count):
-                        self.stream.unget()
+                    # if list_operations_flag:
+                    #     return Operator(".", self.get_line_number(), start_column)
 
-                    if list_operations_flag:
-                        return Operator(".")
-
-                    char = self.stream.next_char()
+                    char=self.stream.next_char()
                     if char.isdigit():
-                        self.stream.unget()
-                        n = str(0)
-                        n = n + c
-
-                        while True:
-                            c = self.stream.next_char()
-                            if c.isdigit():
-                                n += c
-                            elif c == ".":
-                                raise TokenError(f"{n + c} Invalid number")
-                            else:
-                                self.stream.unget()
-                                return FloatLiteral(float(n))
+                        try: 
+                            self.stream.unget()
+                            n=str(0)
+                            n=n + c
+                            while True:
+                                c=self.stream.next_char()
+                                if c.isdigit():
+                                    n += c
+                                elif c == ".":
+                                    # raise TokenError(f"{n + c} Invalid number")
+                                    raise TokenError(f"Token Error: In line {self.get_line_number()}\n{self.get_code()}\n{' ' * (self.get_column_number()-1)}^\n{n + c} Invalid number")
+                                else:
+                                    self.stream.unget()
+                                    # return FloatLiteral(float(n)
+                                    return FloatLiteral(float(n), self.get_line_number(), start_column)
+                        except EndOfStream:
+                            return FloatLiteral(float(n), self.get_line_number(), start_column)
                     else:
                         self.stream.unget()
-                        return Operator(".")
+                        return Operator(".", self.get_line_number(), start_column)
 
                 # reading the numbers
                 case c if c.isdigit():
-                    n = int(c)
+                    start_column = self.get_column_number()
+                    n=int(c)
                     while True:
                         try:
-                            c = self.stream.next_char()
+                            c=self.stream.next_char()
                             if c.isdigit():
-                                n = n * 10 + int(c)
+                                n=n * 10 + int(c)
                             elif c == ".":
 
-                                n = str(n)
-                                n = n + c
+                                n=str(n)
+                                n=n + c
                                 while True:
-                                    c = self.stream.next_char()
+                                    c=self.stream.next_char()
                                     if c.isdigit():
                                         n += c
                                     elif c == ".":
-                                        raise TokenError(
-                                            f"{n + c} Invalid number")
+                                        # raise TokenError(f"{n + c} Invalid number")
+                                        raise TokenError(f"Token Error: In line {self.get_line_number()}\n{self.get_code()}\n{' ' * (self.get_column_number()-1)}^\n{n + c} Invalid number")
                                     else:
                                         self.stream.unget()
-                                        return FloatLiteral(float(n))
+                                        # return FloatLiteral(float(n))
+                                        return FloatLiteral(float(n), self.get_line_number(), start_column)
                             else:
                                 self.stream.unget()
-                                return NumLiteral(n)
+                                # return NumLiteral(n)
+                                return NumLiteral(n, self.get_line_number(), self.get_column_number())
                         except EndOfStream:
-                            return NumLiteral(n)
+                            # return NumLiteral(n)
+                            return NumLiteral(n, self.get_line_number(), start_column)
 
                 # bracket and bracket matching
                 case c if c in opening_brackets:
                     bracket_track_list.append(c)
-                    return Bracket(c)
+                    # return Bracket(c)
+                    return Bracket(c, self.get_line_number(), self.get_column_number())
                 case c if c in closing_brackets:
-                    temp = c
+                    temp=c
                     if len(bracket_track_list) == 0 or bracket_map[c] != bracket_track_list.pop():
-                        print(Bracket(c))
-                        raise TokenError(f"{c} Unmatched closing bracket")
-                    return Bracket(c)
+                        # print(Bracket(c))
+                        # raise TokenError(f"{c} Unmatched closing bracket")
+                        raise TokenError(f"Token Error: In line {self.get_line_number()}\n{self.get_code()}\n{' ' * self.get_column_number()}^\n{c} Unmatched closing bracket")
+                    # return Bracket(c)
+                    return Bracket(c, self.get_line_number(), self.get_column_number())
 
                 # reading the identifiers
                 # _, a are valid identifiers
-                
-                
+
+
                 case c if c.isalpha() or c == "_":
-                    s = c
+                    start_column = self.get_column_number()
+                    s=c
                     while True:
                         try:
-                            c = self.stream.next_char()
+                            c=self.stream.next_char()
                             # a1, a_ is valid identifier
                             if c.isalpha() or c == "_" or c.isdigit():
-                                s = s + c
+                                s=s + c
                             else:
                                 self.stream.unget()
-                                return word_to_token(s)
-                        except EndOfStream:
-                            return word_to_token(s)
+                                return word_to_token(s, self.get_line_number(), start_column )
+                        except EndOfStream: 
+                            return word_to_token(s, self.get_line_number(), start_column )
 
                 # reading the white space
                 case c if c in whitespace:
                     return self.next_token()
         except EndOfStream:
             # you can put the end of the file
-            return EndOfFile("EOF")
+            return EndOfFile("EOF", self.get_line_number(), self.get_column_number())
 
     # see the current token without consuming it
     def peek_current_token(self) -> Token:
@@ -297,14 +364,14 @@ class Lexer:
         """
         if self.save is not None:
             return self.save
-        self.save = self.next_token()
+        self.save=self.next_token()
         return self.save
 
     # consume the current token
     def advance(self):
         """Consume the current token"""
         assert self.save is not None
-        self.save = None
+        self.save=None
 
     # match the current token against the expected token and consume it
     def match(self, expected):
@@ -323,7 +390,8 @@ class Lexer:
         if self.peek_current_token() == expected:
             return self.advance()
 
-        raise TokenError(f"Expected {expected} but got {self.peek_current_token()} ")
+        raise TokenError(
+            f"Expected {expected} but got {self.peek_current_token()} ")
 
     # __iter__ and __next__ are used to make the Lexer iterable
     # __iter__ returns the object itself
@@ -348,7 +416,7 @@ class Lexer:
         Returns:
             Token: the next token
         """
-        nxt_t = self.next_token()
+        nxt_t=self.next_token()
         if isinstance(nxt_t, EndOfFile):
             if len(bracket_track_list) != 0:
                 raise TokenError(
@@ -358,15 +426,17 @@ class Lexer:
         return nxt_t
 
 if __name__ == "__main__":
-    
+
     # testing on playground
-    file = open("program.txt", "r")
-    program = file.read()
+    file=open("program.txt", "r")
+    program=file.read()
+
+    # print(Lexer.from_stream(Stream.from_string(program)))
 
 
 
-    # program = """4 .LEN;"""
-    lexer_object = Lexer.from_stream(Stream.from_string(program))
+    # # program = """4 .LEN;"""
+    lexer_object=Lexer.from_stream(Stream.from_string(program))
     print(lexer_object)
     for token in lexer_object:
         print(token)
