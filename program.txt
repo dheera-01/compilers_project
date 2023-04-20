@@ -1,10 +1,4 @@
-a.LEN;
-.25
-"chir"
-+-+  + 2
-12
-0.2
-4.2
-64545
-{{}}
-a b True False and
+assign a = 1;
+#a ++  12;
+
+struct and chirag

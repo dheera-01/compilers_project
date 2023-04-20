@@ -27,6 +27,11 @@ class NumLiteral:
     
     def __repr__(self) -> str:
         return f"NumLiteral({self.value})"
+    
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, NumLiteral):
+            return self.value == __value.value
+        return False
 
 
 @dataclass
@@ -42,6 +47,11 @@ class StringLiteral:
     def __repr__(self) -> str:
         return f"StringLiteral(\"{self.value}\")"
     
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, StringLiteral):
+            return self.value == __value.value
+        return False
+    
 
 
 @dataclass
@@ -55,6 +65,11 @@ class FloatLiteral:
 
     def __repr__(self) -> str:
         return f"FloatLiteral({self.value})"
+    
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, FloatLiteral):
+            return self.value == __value.value
+        return False
 
 @dataclass
 class BoolLiteral:
@@ -68,6 +83,11 @@ class BoolLiteral:
     def __repr__(self) -> str:
         return f"BoolLiteral({self.value})"
     
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, BoolLiteral):
+            return self.value == __value.value
+        return False
+    
 @dataclass
 class ListLiteral:
     value: list
@@ -79,6 +99,11 @@ class ListLiteral:
     
     def __repr__(self) -> str:
         return f"ListLiteral({self.value})"
+    
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, ListLiteral):
+            return self.value == __value.value
+        return False
 
 @dataclass
 class Keyword:
@@ -87,11 +112,16 @@ class Keyword:
     column_number: int = 0
 
     
-    def __repr__(self) -> str:
-        return f"Keyword({self.value}) [{self.line_number}: {self.column_number}]"
+    # def __repr__(self) -> str:
+    #     return f"Keyword({self.value}) [{self.line_number}: {self.column_number}]"
 
     def __repr__(self) -> str:
         return f"Keyword({self.value})"
+    
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, Keyword):
+            return self.value == __value.value
+        return False
 
 @dataclass
 class Identifier:
@@ -105,6 +135,11 @@ class Identifier:
     
     def __repr__(self) -> str:
         return f"Identifier({self.name}, {self.is_mutable})"
+    
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, Identifier):
+            return self.name == __value.name
+        return False
 
 
 @dataclass
@@ -119,6 +154,11 @@ class Operator:
     
     def __repr__(self) -> str:
         return f"Operator({self._operator})"
+    
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, Operator):
+            return self._operator == __value._operator
+        return False
 
 
 @dataclass
@@ -132,6 +172,11 @@ class Bracket:
 
     def __repr__(self) -> str:
         return f"Bracket({self._bracket})"
+    
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, Bracket):
+            return self._bracket == __value._bracket
+        return False
 
 
 @dataclass
@@ -158,6 +203,11 @@ class EndOfLine:
 
     def __repr__(self) -> str:
         return f"EndOfLine({self._eol})"
+    
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, EndOfLine):
+            return self._eol == __value._eol
+        return False
 
 @dataclass
 class EndOfFile:
@@ -170,6 +220,11 @@ class EndOfFile:
 
     def __repr__(self) -> str:
         return f"EndOfFile({self._eof})"
+    
+    def __eq__(self, __value: object) -> bool:
+        if isinstance(__value, EndOfFile):
+            return self._eof == __value._eof
+        return False
 
 @dataclass
 class BinOp:

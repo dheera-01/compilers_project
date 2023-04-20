@@ -512,9 +512,11 @@ class Parser:
         assignment_operator_list = "= -= += *= /= %= //= **=".split()
         op = self.lexer.peek_current_token()
         if not isinstance(op, Operator):
-            raise InvalidProgram(f"Syntax Error: Expected an assignment operator but got {op}")
+            # raise InvalidProgram(f"Syntax Error: Expected an assignment operator but got {op}")
+            raise InvalidProgram(f"Syntax Error: in Line {op.line_number}\n{self.lexer.stream.source_code[op.line_number]}\n{' ' * (op.column_number - 1)}^\nExpected an assignment operator but got {op}")
         if op._operator not in assignment_operator_list:
-            raise InvalidProgram(f"Syntax Error: {op} not a valid assignment operator")
+            # raise InvalidProgram(f"Syntax Error: {op} not a valid assignment operator")
+            raise InvalidProgram(f"Syntax Error: In Line {op.line_number}\n{self.lexer.stream.source_code[op.line_number]}\n{' ' * (op.column_number - 1)}^\n{op} not a valid assignment operator")
         
         self.lexer.advance()
         right_part = self.parse_simple()
@@ -558,7 +560,8 @@ class Parser:
         
         self.lexer.match(Keyword("struct"))
         data_type = self.lexer.peek_current_token()
-        assert isinstance(data_type, Identifier), f"Syntax Error: Expected an identifier but got {data_type}"
+        # assert isinstance(data_type, Identifier), f"Syntax Error: Expected an identifier but got {data_type}"
+        assert isinstance(data_type, Identifier), f"Syntax Error: In Line {data_type.line_number}\n{self.lexer.stream.source_code[data_type.line_number]}\n{' ' * (data_type.column_number - 1)}^\nExpected an identifier but got {data_type}"
         data_type = data_type.name
         self.lexer.advance() # consume the token of identifier
         self.lexer.match(Bracket("{"))
@@ -566,7 +569,8 @@ class Parser:
         while True:
             temp = []
             pt = self.lexer.peek_current_token() # peek token
-            assert isinstance(pt, Identifier), f"Syntax Error: Expected an identifier but got {pt}"
+            # assert isinstance(pt, Identifier), f"Syntax Error: Expected an identifier but got {pt}"
+            assert isinstance(pt, Identifier), f"Syntax Error: In Line {pt.line_number}\n{self.lexer.stream.source_code[pt.line_number]}\n{' ' * (pt.column_number - 1)}^\nExpected an identifier but got {pt}"
             self.lexer.advance() # consume the token of identifier
             temp.append(pt)
             temp.append(None)
@@ -744,7 +748,8 @@ def parse_code_file(file_location:str):
 
 if __name__ == '__main__':
 
-    file = open("ensure_func.txt", "r")
+    # file = open("ensure_func.txt", "r")
+    file = open("program.txt", "r")
 
     program = file.read()
     
@@ -752,6 +757,7 @@ if __name__ == '__main__':
         Lexer.from_stream(Stream.from_string(program)))
     # print(f"object parser {obj_parser}")
     a = obj_parser.parse_program()
+    print(a)
     
     
     #   ----------UNCOMMENT FOR VM CODE ------------
@@ -764,6 +770,6 @@ if __name__ == '__main__':
     
     
     # print(a)
-    eval(a)
+    # eval(a)
     # print(f"Parsed program: {a}")
 
