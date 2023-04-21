@@ -87,7 +87,7 @@ class Parser:
     def parse_atom(self,is_func=False):
         """parse the atomic expression"""
         match self.lexer.peek_current_token():  
-            case Identifier(name):
+            case Identifier(name) as id:
                 self.lexer.advance()
                 match self.lexer.peek_current_token():
                     case Bracket("["):
@@ -102,7 +102,7 @@ class Parser:
                         #     self.lexer.advance()
                         #     val = self.parse_atom()
                         #     return ListOperations(Identifier(name), "ChangeOneElement", val, right_part)
-                        return Indexer(Identifier(name), right_part)
+                        return Indexer(id, right_part)
                     case Bracket("{"):
                         self.lexer.advance()
                         ind = 0
@@ -131,9 +131,11 @@ class Parser:
                                 self.lexer.advance()
                         self.lexer.match(Bracket(")"))
                         if is_func:
-                            return (Identifier(name), args)
+                            # return (Identifier(name), args)
+                            return (id, args)
 
-                        return FunctionCall(Identifier(name), args)
+                        # return FunctionCall(Identifier(name), args)
+                        return FunctionCall(id, args)
 
 
                         # ind = 0
@@ -157,24 +159,30 @@ class Parser:
                         match self.lexer.peek_current_token():
                             case Keyword("LEN"):
                                 self.lexer.advance()
-                                return ListOperations(Identifier(name), "LEN", None, None)
+                                # return ListOperations(Identifier(name), "LEN", None, None)
+                                return ListOperations(id, "LEN", None, None)
                             case Keyword("TAIL"):
                                 self.lexer.advance()
-                                return ListOperations(Identifier(name), "TAIL", None, None)
+                                # return ListOperations(Identifier(name), "TAIL", None, None)
+                                return ListOperations(id, "TAIL", None, None)
                             case Keyword("HEAD"):
                                 self.lexer.advance()
-                                return ListOperations(Identifier(name), "HEAD", None, None)
+                                # return ListOperations(Identifier(name), "HEAD", None, None)
+                                return ListOperations(id, "HEAD", None, None)
                             case Keyword("APPEND"):
                                 self.lexer.advance()
                                 self.lexer.match(Bracket("("))
                                 right_part = self.parse_atom()
                                 self.lexer.match(Bracket(")"))
-                                return ListOperations(Identifier(name), "APPEND", right_part, None)
+                                # return ListOperations(Identifier(name), "APPEND", right_part, None)
+                                return ListOperations(id, "APPEND", right_part, None)
                             case Keyword("POP"):
                                 self.lexer.advance()
-                                return ListOperations(Identifier(name), "POP", None, None)
-                            case Identifier(name_):
-                                ind = Indexer(Identifier(name), Identifier(name_))
+                                # return ListOperations(Identifier(name), "POP", None, None)
+                                return ListOperations(id, "POP", None, None)
+                            case Identifier(name_) as id2:
+                                # ind = Indexer(Identifier(name), Identifier(name_))
+                                ind = Indexer(id, id2)
                                 self.lexer.advance() # consuming the identifier
                                 ass_op = self.lexer.peek_current_token()
                                 self.lexer.advance()
@@ -182,9 +190,10 @@ class Parser:
                                 return Update(ind, ass_op, val)
                     case _:
                         # self.lexer.advance()
-                        return Identifier(name)
+                        # return Identifier(name)
+                        return id
             
-            case Bracket('['):
+            case Bracket('[') as b:
                 # Till you dont encounter a closing bracket, keep parsing the expression and store the literals
                 # in a list and skip the operator ","
                 self.lexer.advance()
@@ -198,47 +207,46 @@ class Parser:
                             self.lexer.advance()
                         case _:
                             list_body.append(self.parse_simple())
-                return ListLiteral(list_body)
+                return ListLiteral(list_body, line_number=b.line_number, column_number=b.line_number)
             
-            case StringLiteral(value):
+            case StringLiteral(value) as s:
                 self.lexer.advance()
-                return StringLiteral(value)
-            case NumLiteral(value):
+                return s
+            case NumLiteral(value) as n:
+                # print(self.lexer.peek_current_token(), "in parse_atom")
+                # print("in parse_atom", n)
+                self.lexer.advance()
                 # print(self.lexer.peek_current_token())
+                return n
+            case FloatLiteral(value) as f:
                 self.lexer.advance()
-                # print(self.lexer.peek_current_token())
-                return NumLiteral(value)
-            case FloatLiteral(value):
+                # return FloatLiteral(value)
+                return f
+            case BoolLiteral(value) as b:
                 self.lexer.advance()
-                return FloatLiteral(value)
-            case BoolLiteral(value):
-                self.lexer.advance()
-                return BoolLiteral(value)
-            case Bracket("["):
-                self.lexer.advance()
-                right_part = []
-                while True:
-                    match self.lexer.peek_current_token():
-                        case Bracket("]"):
-                            self.lexer.advance()
-                            break
-                        case Operator(","):
-                            self.lexer.advance()
-                        case _:
-                            right_part.append(self.parse_simple())
-                return right_part
+                # return BoolLiteral(value)
+                return b
             case Keyword("slice"):
                 return self.parse_slice()
             case Keyword("let"):
                 return self.parse_let()
             # case Bracket("["):
                 # return self.parse_list()
-            case Bracket("(") | Bracket("[") | Bracket("{"):
+            case Bracket("(") | Bracket("[") | Bracket("{") as b:
                 # print("Here")
-                self.lexer.advance()  # consume the opening bracket
+                
+                # self.lexer.advance()  # consume the opening bracket
+                opening_bracket = b._bracket
+                closing_brackets = None
+                for cl, op in bracket_map.items():
+                    if op == opening_bracket:
+                        closing_brackets = cl     
+                self.lexer.match(Bracket(opening_bracket))
                 ans = self.parse_simple()  # calculating the expression inside the brackets
                 # print("The answer is", ans)
-                self.lexer.advance()  # consume the closing bracket
+                print(f"in parse_atom {self.lexer.peek_current_token()}")
+                # self.lexer.advance()  # consume the closing bracket
+                self.lexer.match(Bracket(closing_brackets))
                 return ans
             case Keyword(a):
                 raise Exception(f"Unexpected keyword {a}")
@@ -421,7 +429,6 @@ class Parser:
 
         return self.parse_or()
 
-
     def parse_assign(self):
         self.lexer.match(Keyword("assign"))
         flag = 0;
@@ -451,8 +458,7 @@ class Parser:
             return ListOperations(va, "ChangeOneElement", assignments_r[0], ind)
         else:
             return Assign(tuple(assignments_l),tuple(assignments_r))
-    
-    
+        
     def parse_const(self):
         """paster the immutable assign expression
 
@@ -610,9 +616,6 @@ class Parser:
                 return args
 
         raise InvalidProgram(f"Syntax Error: Expected '(' but got {self.lexer.peek_current_token()}")
-
-
-
 
 
     def parse_func(self):

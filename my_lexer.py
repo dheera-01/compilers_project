@@ -9,11 +9,12 @@ class EndOfStream(Exception):
     pass
 
 
+
 @dataclass
 class Stream:
     source: str
     pos: int
-    source_code: list = None
+    # source_code: list = None
     current_line_number: int = 1
     current_column_number: int = 0
 
@@ -26,8 +27,12 @@ class Stream:
         Returns:
             Stream: Stream object
         """
-        scode = ["Start"] + s.splitlines()
-        return Stream(s, 0, scode)
+        source_code.clear()
+        source_code.append("Start")
+        for i in s.splitlines():
+            source_code.append(i)
+        print(f"source code: {source_code}")
+        return Stream(s, 0)
 
     def next_char(self):
         """Return the current char in the stream and advance the position by 1 to go to the next char
@@ -154,7 +159,7 @@ class Lexer:
         return self.stream.current_column_number
 
     def get_code(self):
-        return self.stream.source_code[self.get_line_number()]
+        return source_code[self.get_line_number()]
 
     def next_token(self) -> Token:
         """Return the next token in the stream
@@ -310,7 +315,7 @@ class Lexer:
                             else:
                                 self.stream.unget()
                                 # return NumLiteral(n)
-                                return NumLiteral(n, self.get_line_number(), self.get_column_number())
+                                return NumLiteral(n, self.get_line_number(), start_column)
                         except EndOfStream:
                             # return NumLiteral(n)
                             return NumLiteral(n, self.get_line_number(), start_column)
@@ -387,11 +392,15 @@ class Lexer:
             None: if the current token is the expected token it will consume it and return None
         """
 
+        pt = self.peek_current_token()
         if self.peek_current_token() == expected:
             return self.advance()
 
-        raise TokenError(
-            f"Expected {expected} but got {self.peek_current_token()} ")
+        # raise TokenError(
+        #     f"Expected {expected} but got {self.peek_current_token()} ")
+        expected.line_number=pt.line_number
+        expected.column_number=pt.column_number
+        raise TokenError(f"Token Error: In line {pt.line_number}\n{source_code[pt.line_number]}\n{' ' * (pt.column_number-1)}^\nExpected {expected} but got {self.peek_current_token()}")
 
     # __iter__ and __next__ are used to make the Lexer iterable
     # __iter__ returns the object itself

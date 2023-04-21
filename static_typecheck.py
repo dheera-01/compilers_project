@@ -1,5 +1,6 @@
 from my_parser import *
 
+
 def typeerror(message: str) -> None:
     raise Exception(message)
 
@@ -78,18 +79,23 @@ def typecheck(program: AST) -> Value:
 
             if isinstance(step, Identifier):
                 step = NumLiteral(0)
-
+              
             if not isinstance(string_var, StringLiteral):
-                return typeerror(f"Slice operand must be a string")
+                # return typeerror(f"Slice operand must be a string")
+                # global global_source_code
+                return typeerror(f"TypeError: In line {string_var.line_number}\n{source_code[string_var.line_number]}\n{(string_var.column_number - 1) * ' '}^\n{string_var} is not a string")
 
             if not isinstance(start, NumLiteral):
-                return typeerror(f"Slice start index must be a number")
+                # return typeerror(f"Slice start index must be a number")
+                return typeerror(f"TypeError: In line {start.line_number}\n{source_code[start.line_number]}\n{(start.column_number - 1) * ' '}^\n{start} is not a NumLiteral")
 
             if not isinstance(end, NumLiteral):
-                return typeerror(f"Slice end index must be a number")
+                # return typeerror(f"Slice end index must be a number")
+                return typeerror(f"TypeError: In line {end.line_number}\n{source_code[end.line_number]}\n{(end.column_number - 1) * ' '}^\n{end} is not a NumLiteral")
 
             if not isinstance(step, NumLiteral):
-                return typeerror(f"Slice step index must be a number")
+                # return typeerror(f"Slice step index must be a number")
+                return typeerror(f"TypeError: In line {step.line_number}\n{source_code[step.line_number]}\n{(step.column_number - 1) * ' '}^\n{step} is not a NumLiteral")
 
             return StringLiteral("") # return type is string
 
@@ -100,7 +106,8 @@ def typecheck(program: AST) -> Value:
                 condition_res = BoolLiteral(True)
 
             if not isinstance(condition_res, BoolLiteral):
-                return typeerror(f"TypeError: {condition_res} is not a boolean")
+                # return typeerror(f"TypeError: {condition_res} is not a boolean")
+                return typeerror(f"TypeError: In Line {condition_res.line_number}\n{source_code[condition_res.line_number]}\n{(condition_res.column_number - 1) * ' '}^\n{condition_res} is not a BoolLiteral")
 
             typecheck(if_ast)
 
@@ -112,7 +119,8 @@ def typecheck(program: AST) -> Value:
                         elif_condition = BoolLiteral(True)
 
                     if not isinstance(elif_condition, BoolLiteral):
-                        return typeerror(f"TypeError: {elif_condition} is not a boolean")
+                        # return typeerror(f"TypeError: {elif_condition} is not a boolean")
+                        return typeerror(f"TypeError: In Line {elif_condition.line_number}\n{source_code[elif_condition.line_number]}\n{(elif_condition.column_number - 1) * ' '}^\n{elif_condition} is not a BoolLiteral")
 
                     typecheck(elif_ast.if_body)
 
@@ -131,7 +139,8 @@ def typecheck(program: AST) -> Value:
             if type(left).__name__ == type(right).__name__: # same type
                 return BoolLiteral(True)
             else:
-                return typeerror(f"TypeError: {op} not supported between instances of {left} and {right}")
+                # return typeerror(f"TypeError: {op} not supported between instances of {left} and {right}")
+                return typeerror(f"Type Error: In Line {left.line_number}\n{source_code[left.line_number]}\n{(left.column_number - 1) * ' '}^\n{left} and {right} are not of the same type")
 
         # unary operation
         case UnaryOp(op, x) if op in ["-", "+"]:
@@ -141,7 +150,8 @@ def typecheck(program: AST) -> Value:
                 x = NumLiteral(0)
 
             if not isinstance(x, NumLiteral) and not isinstance(x, FloatLiteral):
-                return typeerror(f"TypeError: {op} not supported for instances of {x}")
+                # return typeerror(f"TypeError: {op} not supported for instances of {x}")
+                return typeerror(f"TypeError: In Line {x.line_number}\n{source_code[x.line_number]}\n{(x.column_number - 1) * ' '}^\n{op} not supported for instances of {x}")
 
             if isinstance(x, FloatLiteral):
                 return FloatLiteral(0.0)
@@ -174,7 +184,8 @@ def typecheck(program: AST) -> Value:
             elif isinstance(typecheck_left, NumLiteral) and isinstance(typecheck_right, FloatLiteral):
                 return FloatLiteral(0.0)
             else:
-                return typeerror(f"TypeError: + not supported between instances of {left} and {right}")
+                # return typeerror(f"TypeError: + not supported between instances of {left} and {right}")
+                return typeerror(f"TypeError: In Line {left.line_number}\n{source_code[left.line_number]}\n{(left.column_number - 1) * ' '}^\n+ is not supported between instances of {left} and {right}")
 
         case BinOp(left, "-", right):
             typecheck_left = typecheck(left)
@@ -195,7 +206,8 @@ def typecheck(program: AST) -> Value:
             elif isinstance(typecheck_left, NumLiteral) and isinstance(typecheck_right, FloatLiteral):
                 return FloatLiteral(0.0)
             else:
-                return typeerror(f"TypeError: - not supported between instances of {left} and {right}")
+                # return typeerror(f"TypeError: - not supported between instances of {left} and {right}")
+                return typeerror(f"TypeError: In Line {left.line_number}\n{source_code[left.line_number]}\n{(left.column_number - 1) * ' '}^\n- is not supported between instances of {left} and {right}")
 
         case BinOp(left, "*", right):
             typecheck_left = typecheck(left)
@@ -218,7 +230,8 @@ def typecheck(program: AST) -> Value:
             elif isinstance(typecheck_left, NumLiteral) and isinstance(typecheck_right, FloatLiteral):
                 return FloatLiteral(0.0)
             else:
-                return typeerror(f"TypeError: * not supported between instances of {left} and {right}")
+                # return typeerror(f"TypeError: * not supported between instances of {left} and {right}")
+                return typeerror(f"TypeError: In Line {left.line_number}\n{source_code[left.line_number]}\n{(left.column_number - 1) * ' '}^\n* is not supported between instances of {left} and {right}")
 
         case BinOp(left, op, right) if op in ["/", "//", "%"]:
             typecheck_left = typecheck(left)
@@ -236,7 +249,8 @@ def typecheck(program: AST) -> Value:
                 else:
                     return NumLiteral(1)
             else:
-                return typeerror(f"TypeError: / not supported between instances of {left} and {right}")
+                # return typeerror(f"TypeError: / not supported between instances of {left} and {right}")
+                return typeerror(f"TypeError: In Line {left.line_number}\n{source_code[left.line_number]}\n{(left.column_number - 1) * ' '}^\n{op} is not supported between instances of {left} and {right}")
 
         case BinOp(left, "**", right):
             typecheck_left = typecheck(left)
@@ -251,7 +265,8 @@ def typecheck(program: AST) -> Value:
                 ch = NumLiteral(0)
 
             if not isinstance(ch, NumLiteral):
-                return typeerror(f"TypeError: {indexVal} is not an integer")
+                return typeerror(f"TypeError: In Line {indexVal.line_number}\n{source_code[indexVal.line_number]}\n{(indexVal.column_number - 1) * ' '}^\n{indexVal} is not a NumLiteral")
+                # return typeerror(f"TypeError: {indexVal} is not an integer")
             return typecheck(identifier)
 
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")

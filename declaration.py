@@ -25,8 +25,8 @@ class NumLiteral:
     def __repr__(self) -> str:
         return f"NumLiteral({self.value}) [{self.line_number}: {self.column_number}]"
     
-    def __repr__(self) -> str:
-        return f"NumLiteral({self.value})"
+    # def __repr__(self) -> str:
+    #     return f"NumLiteral({self.value})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, NumLiteral):
@@ -44,8 +44,8 @@ class StringLiteral:
     def __repr__(self) -> str:
         return f"StringLiteral(\"{self.value}\") [{self.line_number}: {self.column_number}]"
     
-    def __repr__(self) -> str:
-        return f"StringLiteral(\"{self.value}\")"
+    # def __repr__(self) -> str:
+    #     return f"StringLiteral(\"{self.value}\")"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, StringLiteral):
@@ -63,8 +63,8 @@ class FloatLiteral:
     def __repr__(self) -> str:
         return f"FloatLiteral({self.value}) [{self.line_number}: {self.column_number}]"
 
-    def __repr__(self) -> str:
-        return f"FloatLiteral({self.value})"
+    # def __repr__(self) -> str:
+    #     return f"FloatLiteral({self.value})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, FloatLiteral):
@@ -80,8 +80,8 @@ class BoolLiteral:
     def __repr__(self) -> str:
         return f"BoolLiteral({self.value}) [{self.line_number}: {self.column_number}]"
 
-    def __repr__(self) -> str:
-        return f"BoolLiteral({self.value})"
+    # def __repr__(self) -> str:
+    #     return f"BoolLiteral({self.value})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, BoolLiteral):
@@ -97,8 +97,8 @@ class ListLiteral:
     def __repr__(self) -> str:
         return f"ListLiteral({self.value}) [{self.line_number}: {self.column_number}]"
     
-    def __repr__(self) -> str:
-        return f"ListLiteral({self.value})"
+    # def __repr__(self) -> str:
+    #     return f"ListLiteral({self.value})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, ListLiteral):
@@ -112,11 +112,11 @@ class Keyword:
     column_number: int = 0
 
     
-    # def __repr__(self) -> str:
-    #     return f"Keyword({self.value}) [{self.line_number}: {self.column_number}]"
-
     def __repr__(self) -> str:
-        return f"Keyword({self.value})"
+        return f"Keyword({self.value}) [{self.line_number}: {self.column_number}]"
+
+    # def __repr__(self) -> str:
+    #     return f"Keyword({self.value})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, Keyword):
@@ -133,8 +133,8 @@ class Identifier:
     def __repr__(self) -> str:
         return f"Identifier({self.name}, {self.is_mutable}) [{self.line_number}: {self.column_number}]"
     
-    def __repr__(self) -> str:
-        return f"Identifier({self.name}, {self.is_mutable})"
+    # def __repr__(self) -> str:
+    #     return f"Identifier({self.name}, {self.is_mutable})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, Identifier):
@@ -152,8 +152,8 @@ class Operator:
     def __repr__(self) -> str:
         return f"Operator({self._operator}) [{self.line_number}: {self.column_number}]"
     
-    def __repr__(self) -> str:
-        return f"Operator({self._operator})"
+    # def __repr__(self) -> str:
+    #     return f"Operator({self._operator})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, Operator):
@@ -170,8 +170,8 @@ class Bracket:
     def __repr__(self) -> str:
         return f"Bracket({self._bracket}) [{self.line_number}: {self.column_number}]"
 
-    def __repr__(self) -> str:
-        return f"Bracket({self._bracket})"
+    # def __repr__(self) -> str:
+    #     return f"Bracket({self._bracket})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, Bracket):
@@ -201,8 +201,8 @@ class EndOfLine:
     def __repr__(self) -> str:
         return f"EndOfLine({self._eol}) [{self.line_number}: {self.column_number}]"
 
-    def __repr__(self) -> str:
-        return f"EndOfLine({self._eol})"
+    # def __repr__(self) -> str:
+    #     return f"EndOfLine({self._eol})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, EndOfLine):
@@ -218,8 +218,8 @@ class EndOfFile:
     def __repr__(self) -> str:
         return f"EndOfFile({self._eof}) [{self.line_number}: {self.column_number}]"
 
-    def __repr__(self) -> str:
-        return f"EndOfFile({self._eof})"
+    # def __repr__(self) -> str:
+    #     return f"EndOfFile({self._eof})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, EndOfFile):
@@ -556,6 +556,8 @@ display_output = [] # list to store the output of print statements as strings
 inbuilt_data_types = [NumLiteral, StringLiteral, BoolLiteral, FloatLiteral, ListLiteral] # list of in build datatype data types
 user_defined_data_types = {} # dictionary to store user defined data types
 # data_type.name = Struct(name, fields)
+
+source_code = []
 
 Value_literal = int | float | bool | str
 Value = None | NumLiteral | StringLiteral | BoolLiteral | FloatLiteral | ListLiteral | Struct 

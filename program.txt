@@ -1,4 +1,20 @@
-assign a = 1;
-#a ++  12;
+a = -1;
+if (1>51) {
+    print("hello");
+}
+else {
+    print("world");
+}
 
-struct and chirag
+assign a = 'sjf;;';
+a= slice("asfd": 0: 2:1);
+
+#assign a = 2;
+#struct student{name,roll, std};
+#s = student{"chir", 5};
+#s.name = "abc";
+
+#a = [5,2,3,5];
+#a[0] = 1;
+# a.LEN;
+
