@@ -265,9 +265,10 @@ class Let:
 @dataclass
 class Print:
     val: 'AST'
+    line_number: int = 0
 
     def __repr__(self) -> str:
-        return f"Print({self.val})"
+        return f"Print({self.val}) [{self.line_number}]"
 
 
 @dataclass
@@ -287,6 +288,8 @@ class IfElse:
     if_body: Sequence
     elif_body: list(["AST"])
     else_body: Sequence
+    line_number: int = 0
+    
 
     # def __init__(self, cond, if_, elif_=[], else_=None) -> None:
     #     self.condition = cond
@@ -296,14 +299,14 @@ class IfElse:
 
     def __repr__(self) -> str:
         if len(self.elif_body) == 0 and self.else_body == None:
-            return f"if({self.condition}) then\n{self.if_body}"
+            return f"if({self.condition}) then\n{self.if_body} [{self.line_number}]"
         if len(self.elif_body) == 0 and self.else_body != None:
-            return f"if({self.condition}) then\n{self.if_body}\nelse\n{self.else_body}"
+            return f"if({self.condition}) then\n{self.if_body}\nelse\n{self.else_body} [{self.line_number}]"
         if len(self.elif_body) != 0 and self.else_body == None:
             elif_string = '\nel'.join(str(e) for e in self.elif_body)
-            return f"if({self.condition}) then\n{self.if_body}\nel{elif_string})"
+            return f"if({self.condition}) then\n{self.if_body}\nel{elif_string}) [{self.line_number}]"
         elif_string = '\nel'.join(str(e) for e in self.elif_body)
-        return f"if({self.condition}) then\n{self.if_body}\nel{elif_string}\nelse\n{self.else_body})"
+        return f"if({self.condition}) then\n{self.if_body}\nel{elif_string}\nelse\n{self.else_body}) [{self.line_number}]"
         # return f"if({self.condition}) then\n{self.if_body}\nelif\n{self.elif_body}\nelse\n{self.else_body})"
 
 @dataclass
@@ -311,15 +314,21 @@ class While():
 
     condition: 'AST'
     body: 'AST'
+    line_number: int = 0
+    
+    # def __repr__(self) -> str:
+    #     return f"While({self.condition} do {self.body})"
     
     def __repr__(self) -> str:
-        return f"While({self.condition} do {self.body})"
+        return f"While({self.condition} do {self.body}) [{self.line_number}]"
     
 
 @dataclass
 class Assign:
     v: "AST" or list['AST']
     right:'AST' or list['AST'] or list[list['AST']]
+    line_number: int = 0
+    
     
     def __repr__(self) -> str:
         v_ = self.v
@@ -329,7 +338,7 @@ class Assign:
         # if len(self.right) == 1:
         #     right_ = self.right[0]           
             
-        return f"Assign({v_} = {right_})"
+        return f"Assign({v_} = {right_}) [{self.line_number}]"
 
 
 @dataclass
@@ -337,6 +346,7 @@ class Update:
     variable: "AST"
     _operator: Operator # +=, -=, *= etc are all valid assignment operators
     right: 'AST' or list['AST']
+    line_number: int = 0
     
     def __repr__(self) -> str:
         right_ = self.right
@@ -344,7 +354,7 @@ class Update:
         #     variable_ = self.variable[0]
         # if len(self.right) == 1:
         #     right_ = self.right[0]           
-        return f"Update({self.variable} {self._operator} {right_})"
+        return f"Update({self.variable} {self._operator} {right_}) [{self.line_number}]"
 
 
 
@@ -354,10 +364,14 @@ class For:
     condition:'AST'
     exp2:'AST'
     body : Sequence
+    line_number: int = 0
     
-    def __repr__(self) -> str:
-        return f"For(({self.exp1} ;{self.condition};{self.exp2};) do {self.body})"
+    # def __repr__(self) -> str:
+    #     return f"For(({self.exp1} ;{self.condition};{self.exp2};) do {self.body})"
 
+    def __repr__(self) -> str:
+        return f"For(({self.exp1} ;{self.condition};{self.exp2};) do {self.body}) [{self.line_number}]"
+    
 @dataclass
 class Indexer:
     val: Identifier
@@ -454,16 +468,25 @@ class Environment:
     envs : List[dict] # environments are stored in a list of dictionaries
 
 
+    # def __repr__(self):
+    #     return_str = "Start ====================\n"
+    #     for env in self.envs:
+    #         return_str+="Entering new scope \n"
+    #         for key in env:
+    #             return_str += f"{key} : {env[key][0]} "
+    #             return_str+="\n"
+    #         return_str+="Exiting scope \n"
+    #     return_str+="End ===================="
+    #     return return_str
     def __repr__(self):
-        return_str = "Start ====================\n"
+        rtr = "Program Environment: \n"
+        temp_dic = {}
         for env in self.envs:
-            return_str+="Entering new scope \n"
-            for key in env:
-                return_str += f"{key} : {env[key][0]} "
-                return_str+="\n"
-            return_str+="Exiting scope \n"
-        return_str+="End ===================="
-        return return_str
+            for key, val in env.items():
+                temp_dic[key] = val[0]
+        for key, val in temp_dic.items():
+            rtr += f"{key} : {val}\n"
+        return rtr
     def __init__(self):
         self.envs=[{}]
 

@@ -31,7 +31,7 @@ class Stream:
         source_code.append("Start")
         for i in s.splitlines():
             source_code.append(i)
-        print(f"source code: {source_code}")
+        # print(f"source code: {source_code}")
         return Stream(s, 0)
 
     def next_char(self):
@@ -67,7 +67,7 @@ class Stream:
         if self.source[self.pos] == "\n":
             self.current_line_number -= 1
             self.current_column_number = len(
-                self.source_code[self.current_line_number - 1])
+                source_code[self.current_line_number - 1])
             # self.source_code.pop()
         else:
             self.current_column_number -= 1

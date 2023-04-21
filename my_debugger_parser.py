@@ -7,6 +7,8 @@ import sys
 # importing copy module
 import copy
 
+debugger_code = ["Start"]
+
 @dataclass
 class Parser:
     lexer: Lexer
@@ -32,18 +34,20 @@ class Parser:
         Returns:
             IfElse: return AST of if else statement
         """
+        line_number = self.lexer.peek_current_token().line_number
         self.lexer.match(Keyword("if"))
         c = self.parse_simple()  # parse the condition which is a simple expression
         if_branch = self.parse_block()
         # single if statement
         if self.lexer.peek_current_token() != Keyword("else") and self.lexer.peek_current_token() != Keyword("elif"):
-            return IfElse(c, if_branch, [], None)
+            return IfElse(c, if_branch, [], None, line_number)
         elif_list = []
         while self.lexer.peek_current_token() == Keyword("elif"):
+            temp_line_number = self.lexer.peek_current_token().line_number
             self.lexer.advance()
             elif_condition = self.parse_simple()
             elif_body = self.parse_block()
-            elif_list.append(IfElse(elif_condition, elif_body, [], None))
+            elif_list.append(IfElse(elif_condition, elif_body, [], None, temp_line_number))
 
             # if and elif are allowed without else
         if self.lexer.peek_current_token() != Keyword("else"):
@@ -51,7 +55,7 @@ class Parser:
 
         self.lexer.match(Keyword("else"))
         else_branch = self.parse_block()
-        return IfElse(c, if_branch, elif_list, else_branch)
+        return IfElse(c, if_branch, elif_list, else_branch, line_number)
 
 
     def parse_while(self):
@@ -60,12 +64,13 @@ class Parser:
         Returns:
             while AST: return AST of while loop
         """
+        line_number = self.lexer.peek_current_token().line_number
         self.lexer.match(Keyword("while"))
         # print(self.lexer.peek_current_token())
         cond = self.parse_simple()  # parse the condition
         # print("cond", cond)
         while_body = self.parse_block()
-        return While(cond, while_body)
+        return While(cond, while_body, line_number)
 
     def parse_for(self):
         """parse for statement
@@ -73,6 +78,8 @@ class Parser:
         Returns:
             For: return AST of for loop
         """
+        line_number = self.lexer.peek_current_token().line_number
+        
         self.lexer.match(Keyword("for"))
         self.lexer.match(Bracket("("))
         initial = self.parse_expr()
@@ -82,7 +89,7 @@ class Parser:
         self.lexer.match(Bracket(")"))
         for_body = self.parse_block()
         # print(self.lexer.peek_current_token())
-        return For(initial, cond, termination, for_body)
+        return For(initial, cond, termination, for_body, line_number)
 
     def parse_atom(self,is_func=False):
         """parse the atomic expression"""
@@ -243,6 +250,7 @@ class Parser:
                         closing_brackets = cl     
                 self.lexer.match(Bracket(opening_bracket))
                 ans = self.parse_simple()  # calculating the expression inside the brackets
+                # print("The answer is", ans)
                 # self.lexer.advance()  # consume the closing bracket
                 self.lexer.match(Bracket(closing_brackets))
                 return ans
@@ -428,6 +436,7 @@ class Parser:
         return self.parse_or()
 
     def parse_assign(self):
+        line_number = self.lexer.peek_current_token().line_number
         self.lexer.match(Keyword("assign"))
         flag = 0
         assignments_l = []
@@ -455,7 +464,7 @@ class Parser:
         if(flag == 1):
             return ListOperations(va, "ChangeOneElement", assignments_r[0], ind)
         else:
-            return Assign(tuple(assignments_l),tuple(assignments_r))
+            return Assign(tuple(assignments_l),tuple(assignments_r), line_number)
         
     def parse_const(self):
         """paster the immutable assign expression
@@ -463,7 +472,7 @@ class Parser:
         Returns:
             Assign: return AST of the immutable assign expression
         """
-
+        line_number = self.lexer.peek_current_token().line_number
         self.lexer.match(Keyword("const"))
         self.lexer.match(Keyword("assign"))
         assignments_l = []
@@ -485,7 +494,7 @@ class Parser:
                     break
 
         self.lexer.match(EndOfLine(";"))
-        return Assign(tuple(assignments_l), tuple(assignments_r))
+        return Assign(tuple(assignments_l), tuple(assignments_r), line_number)
 
     def parse_update(self):
         """parse the update expression
@@ -493,7 +502,7 @@ class Parser:
         Returns:
             Update: return AST of the update expression
         """
-
+        line_number = self.lexer.peek_current_token().line_number
         left_part = self.parse_atom()
         flag = 0
         if(type(left_part) == Indexer):
@@ -527,7 +536,7 @@ class Parser:
         self.lexer.match(EndOfLine(";"))
         if(flag == 1):
             return ListOperations(va, "ChangeOneElement", right_part, ind)
-        return Update(left_part, op, right_part)
+        return Update(left_part, op, right_part, line_number)
     
     def parse_print(self):
         """parse the print expression
@@ -535,27 +544,13 @@ class Parser:
         Returns:
             Print: return AST of the print expression
         """
+        line_number = self.lexer.peek_current_token().line_number
         self.lexer.match(Keyword("print"))
         self.lexer.match(Bracket("("))
         print_statement = self.parse_simple()
         self.lexer.match(Bracket(")"))
         self.lexer.match(EndOfLine(';'))
-        return Print(print_statement)
-
-    def parse_let(self):
-        """parse the let expression
-        Returns:
-            returns the value of expression after in keyword
-        """
-
-        self.lexer.match(Keyword("let"))
-        left_part = self.parse_atom()
-        self.lexer.match(Operator("="))
-        right_part = self.parse_simple()
-        self.lexer.match(Bracket("("))
-        body = self.parse_simple()
-        self.lexer.match(Bracket(")"))
-        return Let(left_part, right_part, body)
+        return Print(print_statement, line_number)
         
         
     def parse_struct(self):
