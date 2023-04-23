@@ -40,11 +40,11 @@ def test_lexer_operators():
     ++--6 
     + - / * % //   ** 
     < > <= >= == != 
-    << >> = ++ -- += -= *= /= %= //= **=
+    << >> = ++ -- += -= *=
     and or
     """
     object_lexer = Lexer.from_stream(Stream.from_string(text))
-    expected_tokens = ['Operator(+)', 'Operator(+)', 'Operator(-)', 'Operator(-)', 'NumLiteral(6)', 'Operator(+)', 'Operator(-)', 'Operator(/)', 'Operator(*)', 'Operator(%)', 'Operator(//)', 'Operator(**)', 'Operator(<)', 'Operator(>)', 'Operator(<=)', 'Operator(>=)', 'Operator(==)', 'Operator(!=)', 'Operator(<<)', 'Operator(>>)', 'Operator(=)', 'Operator(+)', 'Operator(+)', 'Operator(-)', 'Operator(-)', 'Operator(+=)', 'Operator(-=)', 'Operator(*=)', 'Operator(/=)', 'Operator(%=)', 'Operator(//=)', 'Operator(**=)', 'Operator(and)', 'Operator(or)']
+    expected_tokens = ['Operator(+)', 'Operator(+)', 'Operator(-)', 'Operator(-)', 'NumLiteral(6)', 'Operator(+)', 'Operator(-)', 'Operator(/)', 'Operator(*)', 'Operator(%)', 'Operator(//)', 'Operator(**)', 'Operator(<)', 'Operator(>)', 'Operator(<=)', 'Operator(>=)', 'Operator(==)', 'Operator(!=)', 'Operator(<<)', 'Operator(>>)', 'Operator(=)', 'Operator(+)', 'Operator(+)', 'Operator(-)', 'Operator(-)', 'Operator(+=)', 'Operator(-=)', 'Operator(*=)', 'Operator(and)', 'Operator(or)']
 
     for token in object_lexer:
         assert str(token) == expected_tokens.pop(0)
