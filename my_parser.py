@@ -91,18 +91,36 @@ class Parser:
                 self.lexer.advance()
                 match self.lexer.peek_current_token():
                     case Bracket("["):
+                        # Uncomment this if user defined data types are not working
+                        # self.lexer.advance()
+                        # right_part = self.parse_simple()    
+                        # self.lexer.match(Bracket("]"))
+                        # return Indexer(id, right_part)
+            
                         self.lexer.advance()
-                        # right_part = self.parse_atom() # parse_simple
-                        right_part = self.parse_simple() # parse_simple
-                        self.lexer.match(Bracket("]"))
-                        # if (self.lexer.peek_current_token() == EndOfLine(";")):
-                        #     return Indexer(Identifier(name), right_part)
-                        # # print(self.lexer.peek_current_token())
-                        # elif(self.lexer.peek_current_token() == Operator("=")):
-                        #     self.lexer.advance()
-                        #     val = self.parse_atom()
-                        #     return ListOperations(Identifier(name), "ChangeOneElement", val, right_part)
-                        return Indexer(id, right_part)
+                        right_part = self.parse_simple()
+                        match self.lexer.peek_current_token():
+                            case Bracket("]"):
+                                self.lexer.advance()
+                                return Indexer(id, right_part, None, None)
+                            case Operator(","):
+                                self.lexer.advance()
+                                right_part1 = self.parse_simple()
+                                match self.lexer.peek_current_token():
+                                    case Bracket("]"):
+                                        self.lexer.advance()
+                                        return Indexer(id, right_part, right_part1, None)
+                                    case Operator(","):
+                                        self.lexer.advance()
+                                        right_part2 = self.parse_simple()
+                                        match self.lexer.peek_current_token():
+                                            case Bracket("]"):
+                                                self.lexer.advance()
+                                                return Indexer(id, right_part, right_part1, right_part2)
+                                        # self.lexer.match(Bracket("]"))
+                                        # self.lexer.advance()
+                                        # return Indexer(id, right_part, right_part1, right_part2)
+
                     case Bracket("{"):
                         self.lexer.advance()
                         ind = 0
@@ -182,7 +200,7 @@ class Parser:
                                 return ListOperations(id, "POP", None, None)
                             case Identifier(name_) as id2:
                                 # ind = Indexer(Identifier(name), Identifier(name_))
-                                ind = Indexer(id, id2)
+                                ind = Indexer(id, id2, None, None)
                                 self.lexer.advance() # consuming the identifier
                                 ass_op = self.lexer.peek_current_token()
                                 self.lexer.advance()
@@ -758,7 +776,7 @@ if __name__ == '__main__':
         Lexer.from_stream(Stream.from_string(program)))
     # print(f"object parser {obj_parser}")
     a = obj_parser.parse_program()
-    print(a)
+    # print(a)
     
     
     #   ----------UNCOMMENT FOR VM CODE ------------
@@ -771,6 +789,6 @@ if __name__ == '__main__':
     
     
     # print(a)
-    # eval(a)
+    eval(a)
     # print(f"Parsed program: {a}")
 

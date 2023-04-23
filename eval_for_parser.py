@@ -451,17 +451,19 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 raise InvalidProgram(
                     f"~ not supported between instances of {eval_left} and {eval_right}")
 
-        case Indexer(identifier, indexVal):
+        case Indexer(identifier, indexVal1, indexVal2, indexVal3):
             # print(f"identifier: {identifier}, indexVal: {indexVal}")
             # print(f'user defined dat {user_defined_data_types}')
             if identifier in struct_instance:
-                i = indexVal
+                i = indexVal1
             else:
-                i = eval_literals(eval(indexVal, program_env))
-            # if not isinstance(indexVal, Identifier):
-            #     i = eval_literals(eval(indexVal, program_env))
-            # else:
-            #     i = indexVal
+                i = eval_literals(eval(indexVal1, program_env))
+                if(indexVal2 != None):
+                    j = eval_literals(eval(indexVal2, program_env))
+                if(indexVal3 != None):
+                    k = eval_literals(eval(indexVal3, program_env))
+                
+   
             objectToBeIndexed = eval(program_env.get(identifier.name), program_env)
             
             if isinstance( objectToBeIndexed, Struct):
@@ -470,34 +472,29 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             if(len(objectToBeIndexed.value) <= i):
                 raise InvalidProgram(f"Index out of range")
             if isinstance(objectToBeIndexed, ListLiteral):
+                if(isinstance(objectToBeIndexed.value[i], ListLiteral) and indexVal2 != None):
+                    if(len(objectToBeIndexed.value[i].value) <= j):
+                        raise InvalidProgram(f"Index out of range")
+                    if(isinstance(objectToBeIndexed.value[i].value[j], ListLiteral) and indexVal3 != None):
+                        if(len(objectToBeIndexed.value[i].value[j].value) <= k):
+                            raise InvalidProgram(f"Index out of range")
+                        return objectToBeIndexed.value[i].value[j].value[k]
+                    return objectToBeIndexed.value[i].value[j]
+                    
                 return objectToBeIndexed.value[i]
             if isinstance(objectToBeIndexed, StringLiteral):
+                if(isinstance(objectToBeIndexed.value[i], StringLiteral) and indexVal2 != None):
+                    if(len(objectToBeIndexed.value[i].value) <= j):
+                        raise InvalidProgram(f"Index out of range")
+                    if(isinstance(objectToBeIndexed.value[i].value[j], StringLiteral) and indexVal3 != None):
+                        if(len(objectToBeIndexed.value[i].value[j].value) <= k):
+                            raise InvalidProgram(f"Index out of range")
+                        return objectToBeIndexed.value[i].value[j].value[k]
+                    return objectToBeIndexed.value[i].value[j]
                 return StringLiteral(objectToBeIndexed.value[i]) 
             raise InvalidProgram(f"TypeError: {identifier} is not iterable")
             
-            
-            
-            # # if(type(indexVal) == Identifier):
-            # #     i = eval_literals(eval(program_env.get(indexVal.name)))
-            # # else:
-            # #     i = eval_literals(indexVal)
-                
-            # i = eval_literals(eval(indexVal, program_env))
-            # objectToBeIndexed = eval_literals(program_env.get(identifier.name))
-            # if(len(objectToBeIndexed) <= i):
-            #     print("Index out of range")
-
-            # item = program_env.get(identifier.name)
-
-            # ans = (eval_literals(program_env.get(identifier.name)))[i]
-
-            # if(isinstance(item, ListLiteral)):
-            #     return NumLiteral(ans)
-            # elif(isinstance(item, StringLiteral)):
-            #     return StringLiteral(ans)
-            # else:
-            #     print(f"Indexing not supported for {identifier} of type {type(item)}")
-            #     return None
+        
 
         case ListOperations(identifier, val, item, indVal):
 
