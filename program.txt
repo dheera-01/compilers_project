@@ -1,3 +1,4 @@
-assign a = 12;
-a *= 3;
-print(a);
+print(boolify(0));
+print(boolify(1));
+print(boolify("hello"));
+print(boolify(""));

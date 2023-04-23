@@ -1,0 +1,4 @@
+print(boolify(0));
+print(boolify(1));
+print(boolify("hello"));
+print(boolify(""));

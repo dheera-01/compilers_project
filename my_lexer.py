@@ -80,7 +80,7 @@ keywords = """
     for while break continue
     def
     print let
-    slice in LEN TAIL HEAD APPEND POP
+    slice in LEN TAIL HEAD APPEND POP boolify
     struct
     func
     return

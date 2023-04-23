@@ -445,6 +445,14 @@ class Return:
 
     def __repr__(self) -> str:
         return f"Return({self.val})"
+
+@dataclass
+class Boolify:
+    operand: 'AST'
+
+    def __repr__(self) -> str:
+        return f"Boolify({self.operand})"
+
 # error classes
 class InvalidProgram(Exception):
     pass

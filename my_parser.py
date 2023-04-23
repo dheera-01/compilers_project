@@ -228,6 +228,8 @@ class Parser:
                 return b
             case Keyword("slice"):
                 return self.parse_slice()
+            case Keyword("boolify"):
+                return self.parse_boolify()
             case Keyword("let"):
                 return self.parse_let()
             # case Bracket("["):
@@ -360,6 +362,14 @@ class Parser:
         step = self.parse_simple()
         self.lexer.match(Bracket(")"))
         return Slice(string_literal, start, end, step)
+
+    def parse_boolify(self):
+        """parse boolify operator"""
+        self.lexer.match(Keyword("boolify"))
+        self.lexer.match(Bracket("("))
+        operand = self.parse_simple()
+        self.lexer.match(Bracket(")"))
+        return Boolify(operand)
 
     def parse_cmp(self):
         """parse the comparison operator

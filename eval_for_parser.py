@@ -590,6 +590,9 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             # initialize args with None
             # replace them while function call
             return None
+
+        case Boolify(e):
+            return BoolLiteral(bool(eval_literals(eval(e, program_env))))
         
     raise InvalidProgram(f"SyntaxError: {program} invalid syntax")
 
