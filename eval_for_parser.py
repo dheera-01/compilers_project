@@ -535,7 +535,7 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             program_env.enter_scope()
 
             if(len(func_args)!=len(args)):
-                raise InvalidProgram(f"TypeError: {function.name}() takes {len(func_args)} positional arguments but {len(args)} were given")
+                raise InvalidProgram(f": {function.name}() takes {len(func_args)} positional arguments but {len(args)} were given")
             for i in range(len(func_args)):
 
                 program_env.add(func_args[i],evaled_args[i])
