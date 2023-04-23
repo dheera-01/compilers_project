@@ -11,7 +11,7 @@
 - [For loop](Implementation/for.md)
 - [While loop](Implementation/while.md)
 - [Indexer](Implementation/Indexer.md)
-- [Lists](Implementation/List_declaration.md)
+- [Lists](Implementation/Lists.md)
 - [Print](Implementation/print.md)
 - [Let](Implementation/let.md)
 - [Function](Implementation/func.md)

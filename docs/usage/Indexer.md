@@ -59,3 +59,19 @@ print(p);
 # OUTPUT
 The Indentifier a is not iterable
 ```
+
+#### Multiple Indexing:-
+INPUT:
+```python
+assign a = [[1, 5, 11], [54, 6, [1, 5]]];
+print(a[1, 2, 0]);
+print(a[1, 2]);
+print(a[1]);
+```
+
+Output:
+```python
+1
+[1, 5]
+[54, 6, [1, 5]]
+```

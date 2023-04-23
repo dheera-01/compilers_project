@@ -515,7 +515,7 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 a = program_env.get(identifier.name)
                 if(isinstance(a, ListLiteral)):
                     a = a.value
-                a.append(item)
+                a.append(eval(item, program_env))
                 a = program_env.get(identifier.name)
                 return a
             elif (val == "POP"):

@@ -1,4 +1,6 @@
-assign a = [[1, 5, 11], [54, 6, [1, 5]]];
-print(a[1, 2, 0]);
-print(a[1, 2]);
-print(a[1]);
+assign str = "hello";
+assign lst = [];
+for(assign i = 4; i >= 0; i = i - 1;) {
+    lst.APPEND(str[i]);
+}
+print(lst);
