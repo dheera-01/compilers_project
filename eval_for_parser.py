@@ -434,6 +434,23 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 raise InvalidProgram(
                     f"TypeError: ** not supported between instances of {left} and {right}")
 
+        # concatenation operation
+        case BinOp(left, "~", right):
+            eval_left = eval(left, program_env)
+            eval_right = eval(right, program_env)
+            try:
+                concat_similar_addition = ["StringLiteral", "NumLiteral", "FloatLiteral"]
+                if eval_left.__class__.__name__ in concat_similar_addition and eval_right.__class__.__name__ in concat_similar_addition:
+                    res = str(eval_literals(eval_left)) + str(eval_literals(eval_right))
+                    return StringLiteral(res)
+                raise InvalidProgram(
+                    f"~ not supported between instances of {eval_left} and {eval_right}")
+            except Exception as e:
+                raise TypeError(
+                    f"+ not supported between instances of {type(eval_left).__name__} and {type(eval_right).__name__}")
+                raise InvalidProgram(
+                    f"~ not supported between instances of {eval_left} and {eval_right}")
+
         case Indexer(identifier, indexVal):
             # print(f"identifier: {identifier}, indexVal: {indexVal}")
             # print(f'user defined dat {user_defined_data_types}')
@@ -587,7 +604,8 @@ def eval_of_text(program: str):
 if __name__ == "__main__":
     # file = open("ensure_func.txt", "r")
     # file = open("Euler14.txt", "r")
-    # file = open("struct.txt", "r")
+    file = open("struct.txt", "r")
+    # file = open("program.txt", "r")
     program = file.read()
     eval_of_text(program)
     file.close()

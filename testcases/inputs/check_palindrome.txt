@@ -1,14 +1,14 @@
 assign str = "abccba";
 assign len = 6;
-assign str_new = slice(str:len-1:0:0-1) + slice(str:0:1:1);
+assign str_new = slice(str:len-1:0:0-1) ~ slice(str:0:1:1);
 print(str == str_new);
 
 str = "abc";
 len = 3;
-str_new = slice(str:len-1:0:0-1) + slice(str:0:1:1);
+str_new = slice(str:len-1:0:0-1) ~ slice(str:0:1:1);
 print(str == str_new);
 
 str = "aba";
 len = 3;
-str_new = slice(str:len-1:0:0-1) + slice(str:0:1:1);
+str_new = slice(str:len-1:0:0-1) ~ slice(str:0:1:1);
 print(str == str_new);
