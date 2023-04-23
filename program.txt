@@ -1,4 +1,4 @@
-print(boolify(0));
-print(boolify(1));
-print(boolify("hello"));
-print(boolify(""));
+assign a = [[1, 5, 11], [54, 6, [1, 5]]];
+print(a[1, 2, 0]);
+print(a[1, 2]);
+print(a[1]);

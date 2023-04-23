@@ -409,6 +409,8 @@ class For:
 class Indexer:
     val: Identifier
     index: 'AST'
+    index1: 'AST'
+    index2 : 'AST'
 
     def __repr__(self) -> str:
         return f"Indexer({self.val}[{self.index}])"
@@ -579,9 +581,9 @@ class Environment:
                 pass
             if search in env:
                 if env[search][-1].is_mutable:
-                    if str(type(env[identifier.name][0]).__name__) != str(type(value).__name__):
-                        raise InvalidProgram(
-                            f"TypeError: Cannot assign {str(type(value).__name__)} to a Identifier of type {str(type(env[identifier.name][0]).__name__)}")
+                    # if str(type(env[identifier.name][0]).__name__) != str(type(value).__name__):
+                    #     raise InvalidProgram(
+                    #         f"TypeError: Cannot assign {str(type(value).__name__)} to a Identifier of type {str(type(env[identifier.name][0]).__name__)}")
 
                     # env[identifier.name] = [value, identifier]
                     if isinstance(identifier, Identifier):
