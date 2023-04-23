@@ -16,3 +16,6 @@ print(True);
 print(False);
 print("True");
 print("hello");
+
+# concatenation operator
+print("hello" ~ "world" ~ 4.5~6);

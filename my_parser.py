@@ -331,7 +331,7 @@ class Parser:
         while True:
             match self.lexer.peek_current_token():
 
-                case Operator(op) if op in "+-":
+                case Operator(op) if op in "+-~":
                     self.lexer.advance()
                     # print("before parse_add")
                     m = self.parse_mult()

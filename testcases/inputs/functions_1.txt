@@ -4,7 +4,7 @@ func hello()
     print("hello world");
 }
 
-hello();
+assign a = hello();
 
 # addition function
 func add(a, b)
@@ -78,7 +78,7 @@ func while_loop(a)
     }
 }
 
-while_loop(3);
+a = while_loop(3);
 
 # while loop with return
 
