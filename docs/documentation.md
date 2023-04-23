@@ -17,6 +17,10 @@
 - [Function](Implementation/func.md)
 - [Bytecode](Implementation/Bytecode.md)
 - [Struct](Implementation/struct.md)
+- [If-else](Implementation/ifelse.md)
+- [Unary](Implementation/unary.md)
+- [BinOp](Implementation/binop.md)
+- [ComparisonOp](Implementation/comparisonop.md)
 
 ## Language Docs
 
@@ -30,3 +34,7 @@
 - [Let](usage/let.md)
 - [Function](usage/func.md)
 - [Struct](usage/struct.md)
+- [If-else](usage/ifelse.md)
+- [Unary](usage/unary.md)
+- [BinOp](usage/binop.md)
+- [ComparisonOp](usage/comparisonop.md)
