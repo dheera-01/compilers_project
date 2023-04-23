@@ -132,6 +132,36 @@ class I:
     @dataclass
     class INDEX:
         pass
+    @dataclass
+    class MAKE_FUNC:
+        name: Identifier
+        args: List[Identifier]
+        body: Sequence
+
+    @dataclass
+    class CALL_FUNC:
+        name:Identifier
+        args:List['AST']
+
+    @dataclass
+    class GET_FUNC:
+        name:Identifier
+    @dataclass
+    class PUSH_ARGS:
+        args: List['AST']
+
+    @dataclass
+    class LOAD_ARGS:
+        pass
+
+    @dataclass
+    class RETURN:
+        pass
+
+    @dataclass
+    class EXEC_BODY:
+        pass
+
 
 Instruction = (
         I.PUSH
@@ -165,6 +195,14 @@ Instruction = (
         | I.MAKE_LIST
         | I.LIST_OP
         | I.INDEX
+
+        | I.MAKE_FUNC
+        | I.CALL_FUNC
+        | I.GET_FUNC
+        | I.PUSH_ARGS
+        | I.LOAD_ARGS
+        | I.RETURN
+        | I.EXEC_BODY
 )
 
 
@@ -250,6 +288,22 @@ def print_bytecode(code: ByteCode):
                 print(f"{i:=4} {'LIST_OP':<15} {op}")
             case I.INDEX():
                 print(f"{i:=4} {'INDEX':<15}")
+
+            case I.MAKE_FUNC(Identifier(name), args, body):
+                print(f"{i:=4} {'MAKE_FUNC':<15} {name} ")
+            case I.GET_FUNC(Identifier(name)):
+                print(f"{i:=4} {'GET_FUNC':<15} {name} ")
+            case I.EXEC_BODY():
+                print(f"{i:=4} {'EXEC_BODY':<15} ")
+            case I.RETURN():
+                print(f"{i:=4} {'RETURN':<15} ")
+            case I.PUSH_ARGS(args):
+                print(f"{i:=4} {'PUSH_ARGS':<15} {args} ")
+            case I.LOAD_ARGS():
+                print(f"{i:=4} {'LOAD_ARGS':<15}  ")
+
+
+
 
 
 class VM:
@@ -434,6 +488,72 @@ class VM:
                     self.ip += 1
                 case I.HALT():
                     return
+                case I.MAKE_FUNC(name, args, body):
+                    self.program_env.add(name, Function(name, args, body))
+                    self.ip += 1
+
+                case I.CALL_FUNC(function,args):
+                    self.ip += 1
+                case I.GET_FUNC(Identifier(name)):
+                    func = self.program_env.get(name)
+                    self.data.append(func)
+                    self.ip += 1
+
+                case I.PUSH_ARGS(args):
+                    self.data.append('ARGS_BEGIN')
+                    self.ip += 1
+
+                case I.LOAD_ARGS():
+                    # handle error of invalid no of args
+                    eval_args=[]
+                    while(self.data[-1]!='ARGS_BEGIN'):
+                        eval_args.append(self.data.pop())
+                    args_begin=self.data.pop()
+
+                    func=self.data.pop()
+                    func_args=func.args
+                    eval_args.reverse()
+                    if(len(eval_args)!=len(func_args)):
+                        raise InvalidProgram("Invalid no of arguments")
+                    for i in range(len(eval_args)):
+                        self.program_env.add(func_args[i],eval_args[i])
+
+                    self.data.append(func)
+
+                    self.ip += 1
+
+                case I.EXEC_BODY():
+
+                    program_env_copy=Environment()
+                    program_env_copy.envs=self.program_env.envs.copy()
+
+                    func=self.data.pop()
+
+                    body=func.body
+                    rtr_value=None
+                    try:
+                        codegen(body)
+                        rtr_value=None
+                        print("successful")
+                    except Exception as e:
+                        val=e.args[0]
+                        print(e)
+                        print("type of val is", type(val))
+                        rtr_value=val
+                    print("return value is ", rtr_value)
+                    self.data.append(rtr_value)
+                    self.program_env=program_env_copy
+                    self.ip += 1
+
+                case I.RETURN():
+
+                    print("return value will be ", self.data[-1])
+                    self.ip += 1
+                    print("return value will be after i=i+1 ", self.data[-1])
+                    val=self.data.pop()
+                    raise Exception(val)
+
+
 
 
 
@@ -642,8 +762,28 @@ def do_codegen(program: AST, code: ByteCode) -> None:
             code.emit_label(label2)
             code.emit(I.EXIT_SCOPE())
 
-            
-            
+        case Function(name, args, body):
+            code.emit(I.MAKE_FUNC(name, args, body))
+
+        case FunctionCall(name, args):
+            # enter scope
+
+            code.emit(I.GET_FUNC(name))
+            code.emit(I.ENTER_SCOPE())
+
+            code.emit(I.PUSH_ARGS(args))
+            for arg in args:
+                codegen_(arg)
+
+            code.emit(I.LOAD_ARGS())
+            code.emit(I.EXEC_BODY())
+            # closing the scope when return is called
+            code.emit(I.EXIT_SCOPE())
+        case Return(val):
+            print("In return")
+            codegen_(val)
+            code.emit(I.RETURN())
+
 
 # Program for while nested loop
 
@@ -756,17 +896,80 @@ def test_codegen():
 # test_codegen()
 
 def test_vm():
-    program = Sequence(
+
+
+
+    body = Sequence([Return(NumLiteral(5))])
+    func = Function(Identifier("test"), [], body)
+
+    func_call = FunctionCall(Identifier("test"), [])
+    program2=Sequence(
         [
-            BinOp(NumLiteral(4), '%', NumLiteral(2))
+            func,
+            Assign((Identifier("a"),), (func_call,)),
         ]
     )
-        
+    # code = codegen(program2)
+    # print_bytecode(code)
+    # vm = VM()
+    # vm.load(code)
+    # vm.execute()
 
-    code = codegen(program)
+
+
+    body = Sequence([Return(NumLiteral(5)), Print(StringLiteral("Hello World"))])
+    func = Function(Identifier("test"), [], body)
+
+    func_call = FunctionCall(Identifier("test"), [])
+
+    program3=Sequence(
+        [
+            func,
+            Assign((Identifier("a"),), (func_call,)),
+        ]
+    )
+    # code = codegen(program3)
+    # print_bytecode(code)
+    # vm = VM()
+    # vm.load(code)
+    # vm.execute()
+
+    program4=Sequence(
+        [
+            Function(Identifier("hello"), [], Sequence([ Return(StringLiteral("Hello")) ])),
+    ])
+    # code = codegen(program4)
+    # print_bytecode(code)
+    # vm = VM()
+    # vm.load(code)
+    # vm.execute()
+
+
+    c = ComparisonOp(Identifier('i'), '<', NumLiteral(2))
+
+    if_branch = Sequence([Return(NumLiteral(1))])
+    elif_list = []
+
+    f_call = FunctionCall(Identifier("test"), [BinOp(Identifier('i'), '-', NumLiteral(1))])
+    fact = BinOp(Identifier('i'), '*', f_call)
+    else_branch = Sequence([Return(fact)])
+    body = IfElse(c, if_branch, elif_list, else_branch)
+    func = Function(Identifier("test"), [Identifier('i')], Sequence([body]))
+
+    func_call = FunctionCall(Identifier("test"), [NumLiteral(4)])
+    program5=Sequence(
+        [
+            func,
+            Assign((Identifier("a"),), (func_call,)),
+        ]
+    )
+    code = codegen(program5)
     print_bytecode(code)
     vm = VM()
     vm.load(code)
     vm.execute()
+
+
+
 
 # test_vm()
