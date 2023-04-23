@@ -149,7 +149,7 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             value = eval(right, program_env)
             if op._operator == "=":
                 program_env.update(identifier, value)
-            else:# op is +=, -=, *=, /=, %=, **= (binop of first to second last char)
+            else:# op is +=, -=, *= (binop of first to second last char)
                 v = eval(BinOp(identifier, op._operator[: len(op._operator) -1], right), program_env)
                 program_env.update(identifier, v)
             return None 
@@ -604,8 +604,8 @@ def eval_of_text(program: str):
 if __name__ == "__main__":
     # file = open("ensure_func.txt", "r")
     # file = open("Euler14.txt", "r")
-    file = open("struct.txt", "r")
-    # file = open("program.txt", "r")
+    # file = open("struct.txt", "r")
+    file = open("program.txt", "r")
     program = file.read()
     eval_of_text(program)
     file.close()
