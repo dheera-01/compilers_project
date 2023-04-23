@@ -1,9 +1,9 @@
-from dataclasses import dataclass
-from declaration import *
 from my_debugger_parser import *
 from my_lexer import *
 import copy
 import sys
+from declaration import *
+from dataclasses import dataclass
 
 
 def ReturnException(value: Value):
