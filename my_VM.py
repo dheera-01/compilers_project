@@ -8,6 +8,11 @@ l = []
 class Label:
     target: int
 
+@dataclass
+class CallFrame:
+    caller: Label
+    callee: Label
+
 class I:
     """The instructions for our stack VM."""
 
@@ -158,10 +163,27 @@ class I:
     class RETURN:
         pass
 
+
+
     @dataclass
-    class EXEC_BODY:
+    class CREATE_FRAME:
+        caller: Label
+    @dataclass
+    class DESTROY_FRAME:
         pass
 
+    @dataclass
+    class STORE_LABEL:
+        name: str
+        label: Label
+
+    @dataclass
+    class LOAD_LABEL:
+        name: str
+
+    @dataclass
+    class JMP_TO_FUNC:
+        name: str
 
 Instruction = (
         I.PUSH
@@ -202,7 +224,11 @@ Instruction = (
         | I.PUSH_ARGS
         | I.LOAD_ARGS
         | I.RETURN
-        | I.EXEC_BODY
+        | I.CREATE_FRAME
+        | I.DESTROY_FRAME
+        | I.STORE_LABEL
+        | I.LOAD_LABEL
+        | I.JMP_TO_FUNC
 )
 
 
@@ -293,15 +319,23 @@ def print_bytecode(code: ByteCode):
                 print(f"{i:=4} {'MAKE_FUNC':<15} {name} ")
             case I.GET_FUNC(Identifier(name)):
                 print(f"{i:=4} {'GET_FUNC':<15} {name} ")
-            case I.EXEC_BODY():
-                print(f"{i:=4} {'EXEC_BODY':<15} ")
             case I.RETURN():
-                print(f"{i:=4} {'RETURN':<15} ")
+                print(f"{i:=4} {'RETURN VALUE':<15} ")
             case I.PUSH_ARGS(args):
                 print(f"{i:=4} {'PUSH_ARGS':<15} {args} ")
             case I.LOAD_ARGS():
                 print(f"{i:=4} {'LOAD_ARGS':<15}  ")
 
+            case I.CREATE_FRAME():
+                print(f"{i:=4} {'CREATE_FRAME':<15}  ")
+            case I.DESTROY_FRAME():
+                print(f"{i:=4} {'DESTROY_FRAME':<15}  ")
+            case I.LOAD_LABEL(name):
+                print(f"{i:=4} {'LOAD_LABEL':<15} {name} ")
+            case I.STORE_LABEL(name,label):
+                print(f"{i:=4} {'STORE_LABEL':<15}  ")
+            case I.JMP_TO_FUNC(name):
+                print(f"{i:=4} {'JMP_TO_FUNC':<15} {name} ")
 
 
 
@@ -311,11 +345,14 @@ class VM:
     ip: int
     data: List[Value]
     program_env: Environment()
-
+    call_frame: List[CallFrame]
+    label_dict: dict
     def load(self, bytecode):
         self.bytecode = bytecode
         self.program_env = Environment()
         self.restart()
+        self.call_frame = []
+        self.label_dict={}
 
     def restart(self):
         self.ip = 0
@@ -522,37 +559,57 @@ class VM:
 
                     self.ip += 1
 
-                case I.EXEC_BODY():
-
-                    program_env_copy=Environment()
-                    program_env_copy.envs=self.program_env.envs.copy()
-
-                    func=self.data.pop()
-
-                    body=func.body
-                    rtr_value=None
-                    try:
-                        codegen(body)
-                        rtr_value=None
-                        print("successful")
-                    except Exception as e:
-                        val=e.args[0]
-                        print(e)
-                        print("type of val is", type(val))
-                        rtr_value=val
-                    print("return value is ", rtr_value)
-                    self.data.append(rtr_value)
-                    self.program_env=program_env_copy
-                    self.ip += 1
+                # case I.EXEC_BODY():
+                #
+                #     program_env_copy=Environment()
+                #     program_env_copy.envs=self.program_env.envs.copy()
+                #
+                #     func=self.data.pop()
+                #
+                #     body=func.body
+                #     rtr_value=None
+                #     try:
+                #         codegen(body)
+                #         rtr_value=None
+                #         print("successful")
+                #     except Exception as e:
+                #         val=e.args[0]
+                #         print(e)
+                #         print("type of val is", type(val))
+                #         rtr_value=val
+                #     print("return value is ", rtr_value)
+                #     self.data.append(rtr_value)
+                #     self.program_env=program_env_copy
+                #     self.ip += 1
 
                 case I.RETURN():
 
-                    print("return value will be ", self.data[-1])
-                    self.ip += 1
-                    print("return value will be after i=i+1 ", self.data[-1])
-                    val=self.data.pop()
-                    raise Exception(val)
+                    rtr_value=self.data.pop()
+                    self.data.append(rtr_value)
+                    self.ip = self.call_frame[-1].caller.target
 
+
+
+
+                case I.CREATE_FRAME(caller):
+
+                    callee=self.data.pop()
+                    self.call_frame.append(CallFrame(caller,callee))
+                    self.ip += 1
+                case I.DESTROY_FRAME():
+                    self.call_frame.pop()
+                    self.ip += 1
+                case I.STORE_LABEL(name, label):
+                    self.label_dict[name] = label
+                    self.ip += 1
+
+                case I.LOAD_LABEL(name):
+                    self.data.append(self.label_dict[name])
+
+                    self.ip += 1
+
+                case I.JMP_TO_FUNC(name):
+                    self.ip = self.label_dict[name].target
 
 
 
@@ -762,25 +819,35 @@ def do_codegen(program: AST, code: ByteCode) -> None:
             code.emit_label(label2)
             code.emit(I.EXIT_SCOPE())
 
-        case Function(name, args, body):
-            code.emit(I.MAKE_FUNC(name, args, body))
+        case Function(Identifier(name), args, body):
+            code.emit(I.MAKE_FUNC(Identifier(name), args, body))
+            func_label = code.label()
+            func_start = code.label()
+            code.emit(I.STORE_LABEL(name, func_start))
+            code.emit(I.JMP(func_label))
+            code.emit_label(func_start)
 
-        case FunctionCall(name, args):
+            codegen_(body)
+            code.emit_label(func_label)
+
+
+
+        case FunctionCall(Identifier(name), args):
             # enter scope
-
-            code.emit(I.GET_FUNC(name))
+            code.emit(I.GET_FUNC(Identifier(name)))
             code.emit(I.ENTER_SCOPE())
-
+            func_call_end= code.label()
+            code.emit(I.LOAD_LABEL(name))
+            code.emit(I.CREATE_FRAME(func_call_end))
             code.emit(I.PUSH_ARGS(args))
-            for arg in args:
-                codegen_(arg)
-
             code.emit(I.LOAD_ARGS())
-            code.emit(I.EXEC_BODY())
-            # closing the scope when return is called
+            code.emit(I.JMP_TO_FUNC(name))
             code.emit(I.EXIT_SCOPE())
+            code.emit_label(func_call_end)
+
+
         case Return(val):
-            print("In return")
+
             codegen_(val)
             code.emit(I.RETURN())
 
@@ -899,7 +966,7 @@ def test_vm():
 
 
 
-    body = Sequence([Return(NumLiteral(5))])
+    body = Sequence([Return(StringLiteral("hello"))])
     func = Function(Identifier("test"), [], body)
 
     func_call = FunctionCall(Identifier("test"), [])
@@ -909,35 +976,35 @@ def test_vm():
             Assign((Identifier("a"),), (func_call,)),
         ]
     )
-    # code = codegen(program2)
-    # print_bytecode(code)
-    # vm = VM()
-    # vm.load(code)
-    # vm.execute()
+    code = codegen(program2)
+    print_bytecode(code)
+    vm = VM()
+    vm.load(code)
+    vm.execute()
 
 
 
-    body = Sequence([Return(NumLiteral(5)), Print(StringLiteral("Hello World"))])
-    func = Function(Identifier("test"), [], body)
-
-    func_call = FunctionCall(Identifier("test"), [])
-
-    program3=Sequence(
-        [
-            func,
-            Assign((Identifier("a"),), (func_call,)),
-        ]
-    )
+    # body = Sequence([Return(NumLiteral(5)), Print(StringLiteral("Hello World"))])
+    # func = Function(Identifier("test"), [], body)
+    #
+    # func_call = FunctionCall(Identifier("test"), [])
+    #
+    # program3=Sequence(
+    #     [
+    #         func,
+    #         Assign((Identifier("a"),), (func_call,)),
+    #     ]
+    # )
     # code = codegen(program3)
     # print_bytecode(code)
     # vm = VM()
     # vm.load(code)
     # vm.execute()
 
-    program4=Sequence(
-        [
-            Function(Identifier("hello"), [], Sequence([ Return(StringLiteral("Hello")) ])),
-    ])
+    # program4=Sequence(
+    #     [
+    #         Function(Identifier("hello"), [], Sequence([ Return(StringLiteral("Hello")) ])),
+    # ])
     # code = codegen(program4)
     # print_bytecode(code)
     # vm = VM()
@@ -945,29 +1012,29 @@ def test_vm():
     # vm.execute()
 
 
-    c = ComparisonOp(Identifier('i'), '<', NumLiteral(2))
-
-    if_branch = Sequence([Return(NumLiteral(1))])
-    elif_list = []
-
-    f_call = FunctionCall(Identifier("test"), [BinOp(Identifier('i'), '-', NumLiteral(1))])
-    fact = BinOp(Identifier('i'), '*', f_call)
-    else_branch = Sequence([Return(fact)])
-    body = IfElse(c, if_branch, elif_list, else_branch)
-    func = Function(Identifier("test"), [Identifier('i')], Sequence([body]))
-
-    func_call = FunctionCall(Identifier("test"), [NumLiteral(4)])
-    program5=Sequence(
-        [
-            func,
-            Assign((Identifier("a"),), (func_call,)),
-        ]
-    )
-    code = codegen(program5)
-    print_bytecode(code)
-    vm = VM()
-    vm.load(code)
-    vm.execute()
+    # c = ComparisonOp(Identifier('i'), '<', NumLiteral(2))
+    #
+    # if_branch = Sequence([Return(NumLiteral(1))])
+    # elif_list = []
+    #
+    # f_call = FunctionCall(Identifier("test"), [BinOp(Identifier('i'), '-', NumLiteral(1))])
+    # fact = BinOp(Identifier('i'), '*', f_call)
+    # else_branch = Sequence([Return(fact)])
+    # body = IfElse(c, if_branch, elif_list, else_branch)
+    # func = Function(Identifier("test"), [Identifier('i')], Sequence([body]))
+    #
+    # func_call = FunctionCall(Identifier("test"), [NumLiteral(4)])
+    # program5=Sequence(
+    #     [
+    #         func,
+    #         Assign((Identifier("a"),), (func_call,)),
+    #     ]
+    # )
+    # code = codegen(program5)
+    # print_bytecode(code)
+    # vm = VM()
+    # vm.load(code)
+    # vm.execute()
 
 
 
