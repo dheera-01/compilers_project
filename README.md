@@ -1,13 +1,18 @@
-# compilers_project
-Repository containing the project of compilers course.
+![img.png](img.png)
+# Karma Programming Language
+> "Facing the Code: The Philosophy of Karma Programming Language"
 
-## Feature list provided
+## Acknowledgement:
+
+We would like to express our deepest gratitude to our esteemed professor and dedicated teaching assistant for their invaluable guidance and support throughout the development of this project. Their expertise, mentorship, and unwavering commitment to our learning journey have been instrumental in shaping our understanding and skills in creating the Karma programming language. We are truly grateful for their encouragement, feedback, and patience, which have contributed significantly to the success of this project. Thank you for your invaluable contribution to our education and growth as aspiring programmers.
+
+## Feature list
 - [x] M: A number type and arithmetic.
 - [x] I: Multiple number types such as fractions and integers. Quotient and division are different. Quotient has type (integer, integer) -> integer and division has type (fraction, fraction) -> fraction. An integer can be used wherever a fraction can be used.
 - [x] M: Let expressions.
 - [x] I: Parallel let (See let..and in Ocaml).
 - [x] M: A Boolean type, comparisons, and if-else.
-- [ ] I: An explicit unary boolifying operator. In Perl so x where x has any type produces a Boolean value. For example, if x is a number, it is true when non-zero. If x is a string, it is true when non-empty.
+- [x] I: An explicit unary boolifying operator. In Perl so x where x has any type produces a Boolean value. For example, if x is a number, it is true when non-zero. If x is a string, it is true when non-empty.
 - [x] M: Mutable variables.
 - [x] I: Static type checking. The expression (5>3) + 2 should be an error without evaluating anything.
 - [x] A: Disallow mutable variables to change type. With the binding let mut p = True in ..., the variable p should only be assigned boolean values.
@@ -19,7 +24,7 @@ Repository containing the project of compilers course.
 - [x] I: for loop to iterate over lists.
 - [x] I: Mutable arrays with indexing, appending, popping, concatenation, element assignment.
 - [ ] I: Allow declaration of type of array. For example let xs: Array[int] = [] in ... should prevent xs[0] ← 5/3.
-- [ ] A: Step-by-step debugger for your programming language.
+- [x] A: Step-by-step debugger for your programming language.
 - [x] A: User-defined types – records.
 - [ ] A: First-class functions.
 

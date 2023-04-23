@@ -16,7 +16,7 @@ Output:
 #### Example 2
 ```text
 assign a = 4;
-assign a = 6;
+a = 6;
 print(a);
 ```
 Output:
@@ -39,7 +39,7 @@ Output:
 #### Example 1
 ```text
 const assign a = 5;
-assign a = 6;
+a = 6;
 ```
 Output:
 The above program throws the following error because we are mutating a immutable variable.
