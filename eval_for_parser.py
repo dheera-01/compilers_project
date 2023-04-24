@@ -605,7 +605,7 @@ if __name__ == "__main__":
     # file = open("ensure_func.txt", "r")
     # file = open("Euler14.txt", "r")
     # file = open("struct.txt", "r")
-    file = open("final_programs/3.krm", "r")
+    file = open("final_programs/8.krm", "r")
     program = file.read()
     eval_of_text(program)
     file.close()
