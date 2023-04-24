@@ -1,0 +1,6 @@
+assign lst = [1,2,3,4,5];
+assign len = lst.LEN, summ = 0;
+for(assign i = 0; i < len; i+=1;){
+    summ += lst[i];
+}
+print(summ);

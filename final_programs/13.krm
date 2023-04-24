@@ -1,0 +1,27 @@
+assign lst = [4,0-5,3,1,2];
+print(lst);
+assign len = lst.LEN, maxx = lst[0];
+#finding max
+for(assign i = 0; i < len; i+=1;){
+    if(lst[i] > maxx){
+        maxx = lst[i];
+    }
+}
+#print(maxx);
+
+#finding the minimum
+assign minn = maxx;
+for(assign i = 0; i < len; i+=1;){
+    if(lst[i] < minn){
+        minn = lst[i];
+    }
+}
+#print(minn);
+
+assign second_maxx = minn;
+for(assign i = 0; i < len; i+=1;){
+    if(lst[i] < maxx and lst[i] >= second_maxx){
+        second_maxx = lst[i];
+    }
+}
+print(second_maxx);

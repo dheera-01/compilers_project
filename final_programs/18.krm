@@ -1,0 +1,20 @@
+assign lst = [1,5,2,3,1,7,1,2,6,9];
+assign a = 0, b = 0, c = 0;
+assign len = lst.LEN, found = False;
+for(assign i = 0; i<len; i+=1;){
+    for(assign j = 0; j<len; j+=1;){
+        for(assign k = 0; k<len; k+=1;){
+            if(lst[i] + lst[j] == lst[k]){
+                a = lst[i];
+                b = lst[j];
+                c = lst[k];
+                found = True;
+            }
+        }
+    }
+}
+if(found){
+    print("Found a pair " ~ a ~" "~ b ~" "~ c);
+}else{
+    print("None");
+}

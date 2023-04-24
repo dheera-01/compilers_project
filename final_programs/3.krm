@@ -1,0 +1,13 @@
+assign num1 = 81, num2 = 153;
+assign num1_ = num1, num2_ = num2;
+
+while(num1 != num2){
+    if(num1 > num2){
+        num1 -= num2;
+    }else{
+        num2 -= num1;
+    }
+}
+
+assign rtr = "GCD of " ~ num1_ ~ " " ~ num2_ ~ " is " ~ num1;
+print(rtr);
