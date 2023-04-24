@@ -1,0 +1,31 @@
+assign s = "forgeeksskeegfor";
+assign n = s.LEN;
+# Longest Palindromic Substring 
+assign max = 1;
+assign ans = "";
+for(assign i =0; i<n; i= i +1;)
+{
+    for(assign j = i; j<n; j=j+1;)
+    {
+        assign flag = 1;
+        for(assign k = 0; k<=(j-i)//2; k = k + 1;)
+        {
+            if(s[i+k] != s[j-k])
+            {
+                flag = 0;
+                k = n;
+            }
+        }
+        if(flag == 1)
+        {
+            assign start = i;
+            assign end = j;
+            if (max < (end - start + 1))
+            {
+                max = end - start + 1;
+                ans = slice(s: start: end+1:  1);
+            }
+        }
+    }
+}
+print(ans);

@@ -1,0 +1,29 @@
+# edit distance with all the strings of same length
+assign a = ['cat', 'cay', 'cat'];
+assign n = a.LEN;
+assign ins = a[0];
+assign sl = ins.LEN;
+# find the maximum edit distance
+assign ans = 0;
+assign max = 0;
+for(assign i = 0; i < n; i = i + 1;)
+{
+    for(assign j = i+1; j<n; j = j + 1;)
+    {
+        assign diff = 0;
+        for(assign k = 0; k < sl; k = k + 1;)
+        {
+            assign s1 = a[i];
+            assign s2 = a[j];
+            if(s1[k] != s2[k])
+            {
+                diff = diff + 1;
+            }
+        }
+        if(diff > max)
+        {
+            max = diff;
+        }
+    }
+}
+print (max);

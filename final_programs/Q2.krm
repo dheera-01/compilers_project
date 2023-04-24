@@ -1,0 +1,11 @@
+assign s = "aeiou";
+assign l = s.LEN;
+assign c= 0;
+for(assign i =0; i < l; i = i + 1;)
+{
+    if (s[i] == 'a' or s[i] == 'e' or s[i] == 'i' or s[i] == 'o' or s[i] == 'u')
+    {
+        c = c + 1;
+    }
+}
+print (c);
