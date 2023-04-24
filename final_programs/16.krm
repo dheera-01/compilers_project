@@ -1,0 +1,51 @@
+func partition(arr,l,r)
+{
+    assign x=arr[r];
+    assign i=l;
+    for(assign j=l;j<r;j=j+1;)
+    {
+        if(arr[j]<=x)
+        {
+            assign temp=arr[i];
+            assign arr[i]=arr[j];
+            assign arr[j]=temp;
+            i=i+1;
+        }
+    }
+    assign temp=arr[i];
+    assign arr[i]=arr[r];
+    assign arr[r]=temp;
+    return i;
+}
+
+func kthSmallest(arr, l, r, k){
+    if (k > 0 and k <= r - l + 1) {
+        assign index = partition(arr, l, r);
+  
+        if (index - l == k - 1){return arr[index];}
+        
+        if (index - l > k - 1) {return kthSmallest(arr, l, index - 1, k);}
+            
+        return kthSmallest(arr, index + 1, r, k - index + l - 1);
+    }
+
+    return -1;
+}
+
+func quickselect(arr){
+    assign len = arr.LEN;
+    if(len % 2 == 0){
+        assign num1 = kthSmallest(arr,0,len-1,len//2+1);
+        assign num2 = kthSmallest(arr,0,len-1,len//2);
+        return (num1+num2)/2;
+    }else{
+        assign num1 = kthSmallest(arr,0,len-1,len//2+1);
+        return num1;
+    }
+}
+
+assign arr=[4,2,3,5,1];
+print(quickselect(arr));
+
+arr = [4,2,3,5,1,6];
+print(quickselect(arr));
