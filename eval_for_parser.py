@@ -606,7 +606,7 @@ if __name__ == "__main__":
     # file = open("Euler14.txt", "r")
     # file = open("struct.txt", "r")
     # file = open("Q2.txt", "r")
-    file = open("Q7.txt", "r")
+    file = open("Q12.txt", "r")
     # file = open("program.txt", "r")
     program = file.read()
     eval_of_text(program)
