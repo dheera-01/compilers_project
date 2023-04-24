@@ -1,0 +1,9 @@
+assign s = 'chirg';
+# reverse the string
+assign len = s.LEN;
+assign ans = "";
+for (assign i = 0; i < len; i = i + 1;) 
+{
+    ans = s[i] ~ ans;
+}
+print(ans);
