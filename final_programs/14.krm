@@ -1,0 +1,17 @@
+# assign arr=[3,4,5,1,2,10,9,8];
+assign arr=[1,2,3,0,5];
+# number of inversions in list
+
+assign count=0;
+
+for(assign i=0;i<arr.LEN;i=i+1;)
+{
+    for(assign j=i+1;j<arr.LEN;j=j+1;)
+    {
+        if(arr[i]>arr[j])
+        {
+            count=count+1;
+        }
+    }
+}
+print(count);

@@ -1,0 +1,45 @@
+#assign arr=[4,8,9,2,3,1,5];
+# assign arr=[1,2,3,4,5,6,7];
+
+assign arr=[7,6,5,4,3,2,1];
+func lss(arr,ind,pre)
+{
+    if(ind==0)
+    {
+        if(arr[ind]<pre)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    elif(ind<0)
+    {
+        return 0;
+    }
+    else
+    {
+        assign mx=0;
+        if(arr[ind]<pre)
+        {
+            mx=1+lss(arr,ind-1,arr[ind]);
+        }
+        else
+        {
+            assign temp=lss(arr,ind-1,pre);
+            if(temp>mx)
+            {
+                mx=temp;
+            }
+        }
+        return mx;
+        
+
+    }
+
+}
+
+assign ans=lss(arr,6,1000);
+print(ans);

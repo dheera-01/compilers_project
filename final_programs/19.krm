@@ -1,0 +1,13 @@
+assign number=15;
+
+# convert number to binary
+
+assign output="";
+
+while(number>0)
+{
+    output=number%2+output;
+    number=number//2;
+}
+
+print(output);
