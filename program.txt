@@ -1,20 +1,24 @@
-assign i = 3;
-if(i>5)
-{
-    print("inside if");
-} 
-elif(i == 4)
-{
-    print("elif 1");
-}
-elif(i == 5)
-{
-    print("elif 2");
-}
-else
-{
-    print("else");
-}
+print("hello world");
+assign a = 2 * 1 + (1~3);
+print(a);
+# assign i = 3;
+# i = i + 0;
+# if(i>5)
+# {
+#     print("inside if");
+# } 
+# elif(i == 4)
+# {
+#     print("elif 1");
+# }
+# elif(i == 5)
+# {
+#     print("elif 2");
+# }
+# else
+# {
+#     print("else");
+# }
 
 
 #assign str = "hello";

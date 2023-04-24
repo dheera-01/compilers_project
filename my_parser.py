@@ -352,6 +352,7 @@ class Parser:
             match self.lexer.peek_current_token():
 
                 case Operator(op) if op in "+-~":
+                    # ot = self.lexer.peek_current_token()
                     self.lexer.advance()
                     # print("before parse_add")
                     m = self.parse_mult()
@@ -782,11 +783,10 @@ if __name__ == '__main__':
 
     program = file.read()
     
-    obj_parser = Parser.from_lexer(
-        Lexer.from_stream(Stream.from_string(program)))
+    obj_parser = Parser.from_lexer(Lexer.from_stream(Stream.from_string(program)))
     # print(f"object parser {obj_parser}")
     a = obj_parser.parse_program()
-    # print(a)
+    print(a)
     
     
     #   ----------UNCOMMENT FOR VM CODE ------------
@@ -797,8 +797,4 @@ if __name__ == '__main__':
     # vm.execute()
     #    ----------END-----------------
     
-    
-    # print(a)
-    eval(a)
-    # print(f"Parsed program: {a}")
 

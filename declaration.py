@@ -22,11 +22,11 @@ class NumLiteral:
     column_number: int = 0
     
     
-    # def __repr__(self) -> str:
-    #     return f"NumLiteral({self.value}) [{self.line_number}: {self.column_number}]"
-    
     def __repr__(self) -> str:
-        return f"NumLiteral({self.value})"
+        return f"NumLiteral({self.value}) [{self.line_number}: {self.column_number}]"
+    
+    # def __repr__(self) -> str:
+    #     return f"NumLiteral({self.value})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, NumLiteral):
@@ -41,11 +41,11 @@ class StringLiteral:
     column_number: int = 0
     
     
-    # def __repr__(self) -> str:
-    #     return f"StringLiteral(\"{self.value}\") [{self.line_number}: {self.column_number}]"
-    
     def __repr__(self) -> str:
-        return f"StringLiteral(\"{self.value}\")"
+        return f"StringLiteral(\"{self.value}\") [{self.line_number}: {self.column_number}]"
+    
+    # def __repr__(self) -> str:
+    #     return f"StringLiteral(\"{self.value}\")"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, StringLiteral):
@@ -60,11 +60,11 @@ class FloatLiteral:
     line_number: int = 0
     column_number: int = 0
 
-    # def __repr__(self) -> str:
-    #     return f"FloatLiteral({self.value}) [{self.line_number}: {self.column_number}]"
-
     def __repr__(self) -> str:
-        return f"FloatLiteral({self.value})"
+        return f"FloatLiteral({self.value}) [{self.line_number}: {self.column_number}]"
+
+    # def __repr__(self) -> str:
+    #     return f"FloatLiteral({self.value})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, FloatLiteral):
@@ -77,11 +77,11 @@ class BoolLiteral:
     line_number: int = 0
     column_number: int = 0
 
-    # def __repr__(self) -> str:
-    #     return f"BoolLiteral({self.value}) [{self.line_number}: {self.column_number}]"
-
     def __repr__(self) -> str:
-        return f"BoolLiteral({self.value})"
+        return f"BoolLiteral({self.value}) [{self.line_number}: {self.column_number}]"
+
+    # def __repr__(self) -> str:
+    #     return f"BoolLiteral({self.value})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, BoolLiteral):
@@ -94,11 +94,11 @@ class ListLiteral:
     line_number: int = 0
     column_number: int = 0
 
-    # def __repr__(self) -> str:
-    #     return f"ListLiteral({self.value}) [{self.line_number}: {self.column_number}]"
-    
     def __repr__(self) -> str:
-        return f"ListLiteral({self.value})"
+        return f"ListLiteral({self.value}) [{self.line_number}: {self.column_number}]"
+    
+    # def __repr__(self) -> str:
+    #     return f"ListLiteral({self.value})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, ListLiteral):
@@ -112,11 +112,11 @@ class Keyword:
     column_number: int = 0
 
     
-    # def __repr__(self) -> str:
-    #     return f"Keyword({self.value}) [{self.line_number}: {self.column_number}]"
-
     def __repr__(self) -> str:
-        return f"Keyword({self.value})"
+        return f"Keyword({self.value}) [{self.line_number}: {self.column_number}]"
+
+    # def __repr__(self) -> str:
+    #     return f"Keyword({self.value})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, Keyword):
@@ -130,11 +130,11 @@ class Identifier:
     line_number: int = 0
     column_number: int = 0
 
-    # def __repr__(self) -> str:
-    #     return f"Identifier({self.name}, {self.is_mutable}) [{self.line_number}: {self.column_number}]"
-    
     def __repr__(self) -> str:
-        return f"Identifier({self.name}, {self.is_mutable})"
+        return f"Identifier({self.name}, {self.is_mutable}) [{self.line_number}: {self.column_number}]"
+    
+    # def __repr__(self) -> str:
+    #     return f"Identifier({self.name}, {self.is_mutable})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, Identifier):
@@ -149,11 +149,11 @@ class Operator:
     column_number: int = 0
 
     
-    # def __repr__(self) -> str:
-    #     return f"Operator({self._operator}) [{self.line_number}: {self.column_number}]"
-    
     def __repr__(self) -> str:
-        return f"Operator({self._operator})"
+        return f"Operator({self._operator}) [{self.line_number}: {self.column_number}]"
+    
+    # def __repr__(self) -> str:
+    #     return f"Operator({self._operator})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, Operator):
@@ -167,11 +167,11 @@ class Bracket:
     line_number: int = 0
     column_number: int = 0
     
-    # def __repr__(self) -> str:
-    #     return f"Bracket({self._bracket}) [{self.line_number}: {self.column_number}]"
-
     def __repr__(self) -> str:
-        return f"Bracket({self._bracket})"
+        return f"Bracket({self._bracket}) [{self.line_number}: {self.column_number}]"
+
+    # def __repr__(self) -> str:
+    #     return f"Bracket({self._bracket})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, Bracket):
@@ -198,11 +198,11 @@ class EndOfLine:
     column_number: int = 0
 
     
-    # def __repr__(self) -> str:
-    #     return f"EndOfLine({self._eol}) [{self.line_number}: {self.column_number}]"
-
     def __repr__(self) -> str:
-        return f"EndOfLine({self._eol})"
+        return f"EndOfLine({self._eol}) [{self.line_number}: {self.column_number}]"
+
+    # def __repr__(self) -> str:
+    #     return f"EndOfLine({self._eol})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, EndOfLine):
@@ -215,11 +215,11 @@ class EndOfFile:
     line_number: int = 0
     column_number: int = 0
     
-    # def __repr__(self) -> str:
-    #     return f"EndOfFile({self._eof}) [{self.line_number}: {self.column_number}]"
-
     def __repr__(self) -> str:
-        return f"EndOfFile({self._eof})"
+        return f"EndOfFile({self._eof}) [{self.line_number}: {self.column_number}]"
+
+    # def __repr__(self) -> str:
+    #     return f"EndOfFile({self._eof})"
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, EndOfFile):
@@ -267,11 +267,11 @@ class Print:
     val: 'AST'
     line_number: int = 0
 
-    # def __repr__(self) -> str:
-    #     return f"Print({self.val}) [{self.line_number}]"
-
     def __repr__(self) -> str:
-        return f"Print({self.val})"
+        return f"Print({self.val}) [{self.line_number}]"
+
+    # def __repr__(self) -> str:
+    #     return f"Print({self.val})"
 
 
 @dataclass
@@ -300,29 +300,29 @@ class IfElse:
     #     self.elif_body = elif_
     #     self.else_body = else_
 
-    # def __repr__(self) -> str:
-    #     if len(self.elif_body) == 0 and self.else_body == None:
-    #         return f"if({self.condition}) then\n{self.if_body} [{self.line_number}]"
-    #     if len(self.elif_body) == 0 and self.else_body != None:
-    #         return f"if({self.condition}) then\n{self.if_body}\nelse\n{self.else_body} [{self.line_number}]"
-    #     if len(self.elif_body) != 0 and self.else_body == None:
-    #         elif_string = '\nel'.join(str(e) for e in self.elif_body)
-    #         return f"if({self.condition}) then\n{self.if_body}\nel{elif_string}) [{self.line_number}]"
-    #     elif_string = '\nel'.join(str(e) for e in self.elif_body)
-    #     return f"if({self.condition}) then\n{self.if_body}\nel{elif_string}\nelse\n{self.else_body}) [{self.line_number}]"
-    #     # return f"if({self.condition}) then\n{self.if_body}\nelif\n{self.elif_body}\nelse\n{self.else_body})"
-
     def __repr__(self) -> str:
         if len(self.elif_body) == 0 and self.else_body == None:
-            return f"if({self.condition}) then\n{self.if_body}"
+            return f"if({self.condition}) then\n{self.if_body} [{self.line_number}]"
         if len(self.elif_body) == 0 and self.else_body != None:
-            return f"if({self.condition}) then\n{self.if_body}\nelse\n{self.else_body}"
+            return f"if({self.condition}) then\n{self.if_body}\nelse\n{self.else_body} [{self.line_number}]"
         if len(self.elif_body) != 0 and self.else_body == None:
             elif_string = '\nel'.join(str(e) for e in self.elif_body)
-            return f"if({self.condition}) then\n{self.if_body}\nel{elif_string})"
+            return f"if({self.condition}) then\n{self.if_body}\nel{elif_string}) [{self.line_number}]"
         elif_string = '\nel'.join(str(e) for e in self.elif_body)
-        return f"if({self.condition}) then\n{self.if_body}\nel{elif_string}\nelse\n{self.else_body})"
+        return f"if({self.condition}) then\n{self.if_body}\nel{elif_string}\nelse\n{self.else_body}) [{self.line_number}]"
         # return f"if({self.condition}) then\n{self.if_body}\nelif\n{self.elif_body}\nelse\n{self.else_body})"
+
+    # def __repr__(self) -> str:
+    #     if len(self.elif_body) == 0 and self.else_body == None:
+    #         return f"if({self.condition}) then\n{self.if_body}"
+    #     if len(self.elif_body) == 0 and self.else_body != None:
+    #         return f"if({self.condition}) then\n{self.if_body}\nelse\n{self.else_body}"
+    #     if len(self.elif_body) != 0 and self.else_body == None:
+    #         elif_string = '\nel'.join(str(e) for e in self.elif_body)
+    #         return f"if({self.condition}) then\n{self.if_body}\nel{elif_string})"
+    #     elif_string = '\nel'.join(str(e) for e in self.elif_body)
+    #     return f"if({self.condition}) then\n{self.if_body}\nel{elif_string}\nelse\n{self.else_body})"
+    #     # return f"if({self.condition}) then\n{self.if_body}\nelif\n{self.elif_body}\nelse\n{self.else_body})"
 
 @dataclass
 class While():
@@ -331,11 +331,11 @@ class While():
     body: 'AST'
     line_number: int = 0
     
-    def __repr__(self) -> str:
-        return f"While({self.condition} do {self.body})"
-    
     # def __repr__(self) -> str:
-    #     return f"While({self.condition} do {self.body}) [{self.line_number}]"
+    #     return f"While({self.condition} do {self.body})"
+    
+    def __repr__(self) -> str:
+        return f"While({self.condition} do {self.body}) [{self.line_number}]"
     
 
 @dataclass
@@ -345,16 +345,6 @@ class Assign:
     line_number: int = 0
     
     
-    # def __repr__(self) -> str:
-    #     v_ = self.v
-    #     right_ = self.right
-    #     # if len(self.v) == 1:
-    #     #     v_ = self.v[0]
-    #     # if len(self.right) == 1:
-    #     #     right_ = self.right[0]
-    #
-    #     return f"Assign({v_} = {right_}) [{self.line_number}]"
-
     def __repr__(self) -> str:
         v_ = self.v
         right_ = self.right
@@ -362,8 +352,18 @@ class Assign:
         #     v_ = self.v[0]
         # if len(self.right) == 1:
         #     right_ = self.right[0]
+    
+        return f"Assign({v_} = {right_}) [{self.line_number}]"
 
-        return f"Assign({v_} = {right_})"
+    # def __repr__(self) -> str:
+    #     v_ = self.v
+    #     right_ = self.right
+    #     # if len(self.v) == 1:
+    #     #     v_ = self.v[0]
+    #     # if len(self.right) == 1:
+    #     #     right_ = self.right[0]
+
+    #     return f"Assign({v_} = {right_})"
 
 
 @dataclass
@@ -373,21 +373,21 @@ class Update:
     right: 'AST' or list['AST']
     line_number: int = 0
     
-    # def __repr__(self) -> str:
-    #     right_ = self.right
-    #     # if len(self.v) == 1:
-    #     #     variable_ = self.variable[0]
-    #     # if len(self.right) == 1:
-    #     #     right_ = self.right[0]
-    #     return f"Update({self.variable} {self._operator} {right_}) [{self.line_number}]"
-
     def __repr__(self) -> str:
         right_ = self.right
         # if len(self.v) == 1:
         #     variable_ = self.variable[0]
         # if len(self.right) == 1:
         #     right_ = self.right[0]
-        return f"Update({self.variable} {self._operator} {right_})"
+        return f"Update({self.variable} {self._operator} {right_}) [{self.line_number}]"
+
+    # def __repr__(self) -> str:
+    #     right_ = self.right
+    #     # if len(self.v) == 1:
+    #     #     variable_ = self.variable[0]
+    #     # if len(self.right) == 1:
+    #     #     right_ = self.right[0]
+    #     return f"Update({self.variable} {self._operator} {right_})"
 
 
 
@@ -399,11 +399,11 @@ class For:
     body : Sequence
     line_number: int = 0
     
-    def __repr__(self) -> str:
-        return f"For(({self.exp1} ;{self.condition};{self.exp2};) do {self.body})"
-
     # def __repr__(self) -> str:
-    #     return f"For(({self.exp1} ;{self.condition};{self.exp2};) do {self.body}) [{self.line_number}]"
+    #     return f"For(({self.exp1} ;{self.condition};{self.exp2};) do {self.body})"
+
+    def __repr__(self) -> str:
+        return f"For(({self.exp1} ;{self.condition};{self.exp2};) do {self.body}) [{self.line_number}]"
     
 @dataclass
 class Indexer:
@@ -430,23 +430,33 @@ class Function:
     name: Identifier
     args: list[Identifier]
     body: Sequence
+    line_number: int = 0
 
     def __repr__(self) -> str:
-        return f"Function({self.name}({self.args}) )"
+        return f"Function({self.name}({self.args}) ) [{self.line_number}]"
+    
+    # def __repr__(self) -> str:
+    #     return f"Function({self.name}({self.args}) )"
+    
 @dataclass
 class FunctionCall:
     name: Identifier
     args: list['AST']
+    line_number: int = 0
 
     def __repr__(self) -> str:
-        return f"FunctionCall({self.name}({self.args}))"
+        return f"FunctionCall({self.name}({self.args})) [{self.line_number}]]"
+    # def __repr__(self) -> str:
+    #     return f"FunctionCall({self.name}({self.args}))"
 
 @dataclass
 class Return:
     val: 'AST'
-
+    line_number: int = 0
     def __repr__(self) -> str:
-        return f"Return({self.val})"
+        return f"Return({self.val}) [{self.line_number}]"
+    # def __repr__(self) -> str:
+    #     return f"Return({self.val})"
 
 @dataclass
 class Boolify:
@@ -465,6 +475,8 @@ class KeyError(Exception):
 class EndOfLineError(Exception):
     pass
 
+class ReturnProgram(Exception):
+    pass
 
 @dataclass
 class Struct:
@@ -618,6 +630,8 @@ class Environment:
 
 
 
+
+
 display_output = [] # list to store the output of print statements as strings
 inbuilt_data_types = [NumLiteral, StringLiteral, BoolLiteral, FloatLiteral, ListLiteral] # list of in build datatype data types
 user_defined_data_types = {} # dictionary to store user defined data types
@@ -625,6 +639,8 @@ user_defined_data_types = {} # dictionary to store user defined data types
 
 source_code = []
 
+
+errro_class = InvalidProgram| KeyError| EndOfLineError
 Value_literal = int | float | bool | str
 Value = None | NumLiteral | StringLiteral | BoolLiteral | FloatLiteral | ListLiteral | Struct 
 AST = Value | Identifier | Sequence | BinOp | ComparisonOp | UnaryOp | Let | Assign | Update | Indexer| IfElse | While | For | Print | Keyword | Operator | Bracket | Comments | EndOfLine | EndOfFile | Function | FunctionCall | Return

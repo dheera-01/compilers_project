@@ -347,19 +347,19 @@ def eval(program: AST, program_env:Environment = None) -> Value:
             eval_right = eval(right, program_env)
 
             try:
-                if isinstance(eval_left, StringLiteral) or isinstance(eval_right, StringLiteral):
-                    res = str(eval_literals(eval_left)) + str(eval_literals(eval_right))
-                    return StringLiteral(res)
+                addition_similar = [NumLiteral, FloatLiteral]
+                res = eval_literals(eval_left) + eval_literals(eval_right)
+                if type(eval_left) == NumLiteral and type(eval_right) == NumLiteral:
+                    return NumLiteral(res)
+                elif type(eval_left) in addition_similar and type(eval_right) in addition_similar:
+                    return FloatLiteral(res)
                 else:
-                    res = eval_literals(eval_left) + eval_literals(eval_right)
-                    if isinstance(eval_left, FloatLiteral) or isinstance(eval_right, FloatLiteral):
-                        return FloatLiteral(res)
-                    else:
-                        return NumLiteral(res)
+                    raise Exception
             except Exception as e:
                 # raise TypeError(f"+ not supported between instances of {type(eval_left).__name__} and {type(eval_right).__name__}")
                 raise InvalidProgram(
-                    f"+ not supported between instances of {left} and {right}")
+                    f"+ not supported between instances of {eval_left} and {eval_right}")
+
 
         case BinOp(left, "-", right):
             eval_left = eval(left, program_env)
@@ -443,13 +443,8 @@ def eval(program: AST, program_env:Environment = None) -> Value:
                 if eval_left.__class__.__name__ in concat_similar_addition and eval_right.__class__.__name__ in concat_similar_addition:
                     res = str(eval_literals(eval_left)) + str(eval_literals(eval_right))
                     return StringLiteral(res)
-                raise InvalidProgram(
-                    f"~ not supported between instances of {eval_left} and {eval_right}")
             except Exception as e:
-                raise TypeError(
-                    f"+ not supported between instances of {type(eval_left).__name__} and {type(eval_right).__name__}")
-                raise InvalidProgram(
-                    f"~ not supported between instances of {eval_left} and {eval_right}")
+                raise InvalidProgram(f"~ not supported between instances of {eval_left} and {eval_right}")
 
         case Indexer(identifier, indexVal1, indexVal2, indexVal3):
             # print(f"identifier: {identifier}, indexVal: {indexVal}")

@@ -60,16 +60,12 @@ class Debugger:
                         print(f"{self.program_env}")
                     else:
                         print(f"command[1]: {command[1]}")
-                        try:
-                            print(f"hello: {self.program_env.get(command[1])}")
-                        except Exception as e:
-                            print(e)
                 elif cmd == "c" or cmd == "current": # current line
                     print(f"PC-> {line_number}: {source_code[line_number]}")
                 else:
                     print(f"Invalid command: {command[0]}")
             except Exception as e:
-                print(f"Invalid command: {command}")
+                print(e)
     
     
     def eval_literals(self, literal: Value) -> Value_literal:
@@ -491,16 +487,19 @@ class Debugger:
 
 
             case FunctionCall(function, args):
-                self.program_env_copy=Environment()
-                self.program_env_copy.envs=self.program_env.envs.copy()
+                program_env_copy=Environment()
+                program_env_copy.envs=self.program_env.envs.copy()
 
                 func=self.program_env.get(function.name)
                 func_args=func.args
                 # print("function args are ",func_args[0])
 
-                evaled_args=[]
+                evaled_args: List[AST] = []
                 for i in range(len(args)):
-                    evaled_args.append(eval(args[i],self.program_env))
+                    # print("args are ",args[i])
+                    # print(f"type args are {type(args[i])}")
+                    # print(f'eval args are {self.eval(args[i])}')
+                    evaled_args.append(self.eval(args[i]))
 
 
                 self.program_env.enter_scope()
@@ -514,33 +513,31 @@ class Debugger:
                 rtr_value = None
 
                 try:
-                    eval(func.body,self.program_env)
+                    self.eval(func.body)
                     rtr_value=None
 
                 except Exception as e:
                     rtr_value=None
-                    if(isinstance(rtr_value,AST)):
+                    if(isinstance(e,ReturnProgram)):
                         rtr_value = e.args[0]
-
                     else:
-                        print(e)
+                        raise e
 
 
                 # fibo works when we exit scope twice why?
                 self.program_env.exit_scope()
 
 
-                self.program_env.restore(self.program_env_copy.envs)
+                self.program_env.restore(program_env_copy.envs)
 
                 return rtr_value
 
             case Return(val):
-
-                raise Exception(eval(val,self.program_env))
+                raise ReturnProgram(self.eval(val))
 
             case Function(name, args, body):
                 self.program_env.add(name, Function(name, args, body))
-                # add program evironment with function keep track of args
+                # add program environment with function keep track of args
                 # initialize args with None
                 # replace them while function call
                 return None
@@ -558,8 +555,13 @@ def eval_of_text(program: str):
 def eval_of_file(file_name: str):
     file = open(file_name, "r")
     program = file.read()
-    eval_of_text(program)
+    try:
+        eval_of_text(program)
+    except Exception as e:
+        print(e)
+    # eval_of_text(program)
     file.close()
 
 if __name__ == "__main__":
     eval_of_file("program.txt")
+

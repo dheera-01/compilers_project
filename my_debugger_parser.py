@@ -1,5 +1,4 @@
 from my_lexer import *
-from eval_for_parser import *
 from dataclasses import dataclass
 from my_VM import *
 import sys
@@ -614,29 +613,32 @@ class Parser:
     def parse_func(self):
         """parse the function expression
         """
+        line_number = self.lexer.peek_current_token().line_number
         self.lexer.match(Keyword("func"))
         func_name,args = self.parse_atom(is_func=True)
 
         body = self.parse_block()
 
-        return Function(func_name, args, body)
+        return Function(func_name, args, body, line_number)
 
     def parse_return(self):
         """parse the return expression
         """
+        line_number = self.lexer.peek_current_token().line_number
         self.lexer.match(Keyword("return"))
         return_value = self.parse_simple()
         self.lexer.match(EndOfLine(";"))
-        return Return(return_value)
+        return Return(return_value, line_number)
 
     def parse_func_call(self):
         """parse the function call expression
         """
+        line_number = self.lexer.peek_current_token().line_number
         func_name= self.parse_atom()
-
+        print("func_name: ",func_name)
         args = self.parse_args()
         self.lexer.match(EndOfLine(";"))
-        return FunctionCall(func_name, args)
+        return FunctionCall(func_name, args, line_number)
 
 
 
