@@ -1,4 +1,4 @@
-assign lst = [4,0-5,3,1,2];
+assign lst = [4,4,0-5,3,1,2];
 print(lst);
 assign len = lst.LEN, maxx = lst[0];
 #finding max
