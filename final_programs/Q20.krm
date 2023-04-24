@@ -1,0 +1,30 @@
+# NOTE: 
+# For negative numbers, we are considering the sum to be 0 - Num
+
+# Different cases
+assign arr = [5,4,0-1,7,8];    
+#OUTPUT : 23
+
+
+#assign arr = [0-2,1,0-3,4,0-1,2,1,0-5,4];  
+#OUTPUT : 6
+
+
+#assign arr = [1];
+# OUTPUT 1
+
+
+assign n = arr.LEN;
+assign sum = arr[0];
+assign MaxPosSum = arr[0];
+
+for(assign i = 1; i < n; i = i + 1;){
+    if(sum < 0){
+        sum = 0;
+    }
+    sum += arr[i];
+    if(sum > MaxPosSum){
+        MaxPosSum = sum;
+    }
+}
+print(MaxPosSum);
