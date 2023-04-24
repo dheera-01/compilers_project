@@ -15,22 +15,55 @@ struct_instance = []
 @dataclass
 class Debugger:
     program_env: Environment = Environment()
+    break_points = []
+    run_flag: bool = False
+    
+    
     
     def user_command(self, line_number) -> None:
+        if self.run_flag != False:
+            return None
         print(f"PC-> {line_number}: {source_code[line_number]}")
         while True:
             command = input("(Karma Debugger) ").split()
             try: 
                 cmd = command[0]
                 if cmd == "n" or cmd == "next": # next
+                    # remove the break point at the current line if there is one
+                    if line_number in self.break_points:
+                        self.break_points.remove(line_number)
+                    for i, bp in enumerate(self.break_points):
+                        if bp < line_number:
+                            self.break_points.remove(bp)
                     return None
                 elif cmd == "q" or cmd == "quit": # quit
                     sys.exit()
+                elif cmd == "b" or cmd == "break": # break
+                    if len(command) == 1 or not command[1].isdigit():
+                        print(f"SyntaxError: invalid syntax for break")
+                    else:
+                        if int(command[1]) in self.break_points:
+                            print(f"Breakpoint already set at line {command[1]}")
+                        elif int(command[1]) >= len(source_code) or int(command[1]) < 0:
+                            print(f"Breakpoint cannot be set at line {command[1]}")
+                        elif int(command[1]) < line_number:
+                            print(f"Breakpoint can only be set at line >= {line_number}")
+                        else:
+                            self.break_points.append(int(command[1]))
+                            self.break_points.sort()
+                            print(f"Breakpoint set at line {command[1]}")
+                elif cmd == "r" or cmd == "run": # run
+                    self.run_flag = True
+                    return None
                 elif cmd == "p" or cmd == "print": # print the environment
                     if len(command) == 1:
                         print(f"{self.program_env}")
                     else:
-                        print(f"{self.program_env.get(command[1])}")
+                        print(f"command[1]: {command[1]}")
+                        try:
+                            print(f"hello: {self.program_env.get(command[1])}")
+                        except Exception as e:
+                            print(e)
                 elif cmd == "c" or cmd == "current": # current line
                     print(f"PC-> {line_number}: {source_code[line_number]}")
                 else:

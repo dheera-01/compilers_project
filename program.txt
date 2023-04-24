@@ -1,6 +1,25 @@
-assign str = "hello";
-assign lst = [];
-for(assign i = 4; i >= 0; i = i - 1;) {
-    lst.APPEND(str[i]);
+assign i = 3;
+if(i>5)
+{
+    print("inside if");
+} 
+elif(i == 4)
+{
+    print("elif 1");
 }
-print(lst);
+elif(i == 5)
+{
+    print("elif 2");
+}
+else
+{
+    print("else");
+}
+
+
+#assign str = "hello";
+#assign lst = [];
+#for(assign i = 4; i >= 0; i = i - 1;) {
+#    lst.APPEND(str[i]);
+#}
+#print(lst);
