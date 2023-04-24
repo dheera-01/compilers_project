@@ -1,0 +1,48 @@
+assign a = 11;
+assign c = 1;
+assign m = 62;
+
+assign arr = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+              'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+              'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D',
+              'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
+              'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+              'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7',
+              '8', '9'];
+
+
+func generate_password(x){
+    assign password = "";
+    assign has_upper = 0;
+    assign has_lower = 0;
+    assign has_digit = 0;
+    assign char = '';
+
+    while(password.LEN < 8 or has_upper == 0 or has_lower == 0 or has_digit == 0){
+        x = (a * x + c) % m;
+        char = arr[x % 62];
+
+        for(assign j = 0; j < 26; j = j + 1;){
+            if(char == arr[j]){
+                has_lower = 1;
+            }
+        }
+        
+        for(assign j = 26; j < 52; j = j + 1;){
+            if(char == arr[j]){
+                has_upper = 1;
+            }
+        }
+
+        for(assign j = 52; j < 62; j = j + 1;){
+            if(char == arr[j]){
+                has_digit = 1;
+            }
+        }
+        password = password + char;
+    }
+    return password;
+}
+
+
+print(generate_password(6));

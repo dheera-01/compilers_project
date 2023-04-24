@@ -778,7 +778,7 @@ def parse_code_file(file_location:str):
 if __name__ == '__main__':
 
     # file = open("ensure_func.txt", "r")
-    file = open("program.txt", "r")
+    file = open("final_programs/Q5.krm", "r")
 
     program = file.read()
     

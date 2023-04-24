@@ -439,7 +439,7 @@ class Lexer:
 if __name__ == "__main__":
 
     # testing on playground
-    file=open("program.txt", "r")
+    file=open("final_programs/Q5.krm", "r")
     program=file.read()
 
     # print(Lexer.from_stream(Stream.from_string(program)))

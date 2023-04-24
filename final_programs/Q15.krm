@@ -1,0 +1,14 @@
+# Take a number and output its factorial (e.g. 5! = 5*4*3*2*1 = 120)
+func fact(a) {
+    if(a==1) {
+        return 1;
+    }
+    else {
+        return a*fact(a-1);
+    }
+}
+
+# Change the n value when required
+assign n = 6;
+
+print(fact(n));
