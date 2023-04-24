@@ -1,0 +1,13 @@
+assign sentence="Hello World, this is mars";
+
+# output no of words in the sentence
+assign count=0;
+for(assign i=0;i<sentence.LEN;i=i+1;)
+{
+    if(sentence[i]==" " or sentence[i]=="," or sentence[i]=="." or sentence[i]=="!" or sentence[i]=="?")
+    {
+        count=count+1;
+    }
+}
+
+print(count);

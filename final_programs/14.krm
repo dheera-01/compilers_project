@@ -1,15 +1,17 @@
-assign l=[22,21,19,16,18,10];
-assign inv=0;
-assign len = l.LEN;
-for(assign i=0,j=1;i<len;i=i+1;)
+# assign arr=[3,4,5,1,2,10,9,8];
+assign arr=[1,2,3,0,5];
+# number of inversions in list
+
+assign count=0;
+
+for(assign i=0;i<arr.LEN;i=i+1;)
 {
-    if(j<6)
+    for(assign j=i+1;j<arr.LEN;j=j+1;)
     {
-    if(l[i]>l[j])
- {
- inv=inv+1;
- }
-j=j+1;
+        if(arr[i]>arr[j])
+        {
+            count=count+1;
+        }
+    }
 }
-}
-print(inv);
+print(count);
