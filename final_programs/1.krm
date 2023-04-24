@@ -1,6 +1,6 @@
 assign num=19;
 assign c=0;
-for(assign i=2;i<19;i=i+1;)
+for(assign i=2;i<num;i=i+1;)
 {
     if(num%i==0)
 {

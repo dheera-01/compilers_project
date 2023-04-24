@@ -1,5 +1,5 @@
-assign s="aba";
-assign len=3;
+assign s="abac";
+assign len=s.LEN;
 assign str=slice(s:len-1:0:0-1)+slice(s:0:1:1);
 if(s==str)
 {

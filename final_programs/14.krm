@@ -1,6 +1,7 @@
 assign l=[22,21,19,16,18,10];
 assign inv=0;
-for(assign i=0,j=1;i<5;i=i+1;)
+assign len = l.LEN;
+for(assign i=0,j=1;i<len;i=i+1;)
 {
     if(j<6)
     {
