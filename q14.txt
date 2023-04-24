@@ -1,0 +1,14 @@
+assign l=[22,21,19,16,18,10];
+assign inv=0;
+for(assign i=0,j=1;i<5;i=i+1;)
+{
+    if(j<6)
+    {
+    if(l[i]>l[j])
+ {
+ inv=inv+1;
+ }
+j=j+1;
+}
+}
+print(inv);

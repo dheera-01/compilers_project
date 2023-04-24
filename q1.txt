@@ -1,0 +1,17 @@
+assign num=19;
+assign c=0;
+for(assign i=2;i<19;i=i+1;)
+{
+    if(num%i==0)
+{
+    c=c+1;
+}
+}
+if(c==0)
+{
+print("prime");
+}
+else
+{
+print("composite");
+}

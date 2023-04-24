@@ -1,6 +1,0 @@
-assign str = "hello";
-assign lst = [];
-for(assign i = 4; i >= 0; i = i - 1;) {
-    lst.APPEND(str[i]);
-}
-print(lst);
